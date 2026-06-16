@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://bc1vrse2780ma"]
+
+[ext_resource type="Script" uid="uid://bkiv0hphe1gog" path="res://scripts/DamageNumber.gd" id="1_aie4f"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_idkk3"]
+font_color = Color(0.8784314, 0.09019608, 0.08627451, 1)
+outline_size = 6
+outline_color = Color(0, 0, 0, 1)
+
+[node name="DamageNumber" type="Label"]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "-1"
+label_settings = SubResource("LabelSettings_idkk3")
+script = ExtResource("1_aie4f")

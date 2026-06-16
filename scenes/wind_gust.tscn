@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://bli5rv1u4uob0"]
+
+[ext_resource type="Texture2D" uid="uid://cd387iumu8tfn" path="res://assets/img/rafaga.png" id="1_6l6hn"]
+[ext_resource type="Script" uid="uid://dn3dcfo66v0cg" path="res://scripts/WindGust.gd" id="1_6pxwh"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6pxwh"]
+size = Vector2(28, 32)
+
+[node name="wind_gust" type="Area2D"]
+script = ExtResource("1_6pxwh")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_6l6hn")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-2, 0)
+shape = SubResource("RectangleShape2D_6pxwh")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]

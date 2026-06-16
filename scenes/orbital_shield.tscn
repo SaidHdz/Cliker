@@ -1,0 +1,77 @@
+[gd_scene load_steps=7 format=3 uid="uid://b7ielergpm1x"]
+
+[ext_resource type="Texture2D" uid="uid://cwgi560bgbvyi" path="res://assets/img/shield.png" id="1_5no5h"]
+[ext_resource type="Script" uid="uid://biu5gvngdom0" path="res://scripts/OrbitalShield.gd" id="1_keo61"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5no5h"]
+size = Vector2(18, 20)
+
+[sub_resource type="Animation" id="Animation_5no5h"]
+resource_name = "rotar"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 6.2831855]
+}
+
+[sub_resource type="Animation" id="Animation_keo61"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_k005o"]
+_data = {
+&"RESET": SubResource("Animation_keo61"),
+&"rotar": SubResource("Animation_5no5h")
+}
+
+[node name="OrbitalShield" type="Node2D"]
+script = ExtResource("1_keo61")
+
+[node name="Hoja1" type="Area2D" parent="."]
+position = Vector2(30, -5.2453665e-06)
+
+[node name="Sprite2D" type="Sprite2D" parent="Hoja1"]
+position = Vector2(50, 0)
+texture = ExtResource("1_5no5h")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hoja1"]
+position = Vector2(46, 0)
+shape = SubResource("RectangleShape2D_5no5h")
+
+[node name="Hoja2" type="Area2D" parent="."]
+position = Vector2(-30, 5.2453665e-06)
+
+[node name="Sprite2D" type="Sprite2D" parent="Hoja2"]
+position = Vector2(-50, 1)
+texture = ExtResource("1_5no5h")
+flip_h = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hoja2"]
+position = Vector2(-46, 8.042895e-06)
+shape = SubResource("RectangleShape2D_5no5h")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_k005o")
+}
+
+[connection signal="area_entered" from="Hoja1" to="." method="_on_hoja_1_area_entered"]
+[connection signal="area_entered" from="Hoja2" to="." method="_on_hoja_2_area_entered"]

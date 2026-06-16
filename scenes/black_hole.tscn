@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://dtw8kf8rk4txm"]
+
+[ext_resource type="Texture2D" uid="uid://crt8ig37dg4je" path="res://assets/img/vortice.png" id="1_fhwcw"]
+[ext_resource type="Script" uid="uid://bgswn141x31i2" path="res://scripts/BlackHole.gd" id="1_ic33f"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_fhwcw"]
+radius = 37.215588
+
+[node name="black_hole" type="Area2D"]
+script = ExtResource("1_ic33f")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_fhwcw")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_fhwcw")

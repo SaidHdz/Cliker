@@ -1,0 +1,66 @@
+[gd_scene load_steps=4 format=3 uid="uid://cxuvyxxfgdysh"]
+
+[ext_resource type="Script" uid="uid://bt87jp6tm7kq4" path="res://scripts/GameOver.gd" id="1_6bcno"]
+[ext_resource type="LabelSettings" uid="uid://d2ej7h3xd4dd3" path="res://scenes/Font.tres" id="2_vuicl"]
+[ext_resource type="FontFile" uid="uid://dsvp1oqy7jude" path="res://assets/fuentes/BoldPixels.ttf" id="3_4noiy"]
+
+[node name="GameOver" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_6bcno")
+
+[node name="Overlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.470588)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -50.0
+offset_right = 100.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "MUERTO"
+label_settings = ExtResource("2_vuicl")
+horizontal_alignment = 1
+
+[node name="BtnRestart" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_4noiy")
+theme_override_font_sizes/font_size = 32
+text = "Reintentar"
+
+[node name="BtnMenu" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_4noiy")
+theme_override_font_sizes/font_size = 32
+text = "Menú Principal"
+
+[node name="StatsLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "stats"
+label_settings = ExtResource("2_vuicl")
+horizontal_alignment = 1
+
+[connection signal="pressed" from="VBoxContainer/BtnRestart" to="." method="_on_btn_restart_pressed"]
+[connection signal="pressed" from="VBoxContainer/BtnMenu" to="." method="_on_btn_menu_pressed"]

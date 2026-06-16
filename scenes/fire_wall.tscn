@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://c1t56ng4ya1yl"]
+
+[ext_resource type="Script" uid="uid://d74jtjki2ltd" path="res://scripts/FireWall.gd" id="1_bfe0p"]
+[ext_resource type="Texture2D" uid="uid://dd6oonv6fnukb" path="res://assets/img/fire.png" id="1_h3sc0"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bfe0p"]
+size = Vector2(13.143853, 30.94646)
+
+[node name="fire_wall" type="Area2D"]
+script = ExtResource("1_bfe0p")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+rotation = -1.5707964
+texture = ExtResource("1_h3sc0")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0.47000957, -2.4366498)
+rotation = -1.5707964
+shape = SubResource("RectangleShape2D_bfe0p")

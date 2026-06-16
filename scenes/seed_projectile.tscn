@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://b7iiwmenpm7sg"]
+
+[ext_resource type="Texture2D" uid="uid://chd5ge7d2arm3" path="res://assets/img/Hoja.png" id="1_mttrq"]
+[ext_resource type="Script" uid="uid://cqcqrctim07r5" path="res://scripts/SeedProjectile.gd" id="1_n82c3"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mttrq"]
+size = Vector2(29, 15)
+
+[node name="SeedProjectile" type="Area2D"]
+script = ExtResource("1_n82c3")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_mttrq")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-0.5, 1.5)
+shape = SubResource("RectangleShape2D_mttrq")

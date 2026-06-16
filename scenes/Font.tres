@@ -1,0 +1,9 @@
+[gd_resource type="LabelSettings" load_steps=2 format=3 uid="uid://d2ej7h3xd4dd3"]
+
+[ext_resource type="FontFile" uid="uid://dsvp1oqy7jude" path="res://assets/fuentes/BoldPixels.ttf" id="1_bjc1d"]
+
+[resource]
+font = ExtResource("1_bjc1d")
+font_size = 32
+outline_size = 10
+outline_color = Color(0, 0, 0, 1)

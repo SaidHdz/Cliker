@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://dorvg21fifrvb"]
+
+[ext_resource type="Script" uid="uid://ct5exg1xtgfd" path="res://scripts/ToxicShot.gd" id="1_1beop"]
+[ext_resource type="Texture2D" uid="uid://65e714iunx0n" path="res://assets/img/ToxicShot.png" id="1_ayiwe"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ayiwe"]
+size = Vector2(25, 5)
+
+[node name="ToxicShot" type="Area2D" groups=["enemies"]]
+script = ExtResource("1_1beop")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_ayiwe")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-2.5, -0.5)
+shape = SubResource("RectangleShape2D_ayiwe")

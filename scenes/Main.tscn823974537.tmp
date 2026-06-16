@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=3 uid="uid://bhicpdqjtfn1g"]
+
+[ext_resource type="Script" uid="uid://8c8emto1uoic" path="res://scripts/Main.gd" id="1_main"]
+[ext_resource type="Texture2D" uid="uid://cujt2jf387xu6" path="res://assets/icon.svg" id="2_island"]
+[ext_resource type="Script" uid="uid://p4jerqajtahp" path="res://scripts/HUD.gd" id="3_0bbpv"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="Island" type="Sprite2D" parent="."]
+position = Vector2(6.4999847, 5.9999695)
+scale = Vector2(9.0703125, 5.1406255)
+texture = ExtResource("2_island")
+region_rect = Rect2(0, 0, 128, 128)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="Spawner" type="Node2D" parent="."]
+
+[node name="SpawnTimer" type="Timer" parent="Spawner"]
+wait_time = 2.0
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("3_0bbpv")
+
+[node name="CoinsLabel" type="Label" parent="HUD"]
+offset_right = 75.0
+offset_bottom = 25.0
+text = "0"

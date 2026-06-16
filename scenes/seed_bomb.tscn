@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://cgdc53m6tuaq3"]
+
+[ext_resource type="Script" uid="uid://clyayo506krrp" path="res://scripts/SeedBomb.gd" id="1_qa5p8"]
+[ext_resource type="Texture2D" uid="uid://ccdxynuwb18ma" path="res://assets/img/bomba.png" id="1_tr2au"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_qa5p8"]
+radius = 37.65634
+
+[node name="SeedBomb" type="Area2D"]
+script = ExtResource("1_qa5p8")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_tr2au")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_qa5p8")

@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://citxenxsttwwv"]
+
+[ext_resource type="Texture2D" uid="uid://bb665l87he3ms" path="res://assets/img/cofre.png" id="1_oii8l"]
+[ext_resource type="Script" uid="uid://cuhdyxweavocg" path="res://scripts/Chest.gd" id="1_sy5e1"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_oii8l"]
+size = Vector2(32, 31)
+
+[node name="Chest" type="Area2D"]
+script = ExtResource("1_sy5e1")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_oii8l")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 0.5)
+shape = SubResource("RectangleShape2D_oii8l")
