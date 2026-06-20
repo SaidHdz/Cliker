@@ -16,4 +16,6 @@ func _ready() -> void:
 func _on_tick() -> void:
 	for body in get_overlapping_areas():
 		if body.is_in_group("enemies") and body.has_method("take_damage"):
-			body.take_damage(damage_per_tick)
+			body.take_damage(damage_per_tick, false, "poison")
+			if body.has_method("apply_poison"):
+				body.apply_poison()

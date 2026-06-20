@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://b8m3y8j6n4j6k"]
+
+[ext_resource type="PackedScene" uid="uid://c6y7d3p2f4k5m" path="res://scenes/Enemy.tscn" id="1_base"]
+[ext_resource type="Texture2D" uid="uid://dmoyuy4vawqp1" path="res://assets/img/alien_normal.png" id="2_y6wbx"]
+
+[node name="AlienNormal" instance=ExtResource("1_base")]
+custom_texture = ExtResource("2_y6wbx")
+move_speed = 65.0

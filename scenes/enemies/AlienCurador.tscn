@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://c6ccp0qq71s8y"]
+
+[ext_resource type="PackedScene" uid="uid://c6y7d3p2f4k5m" path="res://scenes/Enemy.tscn" id="1_base"]
+[ext_resource type="Texture2D" uid="uid://bpiul5hm1srhy" path="res://assets/img/alien_curandero.png" id="2_xu7w4"]
+
+[node name="AlienCurador" instance=ExtResource("1_base")]
+current_variant = 5
+base_hp_mult = 1.5
+base_speed_mult = 1.2
+custom_texture = ExtResource("2_xu7w4")

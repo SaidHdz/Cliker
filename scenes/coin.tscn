@@ -76,7 +76,7 @@ animations = [{
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_kahox"]
 
-[node name="Coin" type="RigidBody2D"]
+[node name="Coin" type="RigidBody2D" groups=["coins", "orbs"]]
 scale = Vector2(2, 2)
 input_pickable = true
 gravity_scale = 3.0

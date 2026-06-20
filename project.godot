@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="IslaCliker"
+config/name="Don't Touch My Radish"
 run/main_scene="res://scenes/MenuInicio.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="res://assets/icon.svg"
@@ -24,12 +24,15 @@ AudioManager="*res://scripts/AudioManager.gd"
 
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+window/handheld/orientation="portrait"
 
 [global_group]
 
 base=""
 BaseRabanito=""
 enemies=""
+orbs=""
+coins=""
 
 [rendering]
 

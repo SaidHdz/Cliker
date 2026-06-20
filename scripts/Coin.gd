@@ -8,6 +8,7 @@ var magnet_speed: float = 800.0
 
 func _ready() -> void:
 	add_to_group("orbs")
+	add_to_group("coins")
 	# Impulso aleatorio inicial hacia arriba (caída)
 	var direction = Vector2(randf_range(-1, 1), randf_range(-1, -1.5)).normalized()
 	apply_central_impulse(direction * randf_range(300, 600))

@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://cxh5yujouyi8"]
+
+[ext_resource type="PackedScene" uid="uid://c6y7d3p2f4k5m" path="res://scenes/Enemy.tscn" id="1_base"]
+
+[node name="AlienSniper" instance=ExtResource("1_base")]
+modulate = Color(0.729412, 0.333333, 0.827451, 1)
+move_speed = 45.0
+current_variant = 6
+base_hp_mult = 1.0

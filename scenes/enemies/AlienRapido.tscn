@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://d8ae7nx4xqgv"]
+
+[ext_resource type="PackedScene" uid="uid://c6y7d3p2f4k5m" path="res://scenes/Enemy.tscn" id="1_base"]
+
+[node name="AlienRapido" instance=ExtResource("1_base")]
+move_speed = 160.0
+current_variant = 2
+base_hp_mult = 0.6
+base_speed_mult = 1.3

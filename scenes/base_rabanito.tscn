@@ -1,10 +1,46 @@
-[gd_scene load_steps=4 format=3 uid="uid://bx8kkxsd1wkon"]
+[gd_scene load_steps=22 format=3 uid="uid://bx8kkxsd1wkon"]
 
 [ext_resource type="Script" uid="uid://ekj1wuhw4xlu" path="res://scripts/base_rabanito.gd" id="1_56i52"]
 [ext_resource type="Texture2D" uid="uid://bdrapq2e837mv" path="res://assets/img/rabanito.png" id="2_dh8el"]
+[ext_resource type="Texture2D" uid="uid://bb55qgu5gt5x8" path="res://assets/img/icono_fuego.png" id="3_redyt"]
+[ext_resource type="Texture2D" uid="uid://b1dl8oka8wp0t" path="res://assets/img/icono_hielo.png" id="4_3ugbc"]
+[ext_resource type="Texture2D" uid="uid://d3mqwjfdi1vao" path="res://assets/img/icono_rayo.png" id="5_gqvik"]
+[ext_resource type="Texture2D" uid="uid://cyopn1nfbm3l6" path="res://assets/img/icono_radioactivo.png" id="6_5nee1"]
+[ext_resource type="Texture2D" uid="uid://c4j5y0xk7n1b4" path="res://assets/img/icono_enojo.png" id="7_o3ter"]
+[ext_resource type="Texture2D" uid="uid://csoga62p6fh7m" path="res://assets/img/icono_escudo.png" id="8_piafl"]
+[ext_resource type="Script" uid="uid://c1185274200ot" path="res://scripts/CosmicMagnetComponent.gd" id="9_magnet"]
+[ext_resource type="Script" uid="uid://wscmy505msku" path="res://scripts/ToxicAuraComponent.gd" id="10_toxic"]
+[ext_resource type="Script" uid="uid://bv1vclp707kbd" path="res://scripts/TurretComponent.gd" id="11_turret"]
+[ext_resource type="Script" uid="uid://7qsmqao2168w" path="res://scripts/AuraRabanescaComponent.gd" id="12_aura"]
+[ext_resource type="Script" uid="uid://bs2u1lxys6gyy" path="res://scripts/ThornsComponent.gd" id="13_thorns"]
+[ext_resource type="Script" uid="uid://cqw7flisc2y0r" path="res://scripts/ConquerorAuraComponent.gd" id="14_conq"]
+[ext_resource type="Script" uid="uid://u1mqg66cw77b" path="res://scripts/AlliesManagerComponent.gd" id="15_allies"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_56i52"]
 size = Vector2(44, 47)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_56i52"]
+bg_color = Color(0, 0, 0, 0.65882355)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dh8el"]
+bg_color = Color(0.55181134, 0.19124278, 0.9809206, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_magnet"]
+radius = 150.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_toxic"]
+radius = 100.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_thorns"]
+size = Vector2(70, 70)
 
 [node name="BaseRabanito" type="Area2D" groups=["BaseRabanito", "base"]]
 script = ExtResource("1_56i52")
@@ -17,9 +53,79 @@ texture = ExtResource("2_dh8el")
 position = Vector2(4, 3.5)
 shape = SubResource("RectangleShape2D_56i52")
 
+[node name="estados" type="HBoxContainer" parent="."]
+offset_left = -92.0
+offset_top = -88.0
+offset_right = 120.0
+offset_bottom = -56.0
+alignment = 1
+
+[node name="fuego" type="TextureRect" parent="estados"]
+visible = false
+layout_mode = 2
+texture = ExtResource("3_redyt")
+
+[node name="hielo" type="TextureRect" parent="estados"]
+visible = false
+layout_mode = 2
+texture = ExtResource("4_3ugbc")
+
+[node name="rayo" type="TextureRect" parent="estados"]
+visible = false
+layout_mode = 2
+texture = ExtResource("5_gqvik")
+
+[node name="veneno" type="TextureRect" parent="estados"]
+visible = false
+layout_mode = 2
+texture = ExtResource("6_5nee1")
+
+[node name="enojo" type="TextureRect" parent="estados"]
+visible = false
+layout_mode = 2
+texture = ExtResource("7_o3ter")
+
+[node name="escudo" type="TextureRect" parent="estados"]
+visible = false
+layout_mode = 2
+texture = ExtResource("8_piafl")
+
 [node name="ProgressBar" type="ProgressBar" parent="."]
 offset_left = -31.0
 offset_top = -53.0
 offset_right = 36.0
 offset_bottom = -41.0
+theme_override_styles/background = SubResource("StyleBoxFlat_56i52")
+theme_override_styles/fill = SubResource("StyleBoxFlat_dh8el")
 show_percentage = false
+
+[node name="CosmicMagnetComponent" type="Area2D" parent="."]
+script = ExtResource("9_magnet")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CosmicMagnetComponent"]
+shape = SubResource("CircleShape2D_magnet")
+
+[node name="ToxicAuraComponent" type="Area2D" parent="."]
+script = ExtResource("10_toxic")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ToxicAuraComponent"]
+shape = SubResource("CircleShape2D_toxic")
+
+[node name="TurretComponent" type="Node2D" parent="."]
+script = ExtResource("11_turret")
+
+[node name="AuraRabanescaComponent" type="Node2D" parent="."]
+script = ExtResource("12_aura")
+
+[node name="ThornsComponent" type="Area2D" parent="."]
+script = ExtResource("13_thorns")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ThornsComponent"]
+position = Vector2(4, 3.5)
+shape = SubResource("RectangleShape2D_thorns")
+
+[node name="ConquerorAuraComponent" type="Node2D" parent="."]
+script = ExtResource("14_conq")
+
+[node name="AlliesManagerComponent" type="Node2D" parent="."]
+script = ExtResource("15_allies")

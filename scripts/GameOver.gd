@@ -3,8 +3,24 @@ extends Control
 @onready var stats_label = get_node_or_null("VBoxContainer/StatsLabel")
 
 func _ready() -> void:
-	# Permitir que esta pantalla funcione aunque el juego esté pausado
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	
+	# Setup Blur
+	var blur_bg = ColorRect.new()
+	blur_bg.color = Color(0,0,0,0.5)
+	blur_bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(blur_bg)
+	move_child(blur_bg, 0)
+	
+	var shader = Shader.new()
+	shader.code = "shader_type canvas_item;
+	uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear_mipmap;
+	void fragment() {
+		COLOR = textureLod(screen_texture, SCREEN_UV, 4.0);
+		COLOR.rgb *= 0.5;
+	}"
+	var mat = ShaderMaterial.new(); mat.shader = shader
+	blur_bg.material = mat
 	
 	# Buscar los botones e intentar conectarlos automáticamente por si acaso
 	var btn_restart = get_node_or_null("VBoxContainer/BtnRestart")

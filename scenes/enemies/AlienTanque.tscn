@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://c7k2y3p2f4k5m"]
+
+[ext_resource type="PackedScene" uid="uid://c6y7d3p2f4k5m" path="res://scenes/Enemy.tscn" id="1_base"]
+[ext_resource type="Texture2D" uid="uid://8rhqfvwcpp2k" path="res://assets/img/alien_tanque.png" id="2_32u0r"]
+
+[node name="AlienTanque" instance=ExtResource("1_base")]
+scale = Vector2(0.8, 0.8)
+current_variant = 1
+base_hp_mult = 3.0
+base_speed_mult = null
+custom_texture = ExtResource("2_32u0r")
+max_health = null
+is_boss = null
+move_speed = 35.0

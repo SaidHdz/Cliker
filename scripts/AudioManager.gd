@@ -34,6 +34,18 @@ func play(sound_name: String) -> void:
 		var p = players[final_name]
 		if p.playing:
 			p.stop()
+			
+		# Ajustar el volumen dinámicamente basado en la configuración SFX
+		var base_vol_db = 0.0
+		if final_name == "crit":
+			base_vol_db = -12.0
+		
+		var sfx_vol = GameManager.sfx_volume
+		if sfx_vol <= 0.001:
+			p.volume_db = -80.0
+		else:
+			p.volume_db = base_vol_db + linear_to_db(sfx_vol)
+			
 		p.play()
 	else:
 		# Fallback silencioso por si intentas tocar algo no listo aún

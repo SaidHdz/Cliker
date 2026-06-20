@@ -1,126 +1,43 @@
-[gd_scene load_steps=22 format=3 uid="uid://c6y7d3p2f4k5m"]
+[gd_scene load_steps=14 format=3 uid="uid://c6y7d3p2f4k5m"]
 
 [ext_resource type="Script" uid="uid://b327of54sr8am" path="res://scripts/Enemy.gd" id="1_enemy"]
-[ext_resource type="Texture2D" uid="uid://cx5804bko0btm" path="res://assets/Tiny Swords (Free Pack)/Units/Black Units/Pawn/Pawn_Idle Axe.png" id="2_mpr68"]
-[ext_resource type="Texture2D" uid="uid://4fb3i4pujsbo" path="res://assets/Tiny Swords (Free Pack)/Units/Black Units/Pawn/Pawn_Run Axe.png" id="3_ft8do"]
+[ext_resource type="Texture2D" uid="uid://dmoyuy4vawqp1" path="res://assets/img/alien_normal.png" id="3_ly5gv"]
+[ext_resource type="Texture2D" uid="uid://bb55qgu5gt5x8" path="res://assets/img/icono_fuego.png" id="4_1vja8"]
+[ext_resource type="Texture2D" uid="uid://b1dl8oka8wp0t" path="res://assets/img/icono_hielo.png" id="5_iwav8"]
+[ext_resource type="Texture2D" uid="uid://d3mqwjfdi1vao" path="res://assets/img/icono_rayo.png" id="6_1i2q2"]
+[ext_resource type="Texture2D" uid="uid://cyopn1nfbm3l6" path="res://assets/img/icono_radioactivo.png" id="7_iwav8"]
+[ext_resource type="Texture2D" uid="uid://c4j5y0xk7n1b4" path="res://assets/img/icono_enojo.png" id="8_1i2q2"]
+[ext_resource type="Texture2D" uid="uid://csoga62p6fh7m" path="res://assets/img/icono_escudo.png" id="9_ly5gv"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mpr68"]
 bg_color = Color(0, 0, 0, 0.7411765)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ft8do"]
 bg_color = Color(0.79533416, 0.046933025, 9.62615e-08, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1"]
-radius = 64.0
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_5wwv6"]
-atlas = ExtResource("2_mpr68")
-region = Rect2(0, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_1vja8"]
-atlas = ExtResource("2_mpr68")
-region = Rect2(192, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_iwav8"]
-atlas = ExtResource("2_mpr68")
-region = Rect2(384, 0, 192, 192)
+radius = 60.068
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1i2q2"]
-atlas = ExtResource("2_mpr68")
-region = Rect2(576, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ly5gv"]
-atlas = ExtResource("2_mpr68")
-region = Rect2(960, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_82o86"]
-atlas = ExtResource("2_mpr68")
-region = Rect2(960, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_1gqeq"]
-atlas = ExtResource("2_mpr68")
-region = Rect2(1152, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_isvm2"]
-atlas = ExtResource("2_mpr68")
-region = Rect2(1344, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_gr8dl"]
-atlas = ExtResource("3_ft8do")
-region = Rect2(0, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_axa8o"]
-atlas = ExtResource("3_ft8do")
-region = Rect2(192, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_4iqch"]
-atlas = ExtResource("3_ft8do")
-region = Rect2(384, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_x3f71"]
-atlas = ExtResource("3_ft8do")
-region = Rect2(576, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ksmwx"]
-atlas = ExtResource("3_ft8do")
-region = Rect2(768, 0, 192, 192)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_oq86d"]
-atlas = ExtResource("3_ft8do")
-region = Rect2(960, 0, 192, 192)
+atlas = ExtResource("3_ly5gv")
+region = Rect2(0, 0, 32, 32)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_joqoj"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_5wwv6")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_1vja8")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_iwav8")
-}, {
-"duration": 1.0,
 "texture": SubResource("AtlasTexture_1i2q2")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ly5gv")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_82o86")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_1gqeq")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_isvm2")
 }],
 "loop": true,
 "name": &"idle",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_gr8dl")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_axa8o")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_4iqch")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_x3f71")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ksmwx")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_oq86d")
-}],
-"loop": true,
-"name": &"run",
 "speed": 5.0
 }]
 
@@ -144,10 +61,9 @@ shape = SubResource("CircleShape2D_1")
 [node name="DamageNumberSpawn" type="Marker2D" parent="."]
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+scale = Vector2(2.4, 2.4)
 sprite_frames = SubResource("SpriteFrames_joqoj")
-animation = &"run"
-frame = 5
-frame_progress = 0.51312864
+animation = &"idle"
 
 [node name="GPUParticles2D" type="CPUParticles2D" parent="."]
 scale = Vector2(0.99999994, 0.99999994)
@@ -161,3 +77,40 @@ gravity = Vector2(0, 0)
 initial_velocity_min = 50.0
 initial_velocity_max = 100.0
 color = Color(1, 0.7293421, 0.18732908, 1)
+
+[node name="estados" type="HBoxContainer" parent="."]
+offset_left = -68.57143
+offset_top = -98.57143
+offset_right = 78.57143
+offset_bottom = -66.57143
+alignment = 1
+
+[node name="fuego" type="TextureRect" parent="estados"]
+visible = false
+layout_mode = 2
+texture = ExtResource("4_1vja8")
+
+[node name="hielo" type="TextureRect" parent="estados"]
+visible = false
+layout_mode = 2
+texture = ExtResource("5_iwav8")
+
+[node name="rayo" type="TextureRect" parent="estados"]
+visible = false
+layout_mode = 2
+texture = ExtResource("6_1i2q2")
+
+[node name="veneno" type="TextureRect" parent="estados"]
+visible = false
+layout_mode = 2
+texture = ExtResource("7_iwav8")
+
+[node name="enojo" type="TextureRect" parent="estados"]
+visible = false
+layout_mode = 2
+texture = ExtResource("8_1i2q2")
+
+[node name="escudo" type="TextureRect" parent="estados"]
+visible = false
+layout_mode = 2
+texture = ExtResource("9_ly5gv")

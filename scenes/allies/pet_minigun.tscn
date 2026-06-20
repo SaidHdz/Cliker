@@ -1,0 +1,82 @@
+[gd_scene load_steps=12 format=3 uid="uid://mawsjti1xhgs"]
+
+[ext_resource type="Script" uid="uid://10o1viu2l6po" path="res://scripts/PetMinigun.gd" id="1_iciaw"]
+[ext_resource type="Texture2D" uid="uid://ccpuwmema0m2b" path="res://assets/img/tactical banana cat.png" id="2_iciaw"]
+[ext_resource type="Texture2D" uid="uid://bb55qgu5gt5x8" path="res://assets/img/icono_fuego.png" id="3_lvwav"]
+[ext_resource type="Texture2D" uid="uid://b1dl8oka8wp0t" path="res://assets/img/icono_hielo.png" id="4_o2o0m"]
+[ext_resource type="Texture2D" uid="uid://d3mqwjfdi1vao" path="res://assets/img/icono_rayo.png" id="5_kvae0"]
+[ext_resource type="Texture2D" uid="uid://cyopn1nfbm3l6" path="res://assets/img/icono_radioactivo.png" id="6_lan6p"]
+[ext_resource type="Texture2D" uid="uid://c4j5y0xk7n1b4" path="res://assets/img/icono_enojo.png" id="7_v1nof"]
+[ext_resource type="Texture2D" uid="uid://csoga62p6fh7m" path="res://assets/img/icono_escudo.png" id="8_8jh3m"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eefpn"]
+atlas = ExtResource("2_iciaw")
+region = Rect2(0, 0, 736, 736)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_lvwav"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_eefpn")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_k7guh"]
+size = Vector2(38, 43)
+
+[node name="PetMinigun" type="CharacterBody2D"]
+script = ExtResource("1_iciaw")
+move_speed = 250.0
+damage = 15
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(-13, -7)
+scale = Vector2(0.0910326, 0.09510869)
+sprite_frames = SubResource("SpriteFrames_lvwav")
+
+[node name="AttackTimer" type="Timer" parent="."]
+autostart = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-9, -11.5)
+shape = SubResource("RectangleShape2D_k7guh")
+
+[node name="estados" type="HBoxContainer" parent="."]
+offset_left = -114.0
+offset_top = -71.0
+offset_right = 98.0
+offset_bottom = -39.0
+alignment = 1
+
+[node name="fuego" type="TextureRect" parent="estados"]
+visible = false
+layout_mode = 2
+texture = ExtResource("3_lvwav")
+
+[node name="hielo" type="TextureRect" parent="estados"]
+visible = false
+layout_mode = 2
+texture = ExtResource("4_o2o0m")
+
+[node name="rayo" type="TextureRect" parent="estados"]
+visible = false
+layout_mode = 2
+texture = ExtResource("5_kvae0")
+
+[node name="veneno" type="TextureRect" parent="estados"]
+visible = false
+layout_mode = 2
+texture = ExtResource("6_lan6p")
+
+[node name="enojo" type="TextureRect" parent="estados"]
+visible = false
+layout_mode = 2
+texture = ExtResource("7_v1nof")
+
+[node name="escudo" type="TextureRect" parent="estados"]
+visible = false
+layout_mode = 2
+texture = ExtResource("8_8jh3m")

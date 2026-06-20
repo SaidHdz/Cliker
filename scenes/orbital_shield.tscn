@@ -6,21 +6,6 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5no5h"]
 size = Vector2(18, 20)
 
-[sub_resource type="Animation" id="Animation_5no5h"]
-resource_name = "rotar"
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:rotation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [0.0, 6.2831855]
-}
-
 [sub_resource type="Animation" id="Animation_keo61"]
 length = 0.001
 tracks/0/type = "value"
@@ -34,6 +19,21 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_5no5h"]
+resource_name = "rotar"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 6.2831855]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_k005o"]

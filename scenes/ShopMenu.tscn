@@ -1,0 +1,308 @@
+[gd_scene load_steps=9 format=3 uid="uid://b3h5ap3xbl2f5"]
+
+[ext_resource type="Script" uid="uid://cb23phxtqqy86" path="res://scripts/ShopMenu.gd" id="1_shop"]
+[ext_resource type="FontFile" uid="uid://dsvp1oqy7jude" path="res://assets/fuentes/BoldPixels.ttf" id="2_font"]
+[ext_resource type="Texture2D" uid="uid://4jhr57wonx8" path="res://assets/coin2_20x20.png" id="4_coin"]
+[ext_resource type="Texture2D" uid="uid://vmsptb74mc47" path="res://assets/img/rabanito_diablo.png" id="4_lvq8y"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal"]
+bg_color = Color(0.08, 0.08, 0.1, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.8, 0.6, 0.2, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_unselected"]
+bg_color = Color(0.2, 0.2, 0.25, 1)
+border_width_left = 20
+border_width_right = 20
+border_color = Color(0.2, 0.2, 0.25, 0)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tab_active"]
+bg_color = Color(0.8, 0.6, 0.2, 1)
+border_width_left = 20
+border_width_right = 20
+border_color = Color(0.8, 0.6, 0.2, 0)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.15, 0.15, 0.2, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="ShopMenu" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_shop")
+
+[node name="Background" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="Modal" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(850, 600)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -425.0
+offset_top = -300.0
+offset_right = 425.0
+offset_bottom = 300.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
+
+[node name="VBox" type="VBoxContainer" parent="Modal"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Header" type="MarginContainer" parent="Modal/VBox"]
+layout_mode = 2
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 25
+
+[node name="HBox" type="HBoxContainer" parent="Modal/VBox/Header"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Modal/VBox/Header/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 36
+text = "TIENDA"
+
+[node name="GoldDisplay" type="HBoxContainer" parent="Modal/VBox/Header/HBox"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="GoldIcon" type="TextureRect" parent="Modal/VBox/Header/HBox/GoldDisplay"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+texture = ExtResource("4_coin")
+stretch_mode = 5
+
+[node name="GoldLabel" type="Label" parent="Modal/VBox/Header/HBox/GoldDisplay"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.84, 0, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 32
+text = "0"
+
+[node name="BtnClose" type="Button" parent="Modal/VBox/Header/HBox"]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 36
+text = "X"
+flat = true
+
+[node name="Tabs" type="TabContainer" parent="Modal/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/side_margin = 25
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 22
+theme_override_styles/tab_unselected = SubResource("StyleBoxFlat_tab_unselected")
+theme_override_styles/tab_selected = SubResource("StyleBoxFlat_tab_active")
+tab_alignment = 1
+current_tab = 0
+
+[node name="COSMÉTICOS" type="ScrollContainer" parent="Modal/VBox/Tabs"]
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="Margin" type="MarginContainer" parent="Modal/VBox/Tabs/COSMÉTICOS"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="SkinGrid" type="GridContainer" parent="Modal/VBox/Tabs/COSMÉTICOS/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 30
+theme_override_constants/v_separation = 30
+columns = 2
+
+[node name="SkinCard_Beta" type="PanelContainer" parent="Modal/VBox/Tabs/COSMÉTICOS/Margin/SkinGrid"]
+custom_minimum_size = Vector2(300, 400)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="VBox" type="VBoxContainer" parent="Modal/VBox/Tabs/COSMÉTICOS/Margin/SkinGrid/SkinCard_Beta"]
+layout_mode = 2
+alignment = 1
+
+[node name="Preview" type="TextureRect" parent="Modal/VBox/Tabs/COSMÉTICOS/Margin/SkinGrid/SkinCard_Beta/VBox"]
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 2
+texture = ExtResource("4_lvq8y")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="Modal/VBox/Tabs/COSMÉTICOS/Margin/SkinGrid/SkinCard_Beta/VBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+text = "Rabanito Diablo"
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="Modal/VBox/Tabs/COSMÉTICOS/Margin/SkinGrid/SkinCard_Beta/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+text = "Exclusiva para probadores iniciales"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Badge" type="Label" parent="Modal/VBox/Tabs/COSMÉTICOS/Margin/SkinGrid/SkinCard_Beta/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0.4, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "EXCLUSIVA"
+horizontal_alignment = 1
+
+[node name="BtnEquip" type="Button" parent="Modal/VBox/Tabs/COSMÉTICOS/Margin/SkinGrid/SkinCard_Beta/VBox"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+text = "EQUIPAR"
+
+[node name="SIN ANUNCIOS" type="CenterContainer" parent="Modal/VBox/Tabs"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="VBox" type="VBoxContainer" parent="Modal/VBox/Tabs/SIN ANUNCIOS"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="Icon" type="Label" parent="Modal/VBox/Tabs/SIN ANUNCIOS/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 72
+text = "AD-FREE"
+horizontal_alignment = 1
+
+[node name="Title" type="Label" parent="Modal/VBox/Tabs/SIN ANUNCIOS/VBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 32
+text = "Sin Anuncios"
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="Modal/VBox/Tabs/SIN ANUNCIOS/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "Elimina todos los anuncios permanentemente"
+horizontal_alignment = 1
+
+[node name="Benefits" type="VBoxContainer" parent="Modal/VBox/Tabs/SIN ANUNCIOS/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="B1" type="Label" parent="Modal/VBox/Tabs/SIN ANUNCIOS/VBox/Benefits"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "- Sin interrupciones entre partidas"
+
+[node name="B2" type="Label" parent="Modal/VBox/Tabs/SIN ANUNCIOS/VBox/Benefits"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "- Sin anuncio de recompensa obligatorio"
+
+[node name="B3" type="Label" parent="Modal/VBox/Tabs/SIN ANUNCIOS/VBox/Benefits"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "- Apoya el desarrollo del juego"
+
+[node name="BtnBuy" type="Button" parent="Modal/VBox/Tabs/SIN ANUNCIOS/VBox"]
+custom_minimum_size = Vector2(300, 80)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 22
+disabled = true
+text = "PRÓXIMAMENTE"
+
+[node name="ORO GRATIS" type="CenterContainer" parent="Modal/VBox/Tabs"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 2
+
+[node name="VBox" type="VBoxContainer" parent="Modal/VBox/Tabs/ORO GRATIS"]
+layout_mode = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="Title" type="Label" parent="Modal/VBox/Tabs/ORO GRATIS/VBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 22
+text = "Ver un anuncio y gana oro"
+horizontal_alignment = 1
+
+[node name="Card" type="PanelContainer" parent="Modal/VBox/Tabs/ORO GRATIS/VBox"]
+custom_minimum_size = Vector2(250, 200)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="VBox" type="VBoxContainer" parent="Modal/VBox/Tabs/ORO GRATIS/VBox/Card"]
+layout_mode = 2
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Modal/VBox/Tabs/ORO GRATIS/VBox/Card/VBox"]
+custom_minimum_size = Vector2(70, 70)
+layout_mode = 2
+texture = ExtResource("4_coin")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Amount" type="Label" parent="Modal/VBox/Tabs/ORO GRATIS/VBox/Card/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.84, 0, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 32
+text = "+500 Oro"
+horizontal_alignment = 1
+
+[node name="BtnAd" type="Button" parent="Modal/VBox/Tabs/ORO GRATIS/VBox/Card/VBox"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+disabled = true
+text = "PRÓXIMAMENTE"
+
+[node name="Info" type="Label" parent="Modal/VBox/Tabs/ORO GRATIS/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+text = "También puedes ganar oro jugando y superando oleadas"
+horizontal_alignment = 1

@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://bfabfxoy5yrhw"]
+
+[ext_resource type="PackedScene" uid="uid://c6y7d3p2f4k5m" path="res://scenes/Enemy.tscn" id="1_base"]
+[ext_resource type="Texture2D" uid="uid://y0cd3p1qwdn3" path="res://assets/img/alien_kamikaze.png" id="2_joug7"]
+
+[node name="AlienKamikaze" instance=ExtResource("1_base")]
+current_variant = 3
+base_hp_mult = 0.05
+custom_texture = ExtResource("2_joug7")
+move_speed = 220.0

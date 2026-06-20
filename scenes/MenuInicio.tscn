@@ -1,8 +1,38 @@
-[gd_scene load_steps=4 format=3 uid="uid://2m5seyu01qxl"]
+[gd_scene load_steps=8 format=3 uid="uid://2m5seyu01qxl"]
 
 [ext_resource type="Script" uid="uid://dtxfwkn3ipivg" path="res://scripts/MenuInicio.gd" id="1_menu"]
 [ext_resource type="LabelSettings" uid="uid://d2ej7h3xd4dd3" path="res://scenes/Font.tres" id="2_8m8lv"]
 [ext_resource type="FontFile" uid="uid://dsvp1oqy7jude" path="res://assets/fuentes/BoldPixels.ttf" id="3_gdope"]
+[ext_resource type="Texture2D" uid="uid://bdrapq2e837mv" path="res://assets/img/rabanito.png" id="4_raba"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_gold"]
+font = ExtResource("3_gdope")
+font_size = 18
+font_color = Color(1, 0.843137, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_play"]
+bg_color = Color(1, 0.843137, 0, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.8, 0.6, 0.2, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_side"]
+bg_color = Color(0.1, 0.1, 0.15, 0.8)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.3, 0.3, 0.3, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
 
 [node name="MenuInicio" type="Control"]
 layout_mode = 3
@@ -20,89 +50,160 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.12549, 0.235294, 0.341176, 1)
+color = Color(0.05, 0.1, 0.15, 1)
 
-[node name="Title" type="Label" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -456.0
-offset_top = 4.0
-offset_right = -156.0
-offset_bottom = 104.0
-grow_horizontal = 2
-scale = Vector2(3, 3)
-theme_override_font_sizes/font_size = 64
-text = "Isla Cliker"
-label_settings = ExtResource("2_8m8lv")
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -100.0
-offset_top = -20.0
-offset_right = 100.0
-offset_bottom = 80.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 20
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 40
 
-[node name="BtnStart" type="Button" parent="VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 40
+
+[node name="ColLeft" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="LabelRecordTitle" type="Label" parent="MarginContainer/HBoxContainer/ColLeft"]
+layout_mode = 2
+text = "RÉCORD"
+label_settings = SubResource("LabelSettings_gold")
+
+[node name="RecordLabel" type="Label" parent="MarginContainer/HBoxContainer/ColLeft"]
+layout_mode = 2
+text = "Oleada 0"
+label_settings = ExtResource("2_8m8lv")
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/HBoxContainer/ColLeft"]
+layout_mode = 2
+
+[node name="LabelGoldTitle" type="Label" parent="MarginContainer/HBoxContainer/ColLeft"]
+layout_mode = 2
+text = "BANCO"
+label_settings = SubResource("LabelSettings_gold")
+
+[node name="GoldLabel" type="Label" parent="MarginContainer/HBoxContainer/ColLeft"]
+layout_mode = 2
+text = "0 Oro"
+label_settings = ExtResource("2_8m8lv")
+
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/HBoxContainer/ColLeft"]
+layout_mode = 2
+
+[node name="HBoxButtons" type="HBoxContainer" parent="MarginContainer/HBoxContainer/ColLeft"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="BtnSettings" type="Button" parent="MarginContainer/HBoxContainer/ColLeft/HBoxButtons"]
+custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_gdope")
-theme_override_font_sizes/font_size = 32
-text = "Empezar Partida"
+text = "Ajustes"
 
-[node name="BtnExit" type="Button" parent="VBoxContainer"]
+[node name="BtnAchievements" type="Button" parent="MarginContainer/HBoxContainer/ColLeft/HBoxButtons"]
+custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_gdope")
-theme_override_font_sizes/font_size = 32
-text = "Salir"
+text = "Rank"
 
-[node name="RecordLabel" type="Label" parent="VBoxContainer"]
+[node name="ColCenter" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 64
-text = "0"
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="Title" type="Label" parent="MarginContainer/HBoxContainer/ColCenter"]
+layout_mode = 2
+text = "Don't Touch
+My Radish"
 label_settings = ExtResource("2_8m8lv")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="GoldLabel" type="Label" parent="VBoxContainer"]
+[node name="Control" type="Control" parent="MarginContainer/HBoxContainer/ColCenter"]
+custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
-theme_override_font_sizes/font_size = 64
-text = "0"
-label_settings = ExtResource("2_8m8lv")
-horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="ShopContainer" type="VBoxContainer" parent="."]
-layout_mode = 0
-offset_left = 13.0
-offset_top = 11.0
-offset_right = 124.0
-offset_bottom = 199.0
+[node name="RabanitoSprite" type="Sprite2D" parent="MarginContainer/HBoxContainer/ColCenter/Control"]
+position = Vector2(245, 75)
+scale = Vector2(5, 5)
+texture = ExtResource("4_raba")
 
-[node name="BtnBuyDamage" type="Button" parent="ShopContainer"]
+[node name="BtnStart" type="Button" parent="MarginContainer/HBoxContainer/ColCenter"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.1, 0.1, 0.1, 1)
+theme_override_fonts/font = ExtResource("3_gdope")
+theme_override_font_sizes/font_size = 42
+theme_override_styles/normal = SubResource("StyleBoxFlat_play")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_play")
+theme_override_styles/hover = SubResource("StyleBoxFlat_play")
+text = "JUGAR"
+
+[node name="BtnExit" type="Button" parent="MarginContainer/HBoxContainer/ColCenter"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_fonts/font = ExtResource("3_gdope")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_side")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_side")
+theme_override_styles/hover = SubResource("StyleBoxFlat_side")
+text = "SALIR"
+
+[node name="ColRight" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="BtnShop" type="Button" parent="MarginContainer/HBoxContainer/ColRight"]
+custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_gdope")
-theme_override_font_sizes/font_size = 32
+theme_override_styles/normal = SubResource("StyleBoxFlat_side")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_side")
+theme_override_styles/hover = SubResource("StyleBoxFlat_side")
+text = "TIENDA
+Compras"
 
-[node name="BtnBuyHealth" type="Button" parent="ShopContainer"]
+[node name="BtnUpgrades" type="Button" parent="MarginContainer/HBoxContainer/ColRight"]
+custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_gdope")
-theme_override_font_sizes/font_size = 32
+theme_override_styles/normal = SubResource("StyleBoxFlat_side")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_side")
+theme_override_styles/hover = SubResource("StyleBoxFlat_side")
+text = "MEJORAS
+Permanentes"
 
-[node name="BtnBuyCrit" type="Button" parent="ShopContainer"]
+[node name="BtnBestiary" type="Button" parent="MarginContainer/HBoxContainer/ColRight"]
+custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_gdope")
-theme_override_font_sizes/font_size = 32
+theme_override_styles/normal = SubResource("StyleBoxFlat_side")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_side")
+theme_override_styles/hover = SubResource("StyleBoxFlat_side")
+text = "BESTIARIO
+Aliens"
 
-[connection signal="pressed" from="VBoxContainer/BtnStart" to="." method="_on_btn_start_pressed"]
-[connection signal="pressed" from="VBoxContainer/BtnExit" to="." method="_on_btn_exit_pressed"]
+[node name="BtnCards" type="Button" parent="MarginContainer/HBoxContainer/ColRight"]
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_gdope")
+theme_override_styles/normal = SubResource("StyleBoxFlat_side")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_side")
+theme_override_styles/hover = SubResource("StyleBoxFlat_side")
+text = "MIS CARTAS
+Colección"
