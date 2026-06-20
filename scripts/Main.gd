@@ -252,19 +252,27 @@ var tutorial_step: int = 0
 var tutorial_overlay: ColorRect = null
 var tutorial_label: Label = null
 
+func _get_event_global_pos(event: InputEvent) -> Vector2:
+	# On mobile, touch/drag events store the actual finger position in event.position.
+	# get_global_mouse_position() does NOT update during a touch drag on Android/iOS,
+	# so we must convert event.position through the canvas transform ourselves.
+	if event is InputEventScreenDrag or event is InputEventScreenTouch:
+		return get_canvas_transform().affine_inverse() * event.position
+	return get_global_mouse_position()
+
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton or event is InputEventScreenTouch:
 		is_slicing = event.pressed
 		if is_slicing:
-			last_slice_pos = get_global_mouse_position()
+			last_slice_pos = _get_event_global_pos(event)
 			slice_start_time = Time.get_ticks_msec() / 1000.0
 			_update_trails(last_slice_pos, true)
 		else:
-			_check_wind_gust(get_global_mouse_position())
+			_check_wind_gust(_get_event_global_pos(event))
 			_update_trails(Vector2.ZERO, false)
 
 	if (event is InputEventMouseMotion or event is InputEventScreenDrag) and is_slicing:
-		var current_pos = get_global_mouse_position()
+		var current_pos = _get_event_global_pos(event)
 		_update_trails(current_pos, false)
 		check_slice_collision(last_slice_pos, current_pos)
 		last_slice_pos = current_pos
