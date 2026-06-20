@@ -31,16 +31,7 @@ var skills_list = [
 	# Mejoras Planas (Flat Upgrades)
 	"heal", "damage_boost", "crit_boost", "auto_speed",
 	"mirror_slice", "double_slice", "wind_gust", "toxic_compost",
-	"energy_shield", "sword_craft", "frost_avalanche", "earthquake",
-
-	# Sinergias (Legendarias)
-	"infernal_hole", "orbital_satellite", "radioactive_swamp", "field_squad",
-	"living_fortress", "ajo_negativo", "los_compadres", "war_garden", "infected_potato",
-	"excalibur_vegetal", "deforesador",
-
-	# Cartas de Cofre
-	"sayonara", "steroids", "conqueror_aura", "campesino_extremo",
-	"reactor_nuclear", "sobrecarga_cuantica", "lluvia_rabanos", "senal_pirata", "sindicato_alien"
+	"energy_shield", "sword_craft", "frost_avalanche", "earthquake"
 ]
 
 func _ready() -> void:
@@ -52,6 +43,31 @@ func _ready() -> void:
 	if GameManager.best_wave >= 10 and GameManager.deck_unlocked_slots == 0:
 		GameManager.deck_unlocked_slots = 1
 		GameManager.save_game()
+		
+	var btn_back = get_node_or_null("VBoxContainer/BtnBack")
+	if btn_back:
+		btn_back.get_parent().remove_child(btn_back)
+		add_child(btn_back)
+		
+		btn_back.text = " X "
+		btn_back.custom_minimum_size = Vector2(55, 55)
+		btn_back.add_theme_font_override("font", button_font)
+		btn_back.add_theme_font_size_override("font_size", 22)
+		
+		var back_style = StyleBoxFlat.new()
+		back_style.bg_color = Color(0.35, 0.1, 0.1, 1.0)
+		back_style.set_corner_radius_all(6)
+		btn_back.add_theme_stylebox_override("normal", back_style)
+		btn_back.add_theme_stylebox_override("hover", back_style)
+		btn_back.add_theme_stylebox_override("pressed", back_style)
+		
+		btn_back.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+		btn_back.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+		btn_back.grow_vertical = Control.GROW_DIRECTION_END
+		btn_back.offset_left = -59
+		btn_back.offset_top = 4
+		btn_back.offset_right = -4
+		btn_back.offset_bottom = 59
 		
 	update_ui()
 
@@ -416,7 +432,7 @@ func _open_card_selector_modal() -> void:
 		card_panel.add_child(select_btn)
 		
 		if is_unlocked:
-			_connect_button_with_drag_protection(select_btn, func():
+			select_btn.pressed.connect(func():
 				_equip_card(skill_id)
 				bg.queue_free()
 			)

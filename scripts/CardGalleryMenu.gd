@@ -46,7 +46,30 @@ func _ready() -> void:
 	grid.add_theme_constant_override("v_separation", 20)
 	grid.mouse_filter = Control.MOUSE_FILTER_PASS
 	
-	$VBoxContainer/BtnBack.add_theme_font_override("font", button_font)
+	var btn_back = $VBoxContainer/BtnBack
+	if btn_back:
+		btn_back.get_parent().remove_child(btn_back)
+		add_child(btn_back)
+		
+		btn_back.text = " X "
+		btn_back.custom_minimum_size = Vector2(55, 55)
+		btn_back.add_theme_font_override("font", button_font)
+		btn_back.add_theme_font_size_override("font_size", 22)
+		
+		var back_style = StyleBoxFlat.new()
+		back_style.bg_color = Color(0.35, 0.1, 0.1, 1.0)
+		back_style.set_corner_radius_all(6)
+		btn_back.add_theme_stylebox_override("normal", back_style)
+		btn_back.add_theme_stylebox_override("hover", back_style)
+		btn_back.add_theme_stylebox_override("pressed", back_style)
+		
+		btn_back.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+		btn_back.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+		btn_back.grow_vertical = Control.GROW_DIRECTION_END
+		btn_back.offset_left = -63
+		btn_back.offset_top = 8
+		btn_back.offset_right = -8
+		btn_back.offset_bottom = 63
 	
 	update_ui()
 	

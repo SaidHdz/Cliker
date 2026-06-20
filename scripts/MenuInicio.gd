@@ -81,7 +81,7 @@ func _ready() -> void:
 	# Botones nuevos (Placeholders o futuras escenas)
 	btn_shop.pressed.connect(_on_btn_shop_pressed)
 	btn_settings.pressed.connect(show_settings_dialog)
-	btn_achievements.pressed.connect(show_rank_dialog)
+	btn_achievements.hide()
 	
 	check_daily_login()
 	
@@ -1213,7 +1213,7 @@ func show_profile_dialog() -> void:
 	_center_panel(panel, 860, 540)
 	
 	var panel_style = StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.08, 0.08, 0.1, 1.0)
+	panel_style.bg_color = Color(0.06, 0.06, 0.08, 1.0)
 	panel_style.border_width_left = 3
 	panel_style.border_width_top = 3
 	panel_style.border_width_right = 3
@@ -1225,7 +1225,16 @@ func show_profile_dialog() -> void:
 	panel_style.corner_radius_bottom_left = 12
 	panel.add_theme_stylebox_override("panel", panel_style)
 	
-	# Botón de cerrar en la esquina superior derecha del panel (fuera de márgenes)
+	var margin = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 20)
+	margin.add_theme_constant_override("margin_top", 20)
+	margin.add_theme_constant_override("margin_right", 20)
+	margin.add_theme_constant_override("margin_bottom", 20)
+	panel.add_child(margin)
+	
+	var close_btn_wrapper = Control.new()
+	panel.add_child(close_btn_wrapper)
+	
 	var btn_close_top = Button.new()
 	btn_close_top.text = " X "
 	btn_close_top.custom_minimum_size = Vector2(36, 36)
@@ -1239,26 +1248,13 @@ func show_profile_dialog() -> void:
 	btn_close_top.add_theme_stylebox_override("hover", close_style)
 	btn_close_top.add_theme_stylebox_override("pressed", close_style)
 	
-	panel.add_child(btn_close_top)
-	btn_close_top.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	btn_close_top.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	btn_close_top.grow_vertical = Control.GROW_DIRECTION_END
-	btn_close_top.offset_left = -46
-	btn_close_top.offset_top = 10
-	btn_close_top.offset_right = -10
-	btn_close_top.offset_bottom = 46
+	close_btn_wrapper.add_child(btn_close_top)
+	btn_close_top.position = Vector2(860 - 46, 10)
 	
 	btn_close_top.pressed.connect(func():
 		update_ui()
 		overlay.queue_free()
 	)
-	
-	var margin = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 20)
-	margin.add_theme_constant_override("margin_top", 20)
-	margin.add_theme_constant_override("margin_right", 20)
-	margin.add_theme_constant_override("margin_bottom", 20)
-	panel.add_child(margin)
 	
 	var vbox = VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 12)
@@ -1447,7 +1443,7 @@ func show_profile_dialog() -> void:
 				
 	for item in cat_buttons:
 		var current_cat = item.cat
-		_connect_button_with_drag_protection(item.btn, func():
+		item.btn.pressed.connect(func():
 			update_active_button.call(current_cat)
 			_populate_profile_category(current_cat, detail_vbox, avatar_rect, title_equip_lbl)
 		)
@@ -1660,7 +1656,7 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 				btn_equip.add_theme_stylebox_override("pressed", eq_style)
 				hbox.add_child(btn_equip)
 				
-				_connect_button_with_drag_protection(btn_equip, func():
+				btn_equip.pressed.connect(func():
 					GameManager.profile_stats["equipped_title"] = t_info.name
 					GameManager.save_game()
 					header_title_equip_lbl.text = t_info.name
@@ -1792,7 +1788,7 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 				btn_equip.add_theme_stylebox_override("pressed", eq_style)
 				hbox.add_child(btn_equip)
 				
-				_connect_button_with_drag_protection(btn_equip, func():
+				btn_equip.pressed.connect(func():
 					GameManager.profile_stats["equipped_avatar"] = a_info.name
 					GameManager.save_game()
 					header_avatar_rect.texture = load(tex_path)

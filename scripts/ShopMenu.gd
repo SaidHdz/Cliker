@@ -11,6 +11,36 @@ func _ready() -> void:
 	btn_equip_beta.pressed.connect(_on_equip_beta_pressed)
 	# El botón de anuncio está deshabilitado en el TSCN, pero por seguridad:
 	btn_ad.disabled = true
+	
+	var scroll = get_node_or_null("Modal/VBox/Tabs/COSMÉTICOS")
+	if scroll:
+		_setup_drag_scroll(scroll)
+		
+	var tabs = get_node_or_null("Modal/VBox/Tabs")
+	if tabs:
+		tabs.tab_changed.connect(func(tab_idx):
+			print("Tab de tienda cambiada a: ", tab_idx)
+		)
+
+func _setup_drag_scroll(scroll_container: ScrollContainer) -> void:
+	var drag_data = {
+		"is_dragging": false,
+		"drag_start": Vector2.ZERO,
+		"scroll_start": Vector2.ZERO
+	}
+	scroll_container.gui_input.connect(func(event):
+		if event is InputEventMouseButton or event is InputEventScreenTouch:
+			if event.pressed:
+				drag_data.is_dragging = true
+				drag_data.drag_start = event.position
+				drag_data.scroll_start = Vector2(scroll_container.scroll_horizontal, scroll_container.scroll_vertical)
+			else:
+				drag_data.is_dragging = false
+		elif (event is InputEventMouseMotion or event is InputEventScreenDrag) and drag_data.is_dragging:
+			var diff = event.position - drag_data.drag_start
+			scroll_container.scroll_horizontal = drag_data.scroll_start.x - diff.x
+			scroll_container.scroll_vertical = drag_data.scroll_start.y - diff.y
+	)
 
 func update_ui() -> void:
 	gold_label.text = str(GameManager.total_gold)
