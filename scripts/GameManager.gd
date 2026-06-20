@@ -725,7 +725,8 @@ func add_combo() -> void:
 		if base:
 			var heal_lvl = get_skill_level("heal")
 			var meta_lvl = get_card_upgrade_int_level("heal")
-			var is_spec = (card_upgrade_levels.get("heal", 0) == "4_spec")
+			var heal_meta = card_upgrade_levels.get("heal", 0)
+			var is_spec = (typeof(heal_meta) == TYPE_STRING and heal_meta == "4_spec")
 			
 			var base_heal = 12 if is_spec else (5 + meta_lvl * 2)
 			var total_heal = base_heal * heal_lvl
@@ -889,7 +890,8 @@ func _on_auto_timer_timeout() -> void:
 					var target_pos = e.global_position
 					var lvl = get_skill_level("auto_speed")
 					var meta_lvl = get_card_upgrade_int_level("auto_speed")
-					var is_spec = (card_upgrade_levels.get("auto_speed", 0) == "4_spec")
+					var auto_speed_meta = card_upgrade_levels.get("auto_speed", 0)
+					var is_spec = (typeof(auto_speed_meta) == TYPE_STRING and auto_speed_meta == "4_spec")
 					
 					var radius_mult = 1.0 + (lvl - 1) * 0.1 + meta_lvl * 0.2
 					if is_spec: radius_mult += 0.2

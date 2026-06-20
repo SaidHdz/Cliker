@@ -305,7 +305,8 @@ func _on_poison_tick() -> void:
 		if poison_ticks <= 0: poison_timer.stop()
 
 func apply_bleed() -> void:
-	var is_spec = (GameManager.card_upgrade_levels.get("damage_boost", 0) == "4_spec")
+	var damage_boost_meta = GameManager.card_upgrade_levels.get("damage_boost", 0)
+	var is_spec = (typeof(damage_boost_meta) == TYPE_STRING and damage_boost_meta == "4_spec")
 	var ticks = 5 if is_spec else 3
 	if bleed_ticks <= 0: bleed_timer.start()
 	bleed_ticks = ticks
@@ -314,7 +315,8 @@ func _on_bleed_tick() -> void:
 	if current_health > 0:
 		var lvl = GameManager.get_skill_level("damage_boost")
 		var meta_lvl = GameManager.get_card_upgrade_int_level("damage_boost")
-		var is_spec = (GameManager.card_upgrade_levels.get("damage_boost", 0) == "4_spec")
+		var damage_boost_meta = GameManager.card_upgrade_levels.get("damage_boost", 0)
+		var is_spec = (typeof(damage_boost_meta) == TYPE_STRING and damage_boost_meta == "4_spec")
 		
 		# Daño escala con nivel de run, meta nivel y maestría
 		var multiplier = 1.0 + (lvl - 1) * 0.2 + meta_lvl * 0.2

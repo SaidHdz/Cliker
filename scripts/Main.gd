@@ -369,7 +369,8 @@ func _on_enemy_sliced(enemy: Node2D) -> void:
 	if crit_boost_lvl > 0:
 		var enemy_count = get_tree().get_nodes_in_group("enemies").size()
 		var meta_lvl = GameManager.get_card_upgrade_int_level("crit_boost")
-		var is_spec = (GameManager.card_upgrade_levels.get("crit_boost", 0) == "4_spec")
+		var crit_boost_meta = GameManager.card_upgrade_levels.get("crit_boost", 0)
+		var is_spec = (typeof(crit_boost_meta) == TYPE_STRING and crit_boost_meta == "4_spec")
 		
 		var percent_per_enemy = 0.01 + (crit_boost_lvl - 1) * 0.002 + meta_lvl * 0.002
 		var max_boost = 0.40 + meta_lvl * 0.05
@@ -391,7 +392,8 @@ func _on_enemy_sliced(enemy: Node2D) -> void:
 	
 	if is_crit: 
 		var crit_mult = GameManager.crit_multiplier
-		var is_crit_spec = (GameManager.get_skill_level("crit_boost") > 0 and GameManager.card_upgrade_levels.get("crit_boost", 0) == "4_spec")
+		var crit_boost_meta = GameManager.card_upgrade_levels.get("crit_boost", 0)
+		var is_crit_spec = (GameManager.get_skill_level("crit_boost") > 0 and typeof(crit_boost_meta) == TYPE_STRING and crit_boost_meta == "4_spec")
 		if is_crit_spec:
 			crit_mult = 3.0
 		damage = int(damage * crit_mult)
