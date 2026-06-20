@@ -52,6 +52,7 @@ var bleed_ticks: int = 0
 var has_shield: bool = false
 var is_enraged: bool = false
 var is_electrified: bool = false
+var active_damage_lbl: Label = null
 
 @onready var estados_container: HBoxContainer = get_node_or_null("estados")
 
@@ -326,7 +327,7 @@ func _on_bleed_tick() -> void:
 		var is_moving = velocity.length_squared() > 100.0
 		if is_moving:
 			base_damage *= 2
-		take_damage(base_damage, false, "normal")
+		take_damage(base_damage, false, "bleed")
 		
 		bleed_ticks -= 1
 		if bleed_ticks <= 0: bleed_timer.stop()
@@ -334,12 +335,16 @@ func _on_bleed_tick() -> void:
 func spawn_damage_number(amount: int, is_crit: bool = false, type: String = "normal") -> void:
 	if not GameManager.damage_numbers_enabled:
 		return
-	# Si hay demasiados números en pantalla, descartar golpes normales para ahorrar CPU
-	if not is_crit and GameManager.active_damage_numbers > 40:
-		return
 		
-	var l = damage_number_scene.instantiate(); get_tree().current_scene.add_child(l)
-	if l.has_method("set_values"): l.set_values(amount, is_crit, global_position + Vector2(randf_range(-20, 20), -40), type)
+	if is_instance_valid(active_damage_lbl):
+		active_damage_lbl.refresh_damage(amount, is_crit, type)
+	else:
+		if not is_crit and GameManager.active_damage_numbers > 40:
+			return
+		var l = damage_number_scene.instantiate()
+		active_damage_lbl = l
+		get_tree().current_scene.add_child(l)
+		l.set_values(amount, is_crit, global_position + Vector2(randf_range(-15, 15), -40), type)
 
 func apply_lightning_effect() -> void:
 	is_electrified = true

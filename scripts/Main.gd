@@ -44,12 +44,23 @@ var mining_cart_scene = preload("res://scenes/mining_cart.tscn")
 var steroid_timer: Timer
 var steroid_cooldown_timer: Timer
 var nuclear_timer: float = 0.0
+
+var active_touches: Dictionary = {}
+var barda_line: Line2D
+var barda_damage_timer: float = 0.0
 var pirate_timer: float = 0.0
 var radish_rain_timer: float = 0.0
 
 func _ready() -> void:
 	print("Escena Principal: Iniciando...")
 	GameManager.increment_stat("matches_played", 1)
+	
+	barda_line = Line2D.new()
+	barda_line.width = 12.0
+	barda_line.default_color = Color(0.1, 0.8, 1.0, 0.7) # Celeste brillante semi-transparente
+	barda_line.z_index = 10
+	barda_line.visible = false
+	add_child(barda_line)
 	GameManager.save_game()
 	process_mode = Node.PROCESS_MODE_PAUSABLE
 	get_tree().paused = false
@@ -261,6 +272,25 @@ func _get_event_global_pos(event: InputEvent) -> Vector2:
 	return get_global_mouse_position()
 
 func _input(event: InputEvent) -> void:
+	# Registro multitáctil y mouse
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			active_touches[event.index] = _get_event_global_pos(event)
+		else:
+			active_touches.erase(event.index)
+	elif event is InputEventScreenDrag:
+		active_touches[event.index] = _get_event_global_pos(event)
+	elif event is InputEventMouseButton:
+		if event.pressed:
+			active_touches[0] = _get_event_global_pos(event)
+		else:
+			active_touches.erase(0)
+	elif event is InputEventMouseMotion:
+		if is_slicing:
+			active_touches[0] = _get_event_global_pos(event)
+		else:
+			active_touches.erase(0)
+
 	if event is InputEventMouseButton or event is InputEventScreenTouch:
 		is_slicing = event.pressed
 		if is_slicing:
@@ -755,11 +785,24 @@ func force_update_skills() -> void:
 			if ally.has_method("_apply_stats"):
 				ally._apply_stats()
 			elif ally.has_method("setup_level"):
-				var lvl = GameManager.get_skill_level("tamed_alien")
-				if ally.scale.x < 0.8:
-					ally.setup_level(1)
-				else:
-					ally.setup_level(lvl)
+				var skill_id = ""
+				if ally.name.begins_with("TamedAlien"):
+					skill_id = "tamed_alien"
+				elif ally.name.begins_with("MiningCart") or "speed_mult" in ally:
+					skill_id = "mining_cart"
+				elif ally.name.begins_with("AxeThrower"):
+					skill_id = "axe_thrower"
+				elif ally.name.begins_with("Satellite"):
+					skill_id = "satellite"
+				elif ally.name.begins_with("Boomerang"):
+					skill_id = "boomerang"
+				
+				if skill_id != "":
+					var lvl = GameManager.get_skill_level(skill_id)
+					if skill_id == "tamed_alien" and ally.scale.x < 0.8:
+						ally.setup_level(1)
+					else:
+						ally.setup_level(lvl)
 
 # --- TUTORIAL DE INICIO ---
 
@@ -862,6 +905,36 @@ func finish_tutorial() -> void:
 		print("DEBUG: SpawnTimer encendido post-tutorial. Oleada: ", GameManager.current_wave)
 
 func _physics_process(delta: float) -> void:
+	# Lógica de "barda" o tajo continuo con dos dedos
+	if active_touches.size() >= 2:
+		var keys = active_touches.keys()
+		var p1 = active_touches[keys[0]]
+		var p2 = active_touches[keys[1]]
+		
+		# Actualizar línea visual
+		if is_instance_valid(barda_line):
+			barda_line.clear_points()
+			barda_line.add_point(p1)
+			barda_line.add_point(p2)
+			barda_line.visible = true
+			
+		# Aplicar daño periódico
+		barda_damage_timer += delta
+		if barda_damage_timer >= 0.15:
+			barda_damage_timer = 0.0
+			var enemies = get_tree().get_nodes_in_group("enemies")
+			for enemy in enemies:
+				if is_instance_valid(enemy) and "current_health" in enemy and enemy.current_health > 0:
+					var dist = _distance_to_segment(enemy.global_position, p1, p2)
+					if dist < 45.0: # Rango de la barda
+						if enemy.has_method("take_damage"):
+							var dmg = int(GameManager.click_damage * GameManager.prestige_multiplier * GameManager.steroid_multiplier)
+							enemy.take_damage(dmg, false, "normal")
+	else:
+		if is_instance_valid(barda_line) and barda_line.visible:
+			barda_line.visible = false
+			barda_line.clear_points()
+
 	# 1. Campesino Extremo (Recogida automática de monedas, orbes y cofres)
 	if GameManager.campesino_extremo_rounds > 0:
 		var base = get_tree().get_first_node_in_group("BaseRabanito")
@@ -1127,3 +1200,13 @@ func create_micro_explosion(pos: Vector2) -> void:
 	t.tween_property(ring, "scale", Vector2(1.5, 1.5), 0.2)
 	t.tween_property(ring, "modulate:a", 0.0, 0.2)
 	t.finished.connect(ring.queue_free)
+
+func _distance_to_segment(p: Vector2, a: Vector2, b: Vector2) -> float:
+	var ab = b - a
+	var ap = p - a
+	var ab_len_sq = ab.length_squared()
+	if ab_len_sq == 0.0:
+		return p.distance_to(a)
+	var t = clamp(ap.dot(ab) / ab_len_sq, 0.0, 1.0)
+	var projection = a + t * ab
+	return p.distance_to(projection)

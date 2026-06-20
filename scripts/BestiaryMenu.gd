@@ -248,13 +248,13 @@ func _get_milestone_target(id: int, m_lvl: int) -> int:
 	return base * int(pow(2, m_lvl))
 
 func _get_milestone_reward(id: int, m_lvl: int) -> int:
-	var base_reward = 50
+	var base_reward = 25
 	if id == 8:
-		base_reward = 150
-	elif id == 0:
-		base_reward = 50
-	else:
 		base_reward = 75
+	elif id == 0:
+		base_reward = 25
+	else:
+		base_reward = 37
 	return base_reward * int(pow(2, m_lvl))
 
 func _claim_reward(id: int) -> void:

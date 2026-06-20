@@ -42,19 +42,23 @@ func _fire_lasers() -> void:
 	var damage = 20
 	if lvl >= 2: damage = 40 # Nivel 2 de carta: Láseres concentrados
 	
+	var targeted_enemies = []
 	for i in range(num_lasers):
 		var target = null
 		
 		# Lógica de la mejora 4_spec: Objetivo Fijado
 		if is_locked_on:
 			if not is_instance_valid(locked_target) or locked_target.current_health <= 0:
-				locked_target = _get_random_enemy() # Buscar uno nuevo si el viejo murió
+				locked_target = _get_random_enemy_excluding(targeted_enemies) # Buscar uno nuevo si el viejo murió
 			target = locked_target
 		else:
-			target = _get_random_enemy() # Comportamiento normal errático
+			target = _get_random_enemy_excluding(targeted_enemies) # Comportamiento normal errático
 			
 		if target:
-			_draw_laser(target.global_position, lvl)
+			targeted_enemies.append(target)
+			# Pequeño offset para que los dos láseres no se solapen si golpean al mismo objetivo
+			var draw_pos = target.global_position + Vector2((i * 30) - (15 * (num_lasers - 1)), 0)
+			_draw_laser(draw_pos, lvl)
 			if target.has_method("take_damage"):
 				target.take_damage(damage)
 			
@@ -90,18 +94,34 @@ func _fire_orbital_ray() -> void:
 					e.take_damage(100)
 
 func _get_random_enemy() -> Node2D:
+	return _get_random_enemy_excluding([])
+
+func _get_random_enemy_excluding(exclude_list: Array) -> Node2D:
 	var enemies = get_tree().get_nodes_in_group("enemies")
 	var valid_enemies = []
 	for e in enemies:
-		if is_instance_valid(e) and "current_health" in e and e.current_health > 0 and not e.get("is_underground"):
+		if is_instance_valid(e) and "current_health" in e and e.current_health > 0 and not e.get("is_underground") and not exclude_list.has(e):
 			valid_enemies.append(e)
 	
 	if valid_enemies.size() > 0:
 		return valid_enemies.pick_random()
+	
+	# Fallback si no hay enemigos libres
+	if exclude_list.size() > 0:
+		var fallback_enemies = []
+		for e in enemies:
+			if is_instance_valid(e) and "current_health" in e and e.current_health > 0 and not e.get("is_underground"):
+				fallback_enemies.append(e)
+		if fallback_enemies.size() > 0:
+			return fallback_enemies.pick_random()
+			
 	return null
 
 func _draw_laser(target_pos: Vector2, lvl: int) -> void:
 	var width = 4.0 + (lvl * 2.0)
+	# Mejora Nivel 2: El láser se vuelve 5 veces más grueso
+	if lvl >= 2:
+		width *= 5.0
 	
 	var outer = Line2D.new()
 	outer.default_color = Color(1.0, 0.1, 0.1, 0.5)

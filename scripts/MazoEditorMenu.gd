@@ -18,6 +18,7 @@ var tex_epica = preload("res://assets/img/carta_epica.png")
 var tex_legendaria = preload("res://assets/img/carta_legendaria.png")
 
 var selected_slot_index: int = 0
+var modal_instance: Control = null
 
 var skills_list = [
 	# Habilidades estándar (5 niveles)
@@ -43,6 +44,10 @@ var skills_list = [
 ]
 
 func _ready() -> void:
+	# Ocultar el scroll container original para que las ranuras ocupen toda la pantalla
+	if has_node("VBoxContainer/ScrollContainer"):
+		$VBoxContainer/ScrollContainer.visible = false
+		
 	# Asegurarse de que el mazo tenga al menos slot 1 desbloqueado por defecto si cumple la condición
 	if GameManager.best_wave >= 10 and GameManager.deck_unlocked_slots == 0:
 		GameManager.deck_unlocked_slots = 1
@@ -78,9 +83,6 @@ func update_ui() -> void:
 	# 4. Actualizar Ranuras y Afinidad
 	update_slots()
 	update_affinity()
-	
-	# 5. Generar Grid de Cartas
-	update_grid()
 
 func update_slots() -> void:
 	for c in slots_container.get_children():
@@ -88,7 +90,8 @@ func update_slots() -> void:
 		
 	for i in range(3):
 		var slot_panel = PanelContainer.new()
-		slot_panel.custom_minimum_size = Vector2(240, 150)
+		# Hacer las ranuras más grandes ya que no tenemos el grid principal
+		slot_panel.custom_minimum_size = Vector2(280, 200)
 		
 		var style = StyleBoxFlat.new()
 		if i == selected_slot_index and i < GameManager.deck_unlocked_slots:
@@ -140,6 +143,7 @@ func update_slots() -> void:
 				btn.pressed.connect(func():
 					selected_slot_index = i
 					update_slots()
+					_open_card_selector_modal()
 				)
 				slot_panel.add_child(btn)
 			else:
@@ -148,9 +152,11 @@ func update_slots() -> void:
 					card_data = GameManager.skills_data[card_id]
 				elif GameManager.flat_upgrades.has(card_id):
 					card_data = GameManager.flat_upgrades[card_id]
+				
 				var name_lbl = Label.new()
 				name_lbl.text = card_data["name"].to_upper()
 				name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 				name_lbl.label_settings = label_font
 				name_lbl.add_theme_font_size_override("font_size", 16)
 				
@@ -169,7 +175,6 @@ func update_slots() -> void:
 				clear_btn.add_theme_font_override("font", button_font)
 				clear_btn.add_theme_font_size_override("font_size", 10)
 				
-				# El truco para capturar el índice actual "i" de forma segura en Godot 4 es usar bind o una variable local
 				var current_i = i
 				clear_btn.pressed.connect(func():
 					GameManager.deck_equipped_cards[current_i] = ""
@@ -181,10 +186,11 @@ func update_slots() -> void:
 				
 				var select_btn = Button.new()
 				select_btn.flat = true
-				select_btn.custom_minimum_size = Vector2(240, 90)
+				select_btn.custom_minimum_size = Vector2(280, 130)
 				select_btn.pressed.connect(func():
 					selected_slot_index = current_i
 					update_slots()
+					_open_card_selector_modal()
 				)
 				slot_panel.add_child(select_btn)
 				slot_panel.move_child(select_btn, 0)
@@ -236,10 +242,98 @@ func update_affinity() -> void:
 		afinity_label.text = "Afinidad Activa: Ninguna (Equipa 3 cartas de la misma categoría)"
 		afinity_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 
-func update_grid() -> void:
-	for c in grid.get_children():
-		c.queue_free()
+func _open_card_selector_modal() -> void:
+	if is_instance_valid(modal_instance):
+		modal_instance.queue_free()
 		
+	# 1. Crear el fondo del modal (bloquea clicks externos)
+	var bg = ColorRect.new()
+	bg.color = Color(0.0, 0.0, 0.0, 0.75)
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	bg.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(bg)
+	modal_instance = bg
+	
+	# 2. Panel central (90% del tamaño de la pantalla)
+	var panel = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(860, 480)
+	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	bg.add_child(panel)
+	
+	# Centrar el panel usando anchors
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.08, 0.1, 0.95)
+	style.border_width_left = 3
+	style.border_width_top = 3
+	style.border_width_right = 3
+	style.border_width_bottom = 3
+	style.border_color = Color(0.0, 0.7, 1.0, 1.0)
+	style.corner_radius_top_left = 12
+	style.corner_radius_top_right = 12
+	style.corner_radius_bottom_left = 12
+	style.corner_radius_bottom_right = 12
+	panel.add_theme_stylebox_override("panel", style)
+	
+	# 3. Contenedor vertical principal del modal
+	var main_vbox = VBoxContainer.new()
+	main_vbox.add_theme_constant_override("separation", 12)
+	# Haremos un margen
+	main_vbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	panel.add_child(main_vbox)
+	
+	# Cabecera: Título + Botón de Cerrar
+	var header = HBoxContainer.new()
+	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	main_vbox.add_child(header)
+	
+	# Espacio a la izquierda
+	var spacing_left = Control.new()
+	spacing_left.custom_minimum_size = Vector2(12, 10)
+	header.add_child(spacing_left)
+	
+	var title = Label.new()
+	title.text = "SELECCIONAR CARTA PARA ESPACIO " + str(selected_slot_index + 1)
+	title.label_settings = label_font
+	title.add_theme_font_size_override("font_size", 18)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(title)
+	
+	var close_btn = Button.new()
+	close_btn.text = " X "
+	close_btn.add_theme_font_override("font", button_font)
+	close_btn.add_theme_font_size_override("font_size", 16)
+	close_btn.pressed.connect(bg.queue_free)
+	header.add_child(close_btn)
+	
+	# Espacio a la derecha
+	var spacing_right = Control.new()
+	spacing_right.custom_minimum_size = Vector2(12, 10)
+	header.add_child(spacing_right)
+	
+	# 4. ScrollContainer para las cartas
+	var scroll = ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.mouse_filter = Control.MOUSE_FILTER_PASS
+	main_vbox.add_child(scroll)
+	
+	# Configurar drag-scroll
+	_setup_drag_scroll(scroll)
+	
+	# 5. GridContainer de 4 columnas
+	var modal_grid = GridContainer.new()
+	modal_grid.columns = 4
+	modal_grid.add_theme_constant_override("h_separation", 24)
+	modal_grid.add_theme_constant_override("v_separation", 24)
+	modal_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	modal_grid.mouse_filter = Control.MOUSE_FILTER_PASS
+	scroll.add_child(modal_grid)
+	
+	# 6. Generar las cartas
 	for skill_id in skills_list:
 		var data = {}
 		if GameManager.skills_data.has(skill_id):
@@ -248,51 +342,54 @@ func update_grid() -> void:
 			data = GameManager.flat_upgrades[skill_id]
 		var is_unlocked = GameManager.unlocked_skills.has(skill_id)
 		
-		var card_btn = Button.new()
-		card_btn.custom_minimum_size = Vector2(190, 240)
-		card_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		# Crear contenedor de carta (hacerlas más pequeñas y darles espacio)
+		var card_panel = PanelContainer.new()
+		card_panel.custom_minimum_size = Vector2(150, 190)
+		card_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		card_panel.mouse_filter = Control.MOUSE_FILTER_PASS
 		
-		var style = StyleBoxTexture.new()
+		var card_style = StyleBoxTexture.new()
 		var rarity = data.get("rarity", "comun")
 		if is_unlocked:
-			if rarity == "legendaria": style.texture = tex_legendaria
-			elif rarity == "epica": style.texture = tex_epica
-			elif rarity == "rara": style.texture = tex_rara
-			else: style.texture = tex_comun
+			if rarity == "legendaria": card_style.texture = tex_legendaria
+			elif rarity == "epica": card_style.texture = tex_epica
+			elif rarity == "rara": card_style.texture = tex_rara
+			else: card_style.texture = tex_comun
 		else:
-			style.texture = tex_comun
-			style.modulate_color = Color(0.15, 0.15, 0.2, 1.0)
+			card_style.texture = tex_comun
+			card_style.modulate_color = Color(0.15, 0.15, 0.2, 1.0)
 			
-		card_btn.add_theme_stylebox_override("normal", style)
-		card_btn.add_theme_stylebox_override("hover", style)
-		card_btn.add_theme_stylebox_override("pressed", style)
+		card_panel.add_theme_stylebox_override("panel", card_style)
 		
-		var vbox = VBoxContainer.new()
-		vbox.add_theme_constant_override("separation", 6)
-		vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-		vbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		vbox.mouse_filter = Control.MOUSE_FILTER_PASS
-		card_btn.add_child(vbox)
+		# VBox dentro de la carta
+		var card_vbox = VBoxContainer.new()
+		card_vbox.add_theme_constant_override("separation", 6)
+		card_vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+		card_vbox.mouse_filter = Control.MOUSE_FILTER_PASS
+		card_panel.add_child(card_vbox)
 		
+		# Nombre de la carta
 		var name_lbl = Label.new()
 		name_lbl.text = data["name"].to_upper()
 		name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		name_lbl.label_settings = label_font
-		name_lbl.add_theme_font_size_override("font_size", 13)
+		name_lbl.add_theme_font_size_override("font_size", 11)
+		name_lbl.mouse_filter = Control.MOUSE_FILTER_PASS
 		if not is_unlocked:
 			name_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.5))
-		vbox.add_child(name_lbl)
+		card_vbox.add_child(name_lbl)
 		
+		# Estado/Rareza
 		var status_lbl = Label.new()
 		status_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		status_lbl.label_settings = label_font
-		status_lbl.add_theme_font_size_override("font_size", 10)
+		status_lbl.add_theme_font_size_override("font_size", 9)
+		status_lbl.mouse_filter = Control.MOUSE_FILTER_PASS
 		
 		if not is_unlocked:
-			status_lbl.text = "BLOQUEADA\n(Juega para obtenerla)"
+			status_lbl.text = "BLOQUEADA"
 			status_lbl.add_theme_color_override("font_color", Color(0.8, 0.3, 0.3))
-			card_btn.disabled = true
 		else:
 			status_lbl.text = rarity.to_upper()
 			var r_color = Color(1.0, 1.0, 1.0)
@@ -306,21 +403,61 @@ func update_grid() -> void:
 				status_lbl.text = "EQUIPADA (" + str(eq_idx + 1) + ")"
 				status_lbl.add_theme_color_override("font_color", Color(0.2, 0.9, 0.2))
 				
-			var current_skill_id = skill_id
-			card_btn.pressed.connect(func():
-				if selected_slot_index < GameManager.deck_unlocked_slots:
-					for i in range(3):
-						if GameManager.deck_equipped_cards[i] == current_skill_id:
-							GameManager.deck_equipped_cards[i] = ""
-					GameManager.deck_equipped_cards[selected_slot_index] = current_skill_id
-					GameManager.save_game()
-					
-					var next_slot = (selected_slot_index + 1) % GameManager.deck_unlocked_slots
-					selected_slot_index = next_slot
-					update_ui()
+		card_vbox.add_child(status_lbl)
+		
+		# Lógica de clicks con detección de drag
+		if is_unlocked:
+			var drag_threshold = 10.0
+			var press_start_pos = Vector2.ZERO
+			var was_dragged = false
+			
+			card_panel.gui_input.connect(func(event):
+				if event is InputEventMouseButton or event is InputEventScreenTouch:
+					if event.pressed:
+						press_start_pos = event.position
+						was_dragged = false
+					else:
+						if not was_dragged and event.position.distance_to(press_start_pos) < drag_threshold:
+							_equip_card(skill_id)
+							bg.queue_free()
+				elif event is InputEventMouseMotion or event is InputEventScreenDrag:
+					if event.position.distance_to(press_start_pos) > drag_threshold:
+						was_dragged = true
 			)
-		vbox.add_child(status_lbl)
-		grid.add_child(card_btn)
+			
+		modal_grid.add_child(card_panel)
+
+func _equip_card(skill_id: String) -> void:
+	if selected_slot_index < GameManager.deck_unlocked_slots:
+		for i in range(3):
+			if GameManager.deck_equipped_cards[i] == skill_id:
+				GameManager.deck_equipped_cards[i] = ""
+		GameManager.deck_equipped_cards[selected_slot_index] = skill_id
+		GameManager.save_game()
+		
+		var next_slot = (selected_slot_index + 1) % GameManager.deck_unlocked_slots
+		selected_slot_index = next_slot
+		update_ui()
+
+func _setup_drag_scroll(scroll_container: ScrollContainer) -> void:
+	var drag_data = {
+		"is_dragging": false,
+		"drag_start": Vector2.ZERO,
+		"scroll_start": Vector2.ZERO
+	}
+	scroll_container.gui_input.connect(func(event):
+		if event is InputEventMouseButton or event is InputEventScreenTouch:
+			if event.pressed:
+				drag_data.is_dragging = true
+				drag_data.drag_start = event.position
+				drag_data.scroll_start = Vector2(scroll_container.scroll_horizontal, scroll_container.scroll_vertical)
+			else:
+				drag_data.is_dragging = false
+		elif (event is InputEventMouseMotion or event is InputEventScreenDrag) and drag_data.is_dragging:
+			var diff = event.position - drag_data.drag_start
+			scroll_container.scroll_horizontal = drag_data.scroll_start.x - diff.x
+			scroll_container.scroll_vertical = drag_data.scroll_start.y - diff.y
+	)
 
 func _on_btn_upgrade_deck_pressed() -> void:
 	if GameManager.upgrade_deck_level():

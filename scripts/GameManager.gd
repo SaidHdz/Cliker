@@ -641,6 +641,7 @@ var auto_timer: Timer
 
 # --- HABILIDADES ROGUELITE (Bools para flags rápidos) ---
 var has_earthquake: bool = false
+var has_frost_avalanche: bool = false
 var has_infernal_hole: bool = false
 var has_orbital_satellite: bool = false
 var has_radioactive_swamp: bool = false
@@ -996,7 +997,7 @@ func reset_run() -> void:
 	lluvia_rabanos_rounds = 0
 	senal_pirata_rounds = 0
 	sindicato_alien_rounds = 0
-	has_earthquake = false; has_infernal_hole = false; has_orbital_satellite = false; has_radioactive_swamp = false; has_field_squad = false; has_living_fortress = false
+	has_earthquake = false; has_frost_avalanche = false; has_infernal_hole = false; has_orbital_satellite = false; has_radioactive_swamp = false; has_field_squad = false; has_living_fortress = false
 	has_ajo_negativo = false; has_los_compadres = false; has_war_garden = false; has_infected_potato = false; has_excalibur_vegetal = false; has_deforesador = false; has_fire_slice = false; has_mirror_slice = false; has_explosive_slice = false
 	has_toxic_compost = false; has_double_slice = false; has_lightning_slice = false; has_wind_gust = false
 	wind_gust_count = 0; shield_damage = 2; active_damage_numbers = 0

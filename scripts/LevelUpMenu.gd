@@ -118,6 +118,11 @@ func generate_options() -> void:
 			if id == "wind_gust" and GameManager.wind_gust_count >= 3: can_add = false
 			if id == "mining_cart" and GameManager.has_mining_cart: can_add = false
 			if id == "energy_shield" and GameManager.shield_energy_hits > 0: can_add = false
+			if id == "sword_craft" and GameManager.has_sword_craft: can_add = false
+			if id == "earthquake" and GameManager.has_earthquake: can_add = false
+			if id == "frost_avalanche" and GameManager.has_frost_avalanche: can_add = false
+			if id == "mirror_slice" and GameManager.has_mirror_slice: can_add = false
+			if id == "toxic_compost" and GameManager.has_toxic_compost: can_add = false
 			
 			# Filtrar sinergias para que solo aparezcan si son elegibles
 			var synergy_ids = ["infernal_hole", "orbital_satellite", "radioactive_swamp", "field_squad", "living_fortress", "ajo_negativo", "los_compadres", "war_garden", "infected_potato", "excalibur_vegetal", "deforesador"]
@@ -263,6 +268,7 @@ func apply_upgrade(id: String) -> void:
 		"energy_shield": GameManager.shield_energy_hits = 3
 		"sword_craft": GameManager.has_sword_craft = true
 		"frost_avalanche":
+			GameManager.has_frost_avalanche = true
 			for enemy in get_tree().get_nodes_in_group("enemies"):
 				if is_instance_valid(enemy) and enemy.has_method("apply_frost"): enemy.apply_frost()
 		"earthquake": GameManager.has_earthquake = true

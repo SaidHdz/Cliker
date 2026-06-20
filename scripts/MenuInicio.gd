@@ -228,11 +228,11 @@ func update_ui() -> void:
 		var record = GameManager.best_wave
 		var is_es = GameManager.language == "es"
 		if record < 25:
-			next_unlock_lbl.text = ("PRÓXIMO\n🔒 Slot de Mazo 2\nOleada 25\n" if is_es else "NEXT\n🔒 Deck Slot 2\nWave 25\n") + str(record) + " / 25"
+			next_unlock_lbl.text = ("PRÓXIMO\nSlot de Mazo 2\nOleada 25\n" if is_es else "NEXT\nDeck Slot 2\nWave 25\n") + str(record) + " / 25"
 		elif record < 50:
-			next_unlock_lbl.text = ("PRÓXIMO\n🔒 Prestigio\nOleada 50\n" if is_es else "NEXT\n🔒 Prestige\nWave 50\n") + str(record) + " / 50"
+			next_unlock_lbl.text = ("PRÓXIMO\nPrestigio\nOleada 50\n" if is_es else "NEXT\nPrestige\nWave 50\n") + str(record) + " / 50"
 		else:
-			next_unlock_lbl.text = "PRÓXIMO\n🏆 ¡Todo Desbloqueado!" if is_es else "NEXT\n🏆 Everything Unlocked!"
+			next_unlock_lbl.text = "PRÓXIMO\n¡Todo Desbloqueado!" if is_es else "NEXT\nEverything Unlocked!"
 
 	if is_instance_valid(deck_panel):
 		var deck_text = "MAZO: NIVEL " + str(GameManager.deck_level) + "   |   "
@@ -510,7 +510,7 @@ func show_settings_dialog() -> void:
 	
 	var panel = PanelContainer.new()
 	overlay.add_child(panel)
-	_center_panel(panel, 660, 840)
+	_center_panel(panel, 660, 480)
 	
 	var panel_style = StyleBoxFlat.new()
 	panel_style.bg_color = Color(0.06, 0.06, 0.08, 1.0)
@@ -550,6 +550,7 @@ func show_settings_dialog() -> void:
 	var settings_scroll = ScrollContainer.new()
 	settings_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	vbox.add_child(settings_scroll)
+	_setup_drag_scroll(settings_scroll)
 	
 	var settings_vbox = VBoxContainer.new()
 	settings_vbox.add_theme_constant_override("separation", 18)
@@ -623,11 +624,11 @@ func show_settings_dialog() -> void:
 		btn_lang.text = "ESPAÑOL" if is_es else "ENGLISH"
 		
 		# Credits
-		credits_lbl.text = "Ravyn Studio - Obra original respaldada por Ravyn Studio." if is_es else "Ravyn Studio - Original work backed by Ravyn Studio."
+		credits_lbl.text = "Dev.Diablo - Obra original respaldada por Dev.Diablo." if is_es else "Dev.Diablo - Original work backed by Dev.Diablo."
 		
 		# Close / Reset / Exit
 		btn_reset.text = "BORRAR PARTIDA (RESET)" if is_es else "HARD RESET (DELETE SAVE)"
-		btn_exit_game.text = "🚪 SALIR DEL JUEGO" if is_es else "🚪 EXIT GAME"
+		btn_exit_game.text = "SALIR DEL JUEGO" if is_es else "EXIT GAME"
 		btn_close_settings.text = "CERRAR Y GUARDAR" if is_es else "CLOSE & SAVE"
 	
 	# Add Music UI
@@ -1118,7 +1119,7 @@ func show_daily_login_dialog(active_day: int) -> void:
 		# Label Recompensa
 		var reward_val = i * 100
 		var reward_lbl = Label.new()
-		reward_lbl.text = str(reward_val) + " 🪙"
+		reward_lbl.text = str(reward_val) + "M"
 		reward_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		reward_lbl.add_theme_font_override("font", button_font)
 		reward_lbl.add_theme_font_size_override("font_size", 16)
@@ -1210,7 +1211,7 @@ func show_profile_dialog() -> void:
 	
 	var panel = PanelContainer.new()
 	overlay.add_child(panel)
-	_center_panel(panel, 520, 680)
+	_center_panel(panel, 520, 480)
 	
 	var panel_style = StyleBoxFlat.new()
 	panel_style.bg_color = Color(0.08, 0.08, 0.12, 1.0)
@@ -1255,11 +1256,18 @@ func show_profile_dialog() -> void:
 	avatar_rect.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	header_vb.add_child(avatar_rect)
 	
-	var name_lbl = Label.new()
-	name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_lbl.add_theme_font_override("font", button_font)
-	name_lbl.add_theme_font_size_override("font_size", 20)
-	header_vb.add_child(name_lbl)
+	var name_edit = LineEdit.new()
+	name_edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_edit.add_theme_font_override("font", button_font)
+	name_edit.add_theme_font_size_override("font_size", 16)
+	name_edit.custom_minimum_size = Vector2(200, 36)
+	name_edit.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	name_edit.max_length = 15
+	name_edit.text_changed.connect(func(new_name):
+		GameManager.profile_stats["player_name"] = new_name
+		GameManager.save_game()
+	)
+	header_vb.add_child(name_edit)
 	
 	var title_equip_lbl = Label.new()
 	title_equip_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1294,7 +1302,7 @@ func show_profile_dialog() -> void:
 			
 		avatar_rect.texture = load(tex_path)
 		avatar_rect.modulate = mod_color
-		name_lbl.text = GameManager.profile_stats.get("player_name", "Said")
+		name_edit.text = GameManager.profile_stats.get("player_name", "Said")
 		title_equip_lbl.text = GameManager.profile_stats.get("equipped_title", "Novato del Huerto")
 		
 		var prestige_val = GameManager.profile_stats.get("prestige", 0)
@@ -1312,6 +1320,7 @@ func show_profile_dialog() -> void:
 	var nav_scroll = ScrollContainer.new()
 	nav_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	vbox.add_child(nav_scroll)
+	_setup_drag_scroll(nav_scroll)
 	
 	var nav_vbox = VBoxContainer.new()
 	nav_vbox.add_theme_constant_override("separation", 10)
@@ -1344,6 +1353,7 @@ func show_profile_dialog() -> void:
 	var detail_scroll = ScrollContainer.new()
 	detail_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	detail_container.add_child(detail_scroll)
+	_setup_drag_scroll(detail_scroll)
 	
 	var detail_vbox = VBoxContainer.new()
 	detail_vbox.add_theme_constant_override("separation", 8)
@@ -1411,7 +1421,7 @@ func show_profile_dialog() -> void:
 		btn.add_theme_stylebox_override("pressed", btn_style)
 		
 		nav_vbox.add_child(btn)
-		btn.pressed.connect(func():
+		_connect_button_with_drag_protection(btn, func():
 			nav_scroll.visible = false
 			btn_close.visible = false
 			detail_container.visible = true
@@ -1622,7 +1632,7 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 				btn_equip.add_theme_stylebox_override("pressed", eq_style)
 				hbox.add_child(btn_equip)
 				
-				btn_equip.pressed.connect(func():
+				_connect_button_with_drag_protection(btn_equip, func():
 					GameManager.profile_stats["equipped_title"] = t_info.name
 					GameManager.save_game()
 					header_title_equip_lbl.text = t_info.name
@@ -1754,7 +1764,7 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 				btn_equip.add_theme_stylebox_override("pressed", eq_style)
 				hbox.add_child(btn_equip)
 				
-				btn_equip.pressed.connect(func():
+				_connect_button_with_drag_protection(btn_equip, func():
 					GameManager.profile_stats["equipped_avatar"] = a_info.name
 					GameManager.save_game()
 					header_avatar_rect.texture = load(tex_path)
@@ -1816,3 +1826,41 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 		add_lbl.call(("Explosiones Provocadas: " if is_es else "Explosions Caused: ") + str(GameManager.profile_stats.get("explosions_caused", 0)))
 		var spacer5 = Control.new(); spacer5.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer5)
 		add_lbl.call(("Kilometros Cortados: " if is_es else "Kilometers Cut: ") + ("%.1f" % GameManager.profile_stats.get("kilometers_cut", 0.0)) + " km")
+
+func _setup_drag_scroll(scroll_container: ScrollContainer) -> void:
+	var drag_data = {
+		"is_dragging": false,
+		"drag_start": Vector2.ZERO,
+		"scroll_start": Vector2.ZERO
+	}
+	scroll_container.gui_input.connect(func(event):
+		if event is InputEventMouseButton or event is InputEventScreenTouch:
+			if event.pressed:
+				drag_data.is_dragging = true
+				drag_data.drag_start = event.position
+				drag_data.scroll_start = Vector2(scroll_container.scroll_horizontal, scroll_container.scroll_vertical)
+			else:
+				drag_data.is_dragging = false
+		elif (event is InputEventMouseMotion or event is InputEventScreenDrag) and drag_data.is_dragging:
+			var diff = event.position - drag_data.drag_start
+			scroll_container.scroll_horizontal = drag_data.scroll_start.x - diff.x
+			scroll_container.scroll_vertical = drag_data.scroll_start.y - diff.y
+	)
+
+func _connect_button_with_drag_protection(btn: Button, callback: Callable) -> void:
+	btn.mouse_filter = Control.MOUSE_FILTER_PASS
+	var drag_threshold = 10.0
+	var press_pos = Vector2.ZERO
+	var was_dragged = false
+	btn.gui_input.connect(func(event):
+		if event is InputEventMouseButton or event is InputEventScreenTouch:
+			if event.pressed:
+				press_pos = event.position
+				was_dragged = false
+			else:
+				if not was_dragged and event.position.distance_to(press_pos) < drag_threshold:
+					callback.call()
+		elif event is InputEventMouseMotion or event is InputEventScreenDrag:
+			if event.position.distance_to(press_pos) > drag_threshold:
+				was_dragged = true
+	)

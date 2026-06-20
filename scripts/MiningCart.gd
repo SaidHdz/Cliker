@@ -8,7 +8,11 @@ var speed_mult: float = 1.0 # Variable para guardar la velocidad final
 
 func _ready() -> void:
 	z_index = 4
-	current_level_val = GameManager.get_skill_level("mining_cart")
+	add_to_group("allies")
+	setup_level(GameManager.get_skill_level("mining_cart"))
+
+func setup_level(lvl_val: Variant) -> void:
+	current_level_val = lvl_val
 	var lvl = 4 if typeof(current_level_val) == TYPE_STRING else current_level_val
 	
 	# Calculamos el multiplicador de velocidad (L2: +20%, L3: +30%)
@@ -16,11 +20,12 @@ func _ready() -> void:
 	if lvl >= 2: speed_mult = 1.2
 	if lvl >= 3: speed_mult = 1.3
 	
-	# Nivel 3: +15% radio de recolección
-	if lvl >= 3:
-		for child in get_children():
-			if child is CollisionShape2D:
-				child.scale *= 1.15
+	# Restauramos la escala original del CollisionShape2D antes de re-escalar
+	for child in get_children():
+		if child is CollisionShape2D:
+			child.scale = Vector2.ONE
+			if lvl >= 3:
+				child.scale = Vector2(1.15, 1.15)
 
 func _physics_process(delta: float) -> void:
 	# Ahora esta línea es puramente matemática y ultraligera
