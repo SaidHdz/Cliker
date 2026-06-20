@@ -432,9 +432,21 @@ func show_rank_dialog() -> void:
 	var sep = HSeparator.new()
 	vbox.add_child(sep)
 	
-	# Contar TODAS las cartas (skills + flat_upgrades)
-	var total_cards = GameManager.skills_data.size() + GameManager.flat_upgrades.size()
-	var unlocked_count = GameManager.unlocked_skills.size()
+	# Contar TODAS las cartas excluyendo sinergias (legendarias)
+	var total_cards = 0
+	var unlocked_count = 0
+	for k in GameManager.skills_data.keys():
+		var info = GameManager.skills_data[k]
+		if info.get("rarity", "") != "legendaria":
+			total_cards += 1
+			if GameManager.unlocked_skills.has(k):
+				unlocked_count += 1
+	for k in GameManager.flat_upgrades.keys():
+		var info = GameManager.flat_upgrades[k]
+		if info.get("rarity", "") != "legendaria":
+			total_cards += 1
+			if GameManager.unlocked_skills.has(k):
+				unlocked_count += 1
 	var pct = 0.0
 	if total_cards > 0:
 		pct = (float(unlocked_count) / total_cards) * 100.0
@@ -1230,7 +1242,7 @@ func show_profile_dialog() -> void:
 	vbox.add_child(header_vb)
 	
 	var title_lbl = Label.new()
-	title_lbl.text = "👤 PERFIL" if is_es else "👤 PROFILE"
+	title_lbl.text = "PERFIL" if is_es else "PROFILE"
 	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_lbl.label_settings = label_font
 	title_lbl.add_theme_font_size_override("font_size", 22)
@@ -1316,7 +1328,7 @@ func show_profile_dialog() -> void:
 	detail_container.add_child(top_hbox)
 	
 	var btn_back = Button.new()
-	btn_back.text = "⬅️ VOLVER" if is_es else "⬅️ BACK"
+	btn_back.text = "VOLVER" if is_es else "BACK"
 	btn_back.custom_minimum_size = Vector2(120, 45)
 	btn_back.add_theme_font_override("font", button_font)
 	btn_back.add_theme_font_size_override("font_size", 14)
@@ -1371,12 +1383,12 @@ func show_profile_dialog() -> void:
 	)
 	
 	var cats = [
-		"📊 Estadísticas" if is_es else "📊 Stats",
-		"🏆 Récords" if is_es else "🏆 Records",
-		"🎖️ Títulos" if is_es else "🎖️ Titles",
-		"🖼️ Avatares" if is_es else "🖼️ Avatars",
-		"📚 Colección" if is_es else "📚 Collection",
-		"⭐ Curiosidades" if is_es else "⭐ Trivia"
+		"Estadísticas" if is_es else "Stats",
+		"Récords" if is_es else "Records",
+		"Títulos" if is_es else "Titles",
+		"Avatares" if is_es else "Avatars",
+		"Colección" if is_es else "Collection",
+		"Curiosidades" if is_es else "Trivia"
 	]
 	
 	for cat in cats:
@@ -1413,6 +1425,22 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 	for child in detail_vbox.get_children():
 		child.queue_free()
 		
+	# Calcular cartas (comunes, raras, épicas, cofre) excluyendo sinergias (legendarias)
+	var cards_total = 0
+	var cards_unlocked = 0
+	for k in GameManager.skills_data.keys():
+		var info = GameManager.skills_data[k]
+		if info.get("rarity", "") != "legendaria":
+			cards_total += 1
+			if GameManager.unlocked_skills.has(k):
+				cards_unlocked += 1
+	for k in GameManager.flat_upgrades.keys():
+		var info = GameManager.flat_upgrades[k]
+		if info.get("rarity", "") != "legendaria":
+			cards_total += 1
+			if GameManager.unlocked_skills.has(k):
+				cards_unlocked += 1
+		
 	if cat_name.contains("Estadísticas") or cat_name.contains("Stats"):
 		var add_lbl = func(txt: String, size = 15):
 			var lbl = Label.new()
@@ -1431,34 +1459,34 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 			lbl.modulate = Color(0.4, 0.8, 1.0)
 			detail_vbox.add_child(lbl)
 			
-		add_header.call("📊 ESTADÍSTICAS GENERALES")
-		add_lbl.call("⏳ Tiempo Jugado: " + _format_time(GameManager.profile_stats.get("time_played", 0.0)))
-		add_lbl.call("🎮 Partidas Jugadas: " + str(GameManager.profile_stats.get("matches_played", 0)))
-		add_lbl.call("💚 Victorias: " + str(GameManager.profile_stats.get("wins", 0)))
-		add_lbl.call("💀 Derrotas: " + str(GameManager.profile_stats.get("losses", 0)))
-		add_lbl.call("🌊 Oleada Máxima: " + str(GameManager.best_wave))
-		add_lbl.call("⭐ Prestigios: " + str(GameManager.profile_stats.get("prestige", 0)))
-		add_lbl.call("📦 Cofres Abiertos: " + str(GameManager.profile_stats.get("chests_opened", 0)))
+		add_header.call("ESTADISTICAS GENERALES" if is_es else "GENERAL STATS")
+		add_lbl.call(("Tiempo Jugado: " if is_es else "Time Played: ") + _format_time(GameManager.profile_stats.get("time_played", 0.0)))
+		add_lbl.call(("Partidas Jugadas: " if is_es else "Matches Played: ") + str(GameManager.profile_stats.get("matches_played", 0)))
+		add_lbl.call(("Victorias: " if is_es else "Wins: ") + str(GameManager.profile_stats.get("wins", 0)))
+		add_lbl.call(("Derrotas: " if is_es else "Losses: ") + str(GameManager.profile_stats.get("losses", 0)))
+		add_lbl.call(("Oleada Maxima: " if is_es else "Max Wave: ") + str(GameManager.best_wave))
+		add_lbl.call(("Prestigios: " if is_es else "Prestiges: ") + str(GameManager.profile_stats.get("prestige", 0)))
+		add_lbl.call(("Cofres Abiertos: " if is_es else "Chests Opened: ") + str(GameManager.profile_stats.get("chests_opened", 0)))
 		
-		add_header.call("👽 ESTADÍSTICAS DE COMBATE")
-		add_lbl.call("🛸 Aliens Eliminados: " + str(GameManager.total_enemies_defeated))
-		add_lbl.call("👑 Jefes Derrotados: " + str(GameManager.profile_stats.get("bosses_killed", GameManager.bestiary.get(8, 0))))
-		add_lbl.call("💥 Daño Total: " + str(GameManager.profile_stats.get("total_damage", 0)))
-		add_lbl.call("⚡ Daño Crítico Total: " + str(GameManager.profile_stats.get("total_crit_damage", 0)))
-		add_lbl.call("🔥 Mayor Combo: " + str(GameManager.best_combo))
-		add_lbl.call("⚔️ Cortes Realizados: " + str(GameManager.profile_stats.get("finger_cuts", 0)))
-		add_lbl.call("🔥 Enemigos Quemados: " + str(GameManager.profile_stats.get("enemies_burned", 0)))
-		add_lbl.call("⚡ Enemigos Electrocutados: " + str(GameManager.profile_stats.get("enemies_electrocuted", 0)))
-		add_lbl.call("🌀 Enemigos Absorbidos: " + str(GameManager.profile_stats.get("enemies_absorbed", 0)))
+		add_header.call("ESTADISTICAS DE COMBATE" if is_es else "COMBAT STATS")
+		add_lbl.call(("Aliens Eliminados: " if is_es else "Aliens Defeated: ") + str(GameManager.total_enemies_defeated))
+		add_lbl.call(("Jefes Derrotados: " if is_es else "Bosses Defeated: ") + str(GameManager.profile_stats.get("bosses_killed", GameManager.bestiary.get(8, 0))))
+		add_lbl.call(("Dano Total: " if is_es else "Total Damage: ") + str(GameManager.profile_stats.get("total_damage", 0)))
+		add_lbl.call(("Dano Critico Total: " if is_es else "Total Crit Damage: ") + str(GameManager.profile_stats.get("total_crit_damage", 0)))
+		add_lbl.call(("Mayor Combo: " if is_es else "Max Combo: ") + str(GameManager.best_combo))
+		add_lbl.call(("Cortes Realizados: " if is_es else "Cuts Made: ") + str(GameManager.profile_stats.get("finger_cuts", 0)))
+		add_lbl.call(("Enemigos Quemados: " if is_es else "Enemies Burned: ") + str(GameManager.profile_stats.get("enemies_burned", 0)))
+		add_lbl.call(("Enemigos Electrocutados: " if is_es else "Enemies Electrocuted: ") + str(GameManager.profile_stats.get("enemies_electrocuted", 0)))
+		add_lbl.call(("Enemigos Absorbidos: " if is_es else "Enemies Absorbed: ") + str(GameManager.profile_stats.get("enemies_absorbed", 0)))
 		
-		add_header.call("💰 ESTADÍSTICAS ECONÓMICAS")
-		add_lbl.call("🪙 Oro Ganado: " + str(GameManager.profile_stats.get("gold_earned", 0)))
-		add_lbl.call("💸 Oro Gastado: " + str(GameManager.profile_stats.get("gold_spent", 0)))
-		add_lbl.call("🟡 Monedas Recogidas: " + str(GameManager.profile_stats.get("coins_collected", 0)))
-		add_lbl.call("✨ XP Total Obtenida: " + str(GameManager.profile_stats.get("total_xp_earned", 0)))
-		add_lbl.call("🛍️ Mejora Más Cara: " + str(GameManager.profile_stats.get("most_expensive_upgrade", 0)))
+		add_header.call("ESTADISTICAS ECONOMICAS" if is_es else "ECONOMIC STATS")
+		add_lbl.call(("Oro Ganado: " if is_es else "Gold Earned: ") + str(GameManager.profile_stats.get("gold_earned", 0)))
+		add_lbl.call(("Oro Gastado: " if is_es else "Gold Spent: ") + str(GameManager.profile_stats.get("gold_spent", 0)))
+		add_lbl.call(("Monedas Recogidas: " if is_es else "Coins Collected: ") + str(GameManager.profile_stats.get("coins_collected", 0)))
+		add_lbl.call(("XP Total Obtenida: " if is_es else "Total XP Earned: ") + str(GameManager.profile_stats.get("total_xp_earned", 0)))
+		add_lbl.call(("Mejora Mas Cara Comprada: " if is_es else "Most Expensive Upgrade: ") + str(GameManager.profile_stats.get("most_expensive_upgrade", 0)))
 		
-		add_header.call("🃏 ESTADÍSTICAS DE CARTAS")
+		add_header.call("ESTADISTICAS DE CARTAS" if is_es else "CARD STATS")
 		var card_choices = GameManager.profile_stats.get("card_choices", {})
 		var fav_card = "Ninguna" if is_es else "None"
 		var fav_count = 0
@@ -1466,7 +1494,7 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 			if card_choices[k] > fav_count:
 				fav_count = card_choices[k]
 				fav_card = GameManager.skills_data.get(k, {}).get("name", k)
-		add_lbl.call("🃏 Carta Favorita:\n   " + fav_card + "\n   Elegida: " + str(fav_count) + " veces")
+		add_lbl.call(("Carta Favorita:\n   " if is_es else "Favorite Card:\n   ") + fav_card + "\n   " + ("Elegida: " if is_es else "Chosen: ") + str(fav_count) + (" veces" if is_es else " times"))
 		
 		var max_upgraded = "Ninguna" if is_es else "None"
 		var max_lvl = 0
@@ -1475,9 +1503,12 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 			if val is int and val > max_lvl:
 				max_lvl = val
 				max_upgraded = GameManager.skills_data.get(k, {}).get("name", k)
-		add_lbl.call("⭐ Carta Más Mejorada: " + max_upgraded + " (Nivel " + str(max_lvl) + ")" if max_lvl > 0 else "⭐ Carta Más Mejorada: Ninguna")
-		add_lbl.call("🔥 Sinergias Descubiertas: " + str(GameManager.profile_stats.get("sinergias_discovered", []).size()) + " / 11")
-		add_lbl.call("🔓 Cartas Desbloqueadas: " + str(GameManager.unlocked_skills.size()) + " / 42")
+		if max_lvl > 0:
+			add_lbl.call(("Carta Mas Mejorada: " if is_es else "Most Upgraded Card: ") + max_upgraded + " (Nivel " + str(max_lvl) + ")")
+		else:
+			add_lbl.call("Carta Mas Mejorada: Ninguna" if is_es else "Most Upgraded Card: None")
+		add_lbl.call(("Sinergias Descubiertas: " if is_es else "Synergies Discovered: ") + str(GameManager.profile_stats.get("sinergias_discovered", []).size()) + " / 11")
+		add_lbl.call(("Cartas Desbloqueadas: " if is_es else "Cards Unlocked: ") + str(cards_unlocked) + " / " + str(cards_total))
 		
 	elif cat_name.contains("Récords") or cat_name.contains("Records"):
 		var add_lbl = func(txt: String):
@@ -1493,15 +1524,15 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 			if val is int and val >= 5:
 				cards_lvl_5 += 1
 				
-		add_lbl.call("💥 Mayor Daño Crítico:\n   " + str(GameManager.profile_stats.get("max_crit_damage", 0)))
+		add_lbl.call(("Mayor Dano Critico:\n   " if is_es else "Max Crit Damage:\n   ") + str(GameManager.profile_stats.get("max_crit_damage", 0)))
 		var spacer = Control.new(); spacer.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer)
-		add_lbl.call("🛸 Más Aliens Eliminados en una Partida:\n   " + str(GameManager.profile_stats.get("max_kills_in_match", 0)))
+		add_lbl.call(("Mas Aliens Eliminados en una Partida:\n   " if is_es else "Most Kills in a Single Match:\n   ") + str(GameManager.profile_stats.get("max_kills_in_match", 0)))
 		var spacer2 = Control.new(); spacer2.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer2)
-		add_lbl.call("🪙 Más Oro en una Partida:\n   " + str(GameManager.profile_stats.get("max_gold_in_match", 0)))
+		add_lbl.call(("Mas Oro en una Partida:\n   " if is_es else "Most Gold in a Single Match:\n   ") + str(GameManager.profile_stats.get("max_gold_in_match", 0)))
 		var spacer3 = Control.new(); spacer3.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer3)
-		add_lbl.call("🌊 Mayor Nivel Alcanzado:\n   Oleada " + str(GameManager.profile_stats.get("max_level_reached", 1)))
+		add_lbl.call(("Mayor Nivel Alcanzado:\n   Oleada " if is_es else "Max Level Reached:\n   Wave ") + str(GameManager.profile_stats.get("max_level_reached", 1)))
 		var spacer4 = Control.new(); spacer4.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer4)
-		add_lbl.call("🃏 Mayor Cantidad de Cartas Nivel 5:\n   " + str(cards_lvl_5))
+		add_lbl.call(("Mayor Cantidad de Cartas Nivel 5:\n   " if is_es else "Max Cards at Level 5:\n   ") + str(cards_lvl_5))
 		
 	elif cat_name.contains("Títulos") or cat_name.contains("Titles"):
 		var titles_data = [
@@ -1552,7 +1583,7 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 			hbox.add_child(vb_text)
 			
 			var t_name_lbl = Label.new()
-			t_name_lbl.text = (t_info.name if is_unlocked else "🔒 " + t_info.name)
+			t_name_lbl.text = (t_info.name if is_unlocked else "[BLOQUEADO] " + t_info.name if is_es else "[LOCKED] " + t_info.name)
 			t_name_lbl.add_theme_font_override("font", button_font)
 			t_name_lbl.add_theme_font_size_override("font_size", 15)
 			if is_equipped:
@@ -1684,7 +1715,7 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 			hbox.add_child(vb_text)
 			
 			var a_name_lbl = Label.new()
-			a_name_lbl.text = (a_info.name if is_unlocked else "🔒 " + a_info.name)
+			a_name_lbl.text = (a_info.name if is_unlocked else "[BLOQUEADO] " + a_info.name if is_es else "[LOCKED] " + a_info.name)
 			a_name_lbl.add_theme_font_override("font", button_font)
 			a_name_lbl.add_theme_font_size_override("font_size", 15)
 			if is_equipped:
@@ -1751,21 +1782,20 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 			if GameManager.bestiary[k] > 0:
 				bestiary_unlocked += 1
 				
-		var cards_total = GameManager.skills_data.keys().size()
 		var sy_total = GameManager.profile_stats.get("sinergias_discovered", []).size()
 		var av_total = GameManager.profile_stats.get("unlocked_avatars", []).size()
 		var ti_total = GameManager.profile_stats.get("unlocked_titles", []).size()
 		
-		add_lbl.call("📚 RESUMEN DE COLECCIÓN\n")
-		add_lbl.call("🃏 Cartas: " + str(GameManager.unlocked_skills.size()) + " / " + str(cards_total))
+		add_lbl.call("RESUMEN DE COLECCION\n" if is_es else "COLLECTION SUMMARY\n")
+		add_lbl.call(("Cartas: " if is_es else "Cards: ") + str(cards_unlocked) + " / " + str(cards_total))
 		var spacer1 = Control.new(); spacer1.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer1)
-		add_lbl.call("👾 Bestiario: " + str(bestiary_unlocked) + " / 9")
+		add_lbl.call(("Bestiario: " if is_es else "Bestiary: ") + str(bestiary_unlocked) + " / 9")
 		var spacer2 = Control.new(); spacer2.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer2)
-		add_lbl.call("🔥 Sinergias: " + str(sy_total) + " / 11")
+		add_lbl.call(("Sinergias: " if is_es else "Synergies: ") + str(sy_total) + " / 11")
 		var spacer3 = Control.new(); spacer3.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer3)
-		add_lbl.call("🖼️ Avatares: " + str(av_total) + " / 8")
+		add_lbl.call(("Avatares: " if is_es else "Avatars: ") + str(av_total) + " / 8")
 		var spacer4 = Control.new(); spacer4.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer4)
-		add_lbl.call("🎖️ Títulos: " + str(ti_total) + " / 8")
+		add_lbl.call(("Titulos: " if is_es else "Titles: ") + str(ti_total) + " / 8")
 		
 	elif cat_name.contains("Curiosidades") or cat_name.contains("Trivia"):
 		var add_lbl = func(txt: String):
@@ -1775,14 +1805,14 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 			lbl.add_theme_font_size_override("font_size", 16)
 			detail_vbox.add_child(lbl)
 			
-		add_lbl.call("🌾 Rábanos Protegidos: " + str(GameManager.profile_stats.get("radishes_protected", 1)))
+		add_lbl.call(("Rabanos Protegidos: " if is_es else "Radishes Protected: ") + str(GameManager.profile_stats.get("radishes_protected", 1)))
 		var spacer1 = Control.new(); spacer1.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer1)
-		add_lbl.call("Lost Rábanos Perdidos: " + str(GameManager.profile_stats.get("radishes_lost", 0)))
+		add_lbl.call(("Rabanos Perdidos: " if is_es else "Radishes Lost: ") + str(GameManager.profile_stats.get("radishes_lost", 0)))
 		var spacer2 = Control.new(); spacer2.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer2)
-		add_lbl.call("🛋️ Aliens Enviados a Terapia: " + str(GameManager.profile_stats.get("aliens_in_therapy", 0)))
+		add_lbl.call(("Aliens Enviados a Terapia: " if is_es else "Aliens Sent to Therapy: ") + str(GameManager.profile_stats.get("aliens_in_therapy", 0)))
 		var spacer3 = Control.new(); spacer3.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer3)
-		add_lbl.call("📳 Pantallas Sacudidas: " + str(GameManager.profile_stats.get("screens_shaken", 0)))
+		add_lbl.call(("Pantallas Sacudidas: " if is_es else "Screens Shaken: ") + str(GameManager.profile_stats.get("screens_shaken", 0)))
 		var spacer4 = Control.new(); spacer4.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer4)
-		add_lbl.call("💥 Explosiones Provocadas: " + str(GameManager.profile_stats.get("explosions_caused", 0)))
+		add_lbl.call(("Explosiones Provocadas: " if is_es else "Explosions Caused: ") + str(GameManager.profile_stats.get("explosions_caused", 0)))
 		var spacer5 = Control.new(); spacer5.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer5)
-		add_lbl.call("🏃 Kilómetros Cortados: " + ("%.1f" % GameManager.profile_stats.get("kilometers_cut", 0.0)) + " km")
+		add_lbl.call(("Kilometros Cortados: " if is_es else "Kilometers Cut: ") + ("%.1f" % GameManager.profile_stats.get("kilometers_cut", 0.0)) + " km")

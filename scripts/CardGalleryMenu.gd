@@ -50,8 +50,20 @@ func _ready() -> void:
 	
 	update_ui()
 	
-	var total_skills = GameManager.skills_data.size() + GameManager.flat_upgrades.size()
-	var unlocked_count = GameManager.unlocked_skills.size()
+	var total_skills = 0
+	var unlocked_count = 0
+	for k in GameManager.skills_data.keys():
+		var info = GameManager.skills_data[k]
+		if info.get("rarity", "") != "legendaria":
+			total_skills += 1
+			if GameManager.unlocked_skills.has(k):
+				unlocked_count += 1
+	for k in GameManager.flat_upgrades.keys():
+		var info = GameManager.flat_upgrades[k]
+		if info.get("rarity", "") != "legendaria":
+			total_skills += 1
+			if GameManager.unlocked_skills.has(k):
+				unlocked_count += 1
 	progress_label.text = "CARTAS: " + str(unlocked_count) + " / " + str(total_skills)
 
 func update_ui() -> void:
