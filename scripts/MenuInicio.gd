@@ -106,9 +106,44 @@ func _ready() -> void:
 	profile_btn.add_theme_stylebox_override("normal", prof_style)
 	profile_btn.add_theme_stylebox_override("hover", prof_style)
 	profile_btn.add_theme_stylebox_override("pressed", prof_style)
-	profile_btn.add_theme_font_override("font", button_font)
-	profile_btn.add_theme_font_size_override("font_size", 16)
 	profile_btn.pressed.connect(show_profile_dialog)
+	
+	var prof_hbox = HBoxContainer.new()
+	prof_hbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	prof_hbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	prof_hbox.add_theme_constant_override("separation", 15)
+	profile_btn.add_child(prof_hbox)
+	
+	var prof_margin = MarginContainer.new()
+	prof_margin.add_theme_constant_override("margin_left", 15)
+	prof_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	prof_hbox.add_child(prof_margin)
+	
+	var btn_avatar_rect = TextureRect.new()
+	btn_avatar_rect.name = "AvatarRect"
+	btn_avatar_rect.custom_minimum_size = Vector2(48, 48)
+	btn_avatar_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	btn_avatar_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	btn_avatar_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	prof_margin.add_child(btn_avatar_rect)
+	
+	var btn_labels_vb = VBoxContainer.new()
+	btn_labels_vb.alignment = BoxContainer.ALIGNMENT_CENTER
+	btn_labels_vb.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	prof_hbox.add_child(btn_labels_vb)
+	
+	var btn_name_lbl = Label.new()
+	btn_name_lbl.name = "NameLabel"
+	btn_name_lbl.add_theme_font_override("font", button_font)
+	btn_name_lbl.add_theme_font_size_override("font_size", 16)
+	btn_labels_vb.add_child(btn_name_lbl)
+	
+	var btn_title_lbl = Label.new()
+	btn_title_lbl.name = "TitleLabel"
+	btn_title_lbl.add_theme_font_override("font", button_font)
+	btn_title_lbl.add_theme_font_size_override("font_size", 12)
+	btn_title_lbl.modulate = Color(0.9, 0.8, 0.4)
+	btn_labels_vb.add_child(btn_title_lbl)
 	
 	var col_left = $MarginContainer/HBoxContainer/ColLeft
 	col_left.add_child(profile_btn)
@@ -160,20 +195,33 @@ func update_ui() -> void:
 	var prof_btn = $MarginContainer/HBoxContainer/ColLeft.get_node_or_null("BtnProfile")
 	if is_instance_valid(prof_btn):
 		var avatar = GameManager.profile_stats.get("equipped_avatar", "Alien Normal")
-		var emoji = "👽"
-		if avatar == "Alien Normal": emoji = "👽"
-		elif avatar == "Alien Curador": emoji = "💚"
-		elif avatar == "Alien Kamikaze": emoji = "💥"
-		elif avatar == "Devorarábanos": emoji = "👹"
-		elif avatar == "Chayanne": emoji = "🦁"
-		elif avatar == "Papa Espantapájaros": emoji = "🌾"
-		elif avatar == "Rábano Dorado": emoji = "👑"
-		elif avatar == "Rábano Cósmico": emoji = "🌌"
-		else: emoji = avatar
-		
-		var p_name = GameManager.profile_stats.get("player_name", "Said")
-		var p_title = GameManager.profile_stats.get("equipped_title", "Novato del Huerto")
-		prof_btn.text = emoji + " " + p_name + "\n" + p_title
+		var tex_path = "res://assets/img/alien_normal.png"
+		var mod_color = Color.WHITE
+		if avatar == "Alien Normal": tex_path = "res://assets/img/alien_normal.png"
+		elif avatar == "Alien Curador": tex_path = "res://assets/img/alien_curandero.png"
+		elif avatar == "Alien Kamikaze": tex_path = "res://assets/img/alien_kamikaze.png"
+		elif avatar == "Devorarábanos": tex_path = "res://assets/img/rabanito_diablo.png"
+		elif avatar == "Chayanne": tex_path = "res://assets/img/alien_amigo.png"
+		elif avatar == "Papa Espantapájaros": tex_path = "res://assets/img/alien_minero.png"
+		elif avatar == "Rábano Dorado":
+			tex_path = "res://assets/img/rabanito.png"
+			mod_color = Color(1.0, 0.8, 0.1)
+		elif avatar == "Rábano Cósmico":
+			tex_path = "res://assets/img/rabanito.png"
+			mod_color = Color(0.6, 0.3, 1.0)
+			
+		var rect = prof_btn.find_child("AvatarRect", true, false)
+		if is_instance_valid(rect):
+			rect.texture = load(tex_path)
+			rect.modulate = mod_color
+			
+		var name_lbl = prof_btn.find_child("NameLabel", true, false)
+		if is_instance_valid(name_lbl):
+			name_lbl.text = GameManager.profile_stats.get("player_name", "Said")
+			
+		var title_lbl = prof_btn.find_child("TitleLabel", true, false)
+		if is_instance_valid(title_lbl):
+			title_lbl.text = GameManager.profile_stats.get("equipped_title", "Novato del Huerto")
 		
 	# Actualizar próximo desbloqueo
 	if is_instance_valid(next_unlock_lbl):
@@ -1178,10 +1226,12 @@ func show_profile_dialog() -> void:
 	title_lbl.add_theme_font_size_override("font_size", 22)
 	header_vb.add_child(title_lbl)
 	
-	var avatar_lbl = Label.new()
-	avatar_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	avatar_lbl.add_theme_font_size_override("font_size", 54)
-	header_vb.add_child(avatar_lbl)
+	var avatar_rect = TextureRect.new()
+	avatar_rect.custom_minimum_size = Vector2(80, 80)
+	avatar_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	avatar_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	avatar_rect.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	header_vb.add_child(avatar_rect)
 	
 	var name_lbl = Label.new()
 	name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1205,18 +1255,23 @@ func show_profile_dialog() -> void:
 	
 	var update_header = func():
 		var avatar = GameManager.profile_stats.get("equipped_avatar", "Alien Normal")
-		var emoji = "👽"
-		if avatar == "Alien Normal": emoji = "👽"
-		elif avatar == "Alien Curador": emoji = "💚"
-		elif avatar == "Alien Kamikaze": emoji = "💥"
-		elif avatar == "Devorarábanos": emoji = "👹"
-		elif avatar == "Chayanne": emoji = "🦁"
-		elif avatar == "Papa Espantapájaros": emoji = "🌾"
-		elif avatar == "Rábano Dorado": emoji = "👑"
-		elif avatar == "Rábano Cósmico": emoji = "🌌"
-		else: emoji = avatar
-		
-		avatar_lbl.text = emoji
+		var tex_path = "res://assets/img/alien_normal.png"
+		var mod_color = Color.WHITE
+		if avatar == "Alien Normal": tex_path = "res://assets/img/alien_normal.png"
+		elif avatar == "Alien Curador": tex_path = "res://assets/img/alien_curandero.png"
+		elif avatar == "Alien Kamikaze": tex_path = "res://assets/img/alien_kamikaze.png"
+		elif avatar == "Devorarábanos": tex_path = "res://assets/img/rabanito_diablo.png"
+		elif avatar == "Chayanne": tex_path = "res://assets/img/alien_amigo.png"
+		elif avatar == "Papa Espantapájaros": tex_path = "res://assets/img/alien_minero.png"
+		elif avatar == "Rábano Dorado":
+			tex_path = "res://assets/img/rabanito.png"
+			mod_color = Color(1.0, 0.8, 0.1)
+		elif avatar == "Rábano Cósmico":
+			tex_path = "res://assets/img/rabanito.png"
+			mod_color = Color(0.6, 0.3, 1.0)
+			
+		avatar_rect.texture = load(tex_path)
+		avatar_rect.modulate = mod_color
 		name_lbl.text = GameManager.profile_stats.get("player_name", "Said")
 		title_equip_lbl.text = GameManager.profile_stats.get("equipped_title", "Novato del Huerto")
 		
@@ -1246,11 +1301,23 @@ func show_profile_dialog() -> void:
 	detail_container.visible = false
 	vbox.add_child(detail_container)
 	
+	var top_hbox = HBoxContainer.new()
+	top_hbox.custom_minimum_size = Vector2(0, 50)
+	detail_container.add_child(top_hbox)
+	
+	var btn_back = Button.new()
+	btn_back.text = "⬅️ VOLVER" if is_es else "⬅️ BACK"
+	btn_back.custom_minimum_size = Vector2(120, 45)
+	btn_back.add_theme_font_override("font", button_font)
+	btn_back.add_theme_font_size_override("font_size", 14)
+	top_hbox.add_child(btn_back)
+	
 	var detail_title = Label.new()
 	detail_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	detail_title.add_theme_font_override("font", button_font)
 	detail_title.add_theme_font_size_override("font_size", 18)
-	detail_container.add_child(detail_title)
+	detail_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top_hbox.add_child(detail_title)
 	
 	var detail_scroll = ScrollContainer.new()
 	detail_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -1260,13 +1327,6 @@ func show_profile_dialog() -> void:
 	detail_vbox.add_theme_constant_override("separation", 8)
 	detail_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	detail_scroll.add_child(detail_vbox)
-	
-	var btn_back = Button.new()
-	btn_back.text = "⬅️ VOLVER" if is_es else "⬅️ BACK"
-	btn_back.custom_minimum_size = Vector2(0, 50)
-	btn_back.add_theme_font_override("font", button_font)
-	btn_back.add_theme_font_size_override("font_size", 16)
-	detail_container.add_child(btn_back)
 	
 	var btn_close = Button.new()
 	btn_close.text = "CERRAR" if is_es else "CLOSE"
@@ -1294,367 +1354,11 @@ func show_profile_dialog() -> void:
 		overlay.queue_free()
 	)
 	
-	var show_category: Callable
-	show_category = func(cat_name: String):
-		nav_scroll.visible = false
-		btn_close.visible = false
-		detail_container.visible = true
-		detail_title.text = cat_name.to_upper()
-		
-		for child in detail_vbox.get_children():
-			child.queue_free()
-			
-		if cat_name.contains("Estadísticas") or cat_name.contains("Stats"):
-			var add_lbl = func(txt: String, size = 15):
-				var lbl = Label.new()
-				lbl.text = txt
-				lbl.add_theme_font_override("font", button_font)
-				lbl.add_theme_font_size_override("font_size", size)
-				detail_vbox.add_child(lbl)
-				
-			var add_header = func(txt: String):
-				var sep_line = HSeparator.new()
-				detail_vbox.add_child(sep_line)
-				var lbl = Label.new()
-				lbl.text = txt
-				lbl.add_theme_font_override("font", button_font)
-				lbl.add_theme_font_size_override("font_size", 16)
-				lbl.modulate = Color(0.4, 0.8, 1.0)
-				detail_vbox.add_child(lbl)
-				
-			add_header.call("📊 ESTADÍSTICAS GENERALES")
-			add_lbl.call("⏳ Tiempo Jugado: " + _format_time(GameManager.profile_stats.get("time_played", 0.0)))
-			add_lbl.call("🎮 Partidas Jugadas: " + str(GameManager.profile_stats.get("matches_played", 0)))
-			add_lbl.call("💚 Victorias: " + str(GameManager.profile_stats.get("wins", 0)))
-			add_lbl.call("💀 Derrotas: " + str(GameManager.profile_stats.get("losses", 0)))
-			add_lbl.call("🌊 Oleada Máxima: " + str(GameManager.best_wave))
-			add_lbl.call("⭐ Prestigios: " + str(GameManager.profile_stats.get("prestige", 0)))
-			add_lbl.call("📦 Cofres Abiertos: " + str(GameManager.profile_stats.get("chests_opened", 0)))
-			
-			add_header.call("👽 ESTADÍSTICAS DE COMBATE")
-			add_lbl.call("🛸 Aliens Eliminados: " + str(GameManager.total_enemies_defeated))
-			add_lbl.call("👑 Jefes Derrotados: " + str(GameManager.profile_stats.get("bosses_killed", GameManager.bestiary.get(8, 0))))
-			add_lbl.call("💥 Daño Total: " + str(GameManager.profile_stats.get("total_damage", 0)))
-			add_lbl.call("⚡ Daño Crítico Total: " + str(GameManager.profile_stats.get("total_crit_damage", 0)))
-			add_lbl.call("🔥 Mayor Combo: " + str(GameManager.best_combo))
-			add_lbl.call("⚔️ Cortes Realizados: " + str(GameManager.profile_stats.get("finger_cuts", 0)))
-			add_lbl.call("🔥 Enemigos Quemados: " + str(GameManager.profile_stats.get("enemies_burned", 0)))
-			add_lbl.call("⚡ Enemigos Electrocutados: " + str(GameManager.profile_stats.get("enemies_electrocuted", 0)))
-			add_lbl.call("🌀 Enemigos Absorbidos: " + str(GameManager.profile_stats.get("enemies_absorbed", 0)))
-			
-			add_header.call("💰 ESTADÍSTICAS ECONÓMICAS")
-			add_lbl.call("🪙 Oro Ganado: " + str(GameManager.profile_stats.get("gold_earned", 0)))
-			add_lbl.call("💸 Oro Gastado: " + str(GameManager.profile_stats.get("gold_spent", 0)))
-			add_lbl.call("🟡 Monedas Recogidas: " + str(GameManager.profile_stats.get("coins_collected", 0)))
-			add_lbl.call("✨ XP Total Obtenida: " + str(GameManager.profile_stats.get("total_xp_earned", 0)))
-			add_lbl.call("🛍️ Mejora Más Cara: " + str(GameManager.profile_stats.get("most_expensive_upgrade", 0)))
-			
-			add_header.call("🃏 ESTADÍSTICAS DE CARTAS")
-			var card_choices = GameManager.profile_stats.get("card_choices", {})
-			var fav_card = "Ninguna" if is_es else "None"
-			var fav_count = 0
-			for k in card_choices.keys():
-				if card_choices[k] > fav_count:
-					fav_count = card_choices[k]
-					fav_card = GameManager.skills_data.get(k, {}).get("name", k)
-			add_lbl.call("🃏 Carta Favorita:\n   " + fav_card + "\n   Elegida: " + str(fav_count) + " veces")
-			
-			var max_upgraded = "Ninguna" if is_es else "None"
-			var max_lvl = 0
-			for k in GameManager.card_upgrade_levels.keys():
-				var val = GameManager.card_upgrade_levels[k]
-				if val is int and val > max_lvl:
-					max_lvl = val
-					max_upgraded = GameManager.skills_data.get(k, {}).get("name", k)
-			add_lbl.call("⭐ Carta Más Mejorada: " + max_upgraded + " (Nivel " + str(max_lvl) + ")" if max_lvl > 0 else "⭐ Carta Más Mejorada: Ninguna")
-			add_lbl.call("🔥 Sinergias Descubiertas: " + str(GameManager.profile_stats.get("sinergias_discovered", []).size()) + " / 11")
-			add_lbl.call("🔓 Cartas Desbloqueadas: " + str(GameManager.unlocked_skills.size()) + " / 42")
-			
-		elif cat_name.contains("Récords") or cat_name.contains("Records"):
-			var add_lbl = func(txt: String):
-				var lbl = Label.new()
-				lbl.text = txt
-				lbl.add_theme_font_override("font", button_font)
-				lbl.add_theme_font_size_override("font_size", 16)
-				detail_vbox.add_child(lbl)
-				
-			var cards_lvl_5 = 0
-			for k in GameManager.card_upgrade_levels.keys():
-				var val = GameManager.card_upgrade_levels[k]
-				if val is int and val >= 5:
-					cards_lvl_5 += 1
-					
-			add_lbl.call("💥 Mayor Daño Crítico:\n   " + str(GameManager.profile_stats.get("max_crit_damage", 0)))
-			var spacer = Control.new(); spacer.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer)
-			add_lbl.call("🛸 Más Aliens Eliminados en una Partida:\n   " + str(GameManager.profile_stats.get("max_kills_in_match", 0)))
-			var spacer2 = Control.new(); spacer2.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer2)
-			add_lbl.call("🪙 Más Oro en una Partida:\n   " + str(GameManager.profile_stats.get("max_gold_in_match", 0)))
-			var spacer3 = Control.new(); spacer3.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer3)
-			add_lbl.call("🌊 Mayor Nivel Alcanzado:\n   Oleada " + str(GameManager.profile_stats.get("max_level_reached", 1)))
-			var spacer4 = Control.new(); spacer4.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer4)
-			add_lbl.call("🃏 Mayor Cantidad de Cartas Nivel 5:\n   " + str(cards_lvl_5))
-			
-		elif cat_name.contains("Títulos") or cat_name.contains("Titles"):
-			var titles_data = [
-				{"name": "Novato del Huerto", "desc": "Jugar 1 partida" if is_es else "Play 1 match"},
-				{"name": "Defensor", "desc": "Oleada 10" if is_es else "Wave 10"},
-				{"name": "Jardinero de Guerra", "desc": "Oleada 20" if is_es else "Wave 20"},
-				{"name": "Exterminador", "desc": "10,000 aliens" if is_es else "10,000 aliens"},
-				{"name": "Cazajefes", "desc": "100 bosses" if is_es else "100 bosses"},
-				{"name": "El Elegido del Rábano", "desc": "Oleada 50" if is_es else "Wave 50"},
-				{"name": "El Dorado", "desc": "Prestigio 1" if is_es else "Prestige 1"},
-				{"name": "Devorador de Invasores", "desc": "50,000 aliens" if is_es else "50,000 aliens"}
-			]
-			var ut = GameManager.profile_stats.get("unlocked_titles", ["Novato del Huerto"])
-			var equipped = GameManager.profile_stats.get("equipped_title", "Novato del Huerto")
-			
-			for t_info in titles_data:
-				var row = PanelContainer.new()
-				detail_vbox.add_child(row)
-				
-				var row_style = StyleBoxFlat.new()
-				row_style.bg_color = Color(0.06, 0.06, 0.08, 0.8)
-				row_style.border_width_left = 2; row_style.border_width_top = 2
-				row_style.border_width_right = 2; row_style.border_width_bottom = 2
-				row_style.corner_radius_top_left = 6; row_style.corner_radius_top_right = 6
-				row_style.corner_radius_bottom_right = 6; row_style.corner_radius_bottom_left = 6
-				
-				var is_unlocked = ut.has(t_info.name)
-				var is_equipped = equipped == t_info.name
-				
-				if is_equipped:
-					row_style.border_color = Color(0.8, 0.6, 0.2, 1.0)
-				else:
-					row_style.border_color = Color(0.2, 0.2, 0.25, 0.8)
-				row.add_theme_stylebox_override("panel", row_style)
-				
-				var margin_row = MarginContainer.new()
-				margin_row.add_theme_constant_override("margin_left", 12)
-				margin_row.add_theme_constant_override("margin_top", 10)
-				margin_row.add_theme_constant_override("margin_right", 12)
-				margin_row.add_theme_constant_override("margin_bottom", 10)
-				row.add_child(margin_row)
-				
-				var hbox = HBoxContainer.new()
-				margin_row.add_child(hbox)
-				
-				var vb_text = VBoxContainer.new()
-				vb_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-				hbox.add_child(vb_text)
-				
-				var t_name_lbl = Label.new()
-				t_name_lbl.text = (t_info.name if is_unlocked else "🔒 " + t_info.name)
-				t_name_lbl.add_theme_font_override("font", button_font)
-				t_name_lbl.add_theme_font_size_override("font_size", 15)
-				if is_equipped:
-					t_name_lbl.modulate = Color(1.0, 0.8, 0.2)
-				elif not is_unlocked:
-					t_name_lbl.modulate = Color(0.5, 0.5, 0.5)
-				vb_text.add_child(t_name_lbl)
-				
-				var desc_lbl = Label.new()
-				desc_lbl.text = t_info.desc
-				desc_lbl.add_theme_font_override("font", button_font)
-				desc_lbl.add_theme_font_size_override("font_size", 12)
-				desc_lbl.modulate = Color(0.6, 0.6, 0.6)
-				vb_text.add_child(desc_lbl)
-				
-				if is_equipped:
-					var eq_lbl = Label.new()
-					eq_lbl.text = "EQUIPADO" if is_es else "EQUIPPED"
-					eq_lbl.add_theme_font_override("font", button_font)
-					eq_lbl.add_theme_font_size_override("font_size", 14)
-					eq_lbl.modulate = Color(0.2, 1.0, 0.2)
-					hbox.add_child(eq_lbl)
-				elif is_unlocked:
-					var btn_equip = Button.new()
-					btn_equip.text = "EQUIPAR" if is_es else "EQUIP"
-					btn_equip.custom_minimum_size = Vector2(90, 40)
-					btn_equip.add_theme_font_override("font", button_font)
-					btn_equip.add_theme_font_size_override("font_size", 12)
-					
-					var eq_style = StyleBoxFlat.new()
-					eq_style.bg_color = Color(0.15, 0.35, 0.15, 1.0)
-					eq_style.corner_radius_top_left = 6; eq_style.corner_radius_top_right = 6
-					eq_style.corner_radius_bottom_right = 6; eq_style.corner_radius_bottom_left = 6
-					btn_equip.add_theme_stylebox_override("normal", eq_style)
-					btn_equip.add_theme_stylebox_override("hover", eq_style)
-					btn_equip.add_theme_stylebox_override("pressed", eq_style)
-					hbox.add_child(btn_equip)
-					
-					btn_equip.pressed.connect(func():
-						GameManager.profile_stats["equipped_title"] = t_info.name
-						GameManager.save_game()
-						update_header.call()
-						show_category.call(cat_name)
-					)
-				else:
-					var lock_lbl = Label.new()
-					lock_lbl.text = "BLOQUEADO" if is_es else "LOCKED"
-					lock_lbl.add_theme_font_override("font", button_font)
-					lock_lbl.add_theme_font_size_override("font_size", 13)
-					lock_lbl.modulate = Color(0.5, 0.5, 0.5)
-					hbox.add_child(lock_lbl)
-					
-		elif cat_name.contains("Avatares") or cat_name.contains("Avatars"):
-			var avatars_data = [
-				{"name": "Alien Normal", "emoji": "👽", "desc": "Inicial" if is_es else "Initial"},
-				{"name": "Alien Curador", "emoji": "💚", "desc": "Derrotar 50 aliens curadores" if is_es else "Defeat 50 healer aliens"},
-				{"name": "Alien Kamikaze", "emoji": "💥", "desc": "Derrotar 50 aliens kamikaze" if is_es else "Defeat 50 kamikaze aliens"},
-				{"name": "Devorarábanos", "emoji": "👹", "desc": "Alcanzar Oleada 15" if is_es else "Reach Wave 15"},
-				{"name": "Chayanne", "emoji": "🦁", "desc": "Llevar 3 cartas a Nivel Máximo" if is_es else "Get 3 cards to Max Level"},
-				{"name": "Papa Espantapájaros", "emoji": "🌾", "desc": "Gastar 5,000 de oro" if is_es else "Spend 5,000 gold"},
-				{"name": "Rábano Dorado", "emoji": "👑", "desc": "Alcanzar Oleada 30" if is_es else "Reach Wave 30"},
-				{"name": "Rábano Cósmico", "emoji": "🌌", "desc": "Alcanzar Oleada 50" if is_es else "Reach Wave 50"}
-			]
-			var ua = GameManager.profile_stats.get("unlocked_avatars", ["Alien Normal"])
-			var equipped = GameManager.profile_stats.get("equipped_avatar", "Alien Normal")
-			
-			for a_info in avatars_data:
-				var row = PanelContainer.new()
-				detail_vbox.add_child(row)
-				
-				var row_style = StyleBoxFlat.new()
-				row_style.bg_color = Color(0.06, 0.06, 0.08, 0.8)
-				row_style.border_width_left = 2; row_style.border_width_top = 2
-				row_style.border_width_right = 2; row_style.border_width_bottom = 2
-				row_style.corner_radius_top_left = 6; row_style.corner_radius_top_right = 6
-				row_style.corner_radius_bottom_right = 6; row_style.corner_radius_bottom_left = 6
-				
-				var is_unlocked = ua.has(a_info.name)
-				var is_equipped = equipped == a_info.name
-				
-				if is_equipped:
-					row_style.border_color = Color(0.8, 0.6, 0.2, 1.0)
-				else:
-					row_style.border_color = Color(0.2, 0.2, 0.25, 0.8)
-				row.add_theme_stylebox_override("panel", row_style)
-				
-				var margin_row = MarginContainer.new()
-				margin_row.add_theme_constant_override("margin_left", 12)
-				margin_row.add_theme_constant_override("margin_top", 10)
-				margin_row.add_theme_constant_override("margin_right", 12)
-				margin_row.add_theme_constant_override("margin_bottom", 10)
-				row.add_child(margin_row)
-				
-				var hbox = HBoxContainer.new()
-				hbox.add_theme_constant_override("separation", 15)
-				margin_row.add_child(hbox)
-				
-				var em_lbl = Label.new()
-				em_lbl.text = a_info.emoji if is_unlocked else "🔒"
-				em_lbl.add_theme_font_size_override("font_size", 36)
-				em_lbl.custom_minimum_size = Vector2(50, 50)
-				em_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-				em_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-				hbox.add_child(em_lbl)
-				
-				var vb_text = VBoxContainer.new()
-				vb_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-				hbox.add_child(vb_text)
-				
-				var a_name_lbl = Label.new()
-				a_name_lbl.text = a_info.name
-				a_name_lbl.add_theme_font_override("font", button_font)
-				a_name_lbl.add_theme_font_size_override("font_size", 15)
-				if is_equipped:
-					a_name_lbl.modulate = Color(1.0, 0.8, 0.2)
-				elif not is_unlocked:
-					a_name_lbl.modulate = Color(0.5, 0.5, 0.5)
-				vb_text.add_child(a_name_lbl)
-				
-				var desc_lbl = Label.new()
-				desc_lbl.text = a_info.desc
-				desc_lbl.add_theme_font_override("font", button_font)
-				desc_lbl.add_theme_font_size_override("font_size", 12)
-				desc_lbl.modulate = Color(0.6, 0.6, 0.6)
-				vb_text.add_child(desc_lbl)
-				
-				if is_equipped:
-					var eq_lbl = Label.new()
-					eq_lbl.text = "EQUIPADO" if is_es else "EQUIPPED"
-					eq_lbl.add_theme_font_override("font", button_font)
-					eq_lbl.add_theme_font_size_override("font_size", 14)
-					eq_lbl.modulate = Color(0.2, 1.0, 0.2)
-					hbox.add_child(eq_lbl)
-				elif is_unlocked:
-					var btn_equip = Button.new()
-					btn_equip.text = "EQUIPAR" if is_es else "EQUIP"
-					btn_equip.custom_minimum_size = Vector2(90, 40)
-					btn_equip.add_theme_font_override("font", button_font)
-					btn_equip.add_theme_font_size_override("font_size", 12)
-					
-					var eq_style = StyleBoxFlat.new()
-					eq_style.bg_color = Color(0.15, 0.35, 0.15, 1.0)
-					eq_style.corner_radius_top_left = 6; eq_style.corner_radius_top_right = 6
-					eq_style.corner_radius_bottom_right = 6; eq_style.corner_radius_bottom_left = 6
-					btn_equip.add_theme_stylebox_override("normal", eq_style)
-					btn_equip.add_theme_stylebox_override("hover", eq_style)
-					btn_equip.add_theme_stylebox_override("pressed", eq_style)
-					hbox.add_child(btn_equip)
-					
-					btn_equip.pressed.connect(func():
-						GameManager.profile_stats["equipped_avatar"] = a_info.name
-						GameManager.save_game()
-						update_header.call()
-						show_category.call(cat_name)
-					)
-				else:
-					var lock_lbl = Label.new()
-					lock_lbl.text = "BLOQUEADO" if is_es else "LOCKED"
-					lock_lbl.add_theme_font_override("font", button_font)
-					lock_lbl.add_theme_font_size_override("font_size", 13)
-					lock_lbl.modulate = Color(0.5, 0.5, 0.5)
-					hbox.add_child(lock_lbl)
-					
-		elif cat_name.contains("Colección") or cat_name.contains("Collection"):
-			var add_lbl = func(txt: String):
-				var lbl = Label.new()
-				lbl.text = txt
-				lbl.add_theme_font_override("font", button_font)
-				lbl.add_theme_font_size_override("font_size", 16)
-				detail_vbox.add_child(lbl)
-				
-			var bestiary_unlocked = 0
-			for k in GameManager.bestiary.keys():
-				if GameManager.bestiary[k] > 0:
-					bestiary_unlocked += 1
-					
-			var cards_total = GameManager.skills_data.keys().size()
-			var sy_total = GameManager.profile_stats.get("sinergias_discovered", []).size()
-			var av_total = GameManager.profile_stats.get("unlocked_avatars", []).size()
-			var ti_total = GameManager.profile_stats.get("unlocked_titles", []).size()
-			
-			add_lbl.call("📚 RESUMEN DE COLECCIÓN\n")
-			add_lbl.call("🃏 Cartas: " + str(GameManager.unlocked_skills.size()) + " / " + str(cards_total))
-			var spacer1 = Control.new(); spacer1.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer1)
-			add_lbl.call("👾 Bestiario: " + str(bestiary_unlocked) + " / 9")
-			var spacer2 = Control.new(); spacer2.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer2)
-			add_lbl.call("🔥 Sinergias: " + str(sy_total) + " / 11")
-			var spacer3 = Control.new(); spacer3.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer3)
-			add_lbl.call("🖼️ Avatares: " + str(av_total) + " / 8")
-			var spacer4 = Control.new(); spacer4.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer4)
-			add_lbl.call("🎖️ Títulos: " + str(ti_total) + " / 8")
-			
-		elif cat_name.contains("Curiosidades") or cat_name.contains("Trivia"):
-			var add_lbl = func(txt: String):
-				var lbl = Label.new()
-				lbl.text = txt
-				lbl.add_theme_font_override("font", button_font)
-				lbl.add_theme_font_size_override("font_size", 16)
-				detail_vbox.add_child(lbl)
-				
-			add_lbl.call("🌾 Rábanos Protegidos: " + str(GameManager.profile_stats.get("radishes_protected", 1)))
-			var spacer1 = Control.new(); spacer1.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer1)
-			add_lbl.call("Lost Rábanos Perdidos: " + str(GameManager.profile_stats.get("radishes_lost", 0)))
-			var spacer2 = Control.new(); spacer2.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer2)
-			add_lbl.call("🛋️ Aliens Enviados a Terapia: " + str(GameManager.profile_stats.get("aliens_in_therapy", 0)))
-			var spacer3 = Control.new(); spacer3.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer3)
-			add_lbl.call("📳 Pantallas Sacudidas: " + str(GameManager.profile_stats.get("screens_shaken", 0)))
-			var spacer4 = Control.new(); spacer4.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer4)
-			add_lbl.call("💥 Explosiones Provocadas: " + str(GameManager.profile_stats.get("explosions_caused", 0)))
-			var spacer5 = Control.new(); spacer5.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer5)
-			add_lbl.call("🏃 Kilómetros Cortados: " + ("%.1f" % GameManager.profile_stats.get("kilometers_cut", 0.0)) + " km")
+	btn_back.pressed.connect(func():
+		detail_container.visible = false
+		nav_scroll.visible = true
+		btn_close.visible = true
+	)
 	
 	var cats = [
 		"📊 Estadísticas" if is_es else "📊 Stats",
@@ -1686,5 +1390,389 @@ func show_profile_dialog() -> void:
 		
 		nav_vbox.add_child(btn)
 		btn.pressed.connect(func():
-			show_category.call(cat)
+			nav_scroll.visible = false
+			btn_close.visible = false
+			detail_container.visible = true
+			detail_title.text = cat.to_upper()
+			_populate_profile_category(cat, detail_vbox, avatar_rect, title_equip_lbl)
 		)
+
+func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, header_avatar_rect: TextureRect, header_title_equip_lbl: Label) -> void:
+	var is_es = GameManager.language == "es"
+	
+	for child in detail_vbox.get_children():
+		child.queue_free()
+		
+	if cat_name.contains("Estadísticas") or cat_name.contains("Stats"):
+		var add_lbl = func(txt: String, size = 15):
+			var lbl = Label.new()
+			lbl.text = txt
+			lbl.add_theme_font_override("font", button_font)
+			lbl.add_theme_font_size_override("font_size", size)
+			detail_vbox.add_child(lbl)
+			
+		var add_header = func(txt: String):
+			var sep_line = HSeparator.new()
+			detail_vbox.add_child(sep_line)
+			var lbl = Label.new()
+			lbl.text = txt
+			lbl.add_theme_font_override("font", button_font)
+			lbl.add_theme_font_size_override("font_size", 16)
+			lbl.modulate = Color(0.4, 0.8, 1.0)
+			detail_vbox.add_child(lbl)
+			
+		add_header.call("📊 ESTADÍSTICAS GENERALES")
+		add_lbl.call("⏳ Tiempo Jugado: " + _format_time(GameManager.profile_stats.get("time_played", 0.0)))
+		add_lbl.call("🎮 Partidas Jugadas: " + str(GameManager.profile_stats.get("matches_played", 0)))
+		add_lbl.call("💚 Victorias: " + str(GameManager.profile_stats.get("wins", 0)))
+		add_lbl.call("💀 Derrotas: " + str(GameManager.profile_stats.get("losses", 0)))
+		add_lbl.call("🌊 Oleada Máxima: " + str(GameManager.best_wave))
+		add_lbl.call("⭐ Prestigios: " + str(GameManager.profile_stats.get("prestige", 0)))
+		add_lbl.call("📦 Cofres Abiertos: " + str(GameManager.profile_stats.get("chests_opened", 0)))
+		
+		add_header.call("👽 ESTADÍSTICAS DE COMBATE")
+		add_lbl.call("🛸 Aliens Eliminados: " + str(GameManager.total_enemies_defeated))
+		add_lbl.call("👑 Jefes Derrotados: " + str(GameManager.profile_stats.get("bosses_killed", GameManager.bestiary.get(8, 0))))
+		add_lbl.call("💥 Daño Total: " + str(GameManager.profile_stats.get("total_damage", 0)))
+		add_lbl.call("⚡ Daño Crítico Total: " + str(GameManager.profile_stats.get("total_crit_damage", 0)))
+		add_lbl.call("🔥 Mayor Combo: " + str(GameManager.best_combo))
+		add_lbl.call("⚔️ Cortes Realizados: " + str(GameManager.profile_stats.get("finger_cuts", 0)))
+		add_lbl.call("🔥 Enemigos Quemados: " + str(GameManager.profile_stats.get("enemies_burned", 0)))
+		add_lbl.call("⚡ Enemigos Electrocutados: " + str(GameManager.profile_stats.get("enemies_electrocuted", 0)))
+		add_lbl.call("🌀 Enemigos Absorbidos: " + str(GameManager.profile_stats.get("enemies_absorbed", 0)))
+		
+		add_header.call("💰 ESTADÍSTICAS ECONÓMICAS")
+		add_lbl.call("🪙 Oro Ganado: " + str(GameManager.profile_stats.get("gold_earned", 0)))
+		add_lbl.call("💸 Oro Gastado: " + str(GameManager.profile_stats.get("gold_spent", 0)))
+		add_lbl.call("🟡 Monedas Recogidas: " + str(GameManager.profile_stats.get("coins_collected", 0)))
+		add_lbl.call("✨ XP Total Obtenida: " + str(GameManager.profile_stats.get("total_xp_earned", 0)))
+		add_lbl.call("🛍️ Mejora Más Cara: " + str(GameManager.profile_stats.get("most_expensive_upgrade", 0)))
+		
+		add_header.call("🃏 ESTADÍSTICAS DE CARTAS")
+		var card_choices = GameManager.profile_stats.get("card_choices", {})
+		var fav_card = "Ninguna" if is_es else "None"
+		var fav_count = 0
+		for k in card_choices.keys():
+			if card_choices[k] > fav_count:
+				fav_count = card_choices[k]
+				fav_card = GameManager.skills_data.get(k, {}).get("name", k)
+		add_lbl.call("🃏 Carta Favorita:\n   " + fav_card + "\n   Elegida: " + str(fav_count) + " veces")
+		
+		var max_upgraded = "Ninguna" if is_es else "None"
+		var max_lvl = 0
+		for k in GameManager.card_upgrade_levels.keys():
+			var val = GameManager.card_upgrade_levels[k]
+			if val is int and val > max_lvl:
+				max_lvl = val
+				max_upgraded = GameManager.skills_data.get(k, {}).get("name", k)
+		add_lbl.call("⭐ Carta Más Mejorada: " + max_upgraded + " (Nivel " + str(max_lvl) + ")" if max_lvl > 0 else "⭐ Carta Más Mejorada: Ninguna")
+		add_lbl.call("🔥 Sinergias Descubiertas: " + str(GameManager.profile_stats.get("sinergias_discovered", []).size()) + " / 11")
+		add_lbl.call("🔓 Cartas Desbloqueadas: " + str(GameManager.unlocked_skills.size()) + " / 42")
+		
+	elif cat_name.contains("Récords") or cat_name.contains("Records"):
+		var add_lbl = func(txt: String):
+			var lbl = Label.new()
+			lbl.text = txt
+			lbl.add_theme_font_override("font", button_font)
+			lbl.add_theme_font_size_override("font_size", 16)
+			detail_vbox.add_child(lbl)
+			
+		var cards_lvl_5 = 0
+		for k in GameManager.card_upgrade_levels.keys():
+			var val = GameManager.card_upgrade_levels[k]
+			if val is int and val >= 5:
+				cards_lvl_5 += 1
+				
+		add_lbl.call("💥 Mayor Daño Crítico:\n   " + str(GameManager.profile_stats.get("max_crit_damage", 0)))
+		var spacer = Control.new(); spacer.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer)
+		add_lbl.call("🛸 Más Aliens Eliminados en una Partida:\n   " + str(GameManager.profile_stats.get("max_kills_in_match", 0)))
+		var spacer2 = Control.new(); spacer2.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer2)
+		add_lbl.call("🪙 Más Oro en una Partida:\n   " + str(GameManager.profile_stats.get("max_gold_in_match", 0)))
+		var spacer3 = Control.new(); spacer3.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer3)
+		add_lbl.call("🌊 Mayor Nivel Alcanzado:\n   Oleada " + str(GameManager.profile_stats.get("max_level_reached", 1)))
+		var spacer4 = Control.new(); spacer4.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer4)
+		add_lbl.call("🃏 Mayor Cantidad de Cartas Nivel 5:\n   " + str(cards_lvl_5))
+		
+	elif cat_name.contains("Títulos") or cat_name.contains("Titles"):
+		var titles_data = [
+			{"name": "Novato del Huerto", "desc": "Jugar 1 partida" if is_es else "Play 1 match"},
+			{"name": "Defensor", "desc": "Oleada 10" if is_es else "Wave 10"},
+			{"name": "Jardinero de Guerra", "desc": "Oleada 20" if is_es else "Wave 20"},
+			{"name": "Exterminador", "desc": "10,000 aliens" if is_es else "10,000 aliens"},
+			{"name": "Cazajefes", "desc": "100 bosses" if is_es else "100 bosses"},
+			{"name": "El Elegido del Rábano", "desc": "Oleada 50" if is_es else "Wave 50"},
+			{"name": "El Dorado", "desc": "Prestigio 1" if is_es else "Prestige 1"},
+			{"name": "Devorador de Invasores", "desc": "50,000 aliens" if is_es else "50,000 aliens"}
+		]
+		var ut = GameManager.profile_stats.get("unlocked_titles", ["Novato del Huerto"])
+		var equipped = GameManager.profile_stats.get("equipped_title", "Novato del Huerto")
+		
+		for t_info in titles_data:
+			var row = PanelContainer.new()
+			detail_vbox.add_child(row)
+			
+			var row_style = StyleBoxFlat.new()
+			row_style.bg_color = Color(0.06, 0.06, 0.08, 0.8)
+			row_style.border_width_left = 2; row_style.border_width_top = 2
+			row_style.border_width_right = 2; row_style.border_width_bottom = 2
+			row_style.corner_radius_top_left = 6; row_style.corner_radius_top_right = 6
+			row_style.corner_radius_bottom_right = 6; row_style.corner_radius_bottom_left = 6
+			
+			var is_unlocked = ut.has(t_info.name)
+			var is_equipped = equipped == t_info.name
+			
+			if is_equipped:
+				row_style.border_color = Color(0.8, 0.6, 0.2, 1.0)
+			else:
+				row_style.border_color = Color(0.2, 0.2, 0.25, 0.8)
+			row.add_theme_stylebox_override("panel", row_style)
+			
+			var margin_row = MarginContainer.new()
+			margin_row.add_theme_constant_override("margin_left", 12)
+			margin_row.add_theme_constant_override("margin_top", 10)
+			margin_row.add_theme_constant_override("margin_right", 12)
+			margin_row.add_theme_constant_override("margin_bottom", 10)
+			row.add_child(margin_row)
+			
+			var hbox = HBoxContainer.new()
+			margin_row.add_child(hbox)
+			
+			var vb_text = VBoxContainer.new()
+			vb_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			hbox.add_child(vb_text)
+			
+			var t_name_lbl = Label.new()
+			t_name_lbl.text = (t_info.name if is_unlocked else "🔒 " + t_info.name)
+			t_name_lbl.add_theme_font_override("font", button_font)
+			t_name_lbl.add_theme_font_size_override("font_size", 15)
+			if is_equipped:
+				t_name_lbl.modulate = Color(1.0, 0.8, 0.2)
+			elif not is_unlocked:
+				t_name_lbl.modulate = Color(0.5, 0.5, 0.5)
+			vb_text.add_child(t_name_lbl)
+			
+			var desc_lbl = Label.new()
+			desc_lbl.text = t_info.desc
+			desc_lbl.add_theme_font_override("font", button_font)
+			desc_lbl.add_theme_font_size_override("font_size", 12)
+			desc_lbl.modulate = Color(0.6, 0.6, 0.6)
+			vb_text.add_child(desc_lbl)
+			
+			if is_equipped:
+				var eq_lbl = Label.new()
+				eq_lbl.text = "EQUIPADO" if is_es else "EQUIPPED"
+				eq_lbl.add_theme_font_override("font", button_font)
+				eq_lbl.add_theme_font_size_override("font_size", 14)
+				eq_lbl.modulate = Color(0.2, 1.0, 0.2)
+				hbox.add_child(eq_lbl)
+			elif is_unlocked:
+				var btn_equip = Button.new()
+				btn_equip.text = "EQUIPAR" if is_es else "EQUIP"
+				btn_equip.custom_minimum_size = Vector2(90, 40)
+				btn_equip.add_theme_font_override("font", button_font)
+				btn_equip.add_theme_font_size_override("font_size", 12)
+				
+				var eq_style = StyleBoxFlat.new()
+				eq_style.bg_color = Color(0.15, 0.35, 0.15, 1.0)
+				eq_style.corner_radius_top_left = 6; eq_style.corner_radius_top_right = 6
+				eq_style.corner_radius_bottom_right = 6; eq_style.corner_radius_bottom_left = 6
+				btn_equip.add_theme_stylebox_override("normal", eq_style)
+				btn_equip.add_theme_stylebox_override("hover", eq_style)
+				btn_equip.add_theme_stylebox_override("pressed", eq_style)
+				hbox.add_child(btn_equip)
+				
+				btn_equip.pressed.connect(func():
+					GameManager.profile_stats["equipped_title"] = t_info.name
+					GameManager.save_game()
+					header_title_equip_lbl.text = t_info.name
+					_populate_profile_category(cat_name, detail_vbox, header_avatar_rect, header_title_equip_lbl)
+				)
+			else:
+				var lock_lbl = Label.new()
+				lock_lbl.text = "BLOQUEADO" if is_es else "LOCKED"
+				lock_lbl.add_theme_font_override("font", button_font)
+				lock_lbl.add_theme_font_size_override("font_size", 13)
+				lock_lbl.modulate = Color(0.5, 0.5, 0.5)
+				hbox.add_child(lock_lbl)
+				
+	elif cat_name.contains("Avatares") or cat_name.contains("Avatars"):
+		var avatars_data = [
+			{"name": "Alien Normal", "desc": "Inicial" if is_es else "Initial"},
+			{"name": "Alien Curador", "desc": "Derrotar 50 aliens curadores" if is_es else "Defeat 50 healer aliens"},
+			{"name": "Alien Kamikaze", "desc": "Derrotar 50 aliens kamikaze" if is_es else "Defeat 50 kamikaze aliens"},
+			{"name": "Devorarábanos", "desc": "Alcanzar Oleada 15" if is_es else "Reach Wave 15"},
+			{"name": "Chayanne", "desc": "Llevar 3 cartas a Nivel Máximo" if is_es else "Get 3 cards to Max Level"},
+			{"name": "Papa Espantapájaros", "desc": "Gastar 5,000 de oro" if is_es else "Spend 5,000 gold"},
+			{"name": "Rábano Dorado", "desc": "Alcanzar Oleada 30" if is_es else "Reach Wave 30"},
+			{"name": "Rábano Cósmico", "desc": "Alcanzar Oleada 50" if is_es else "Reach Wave 50"}
+		]
+		var ua = GameManager.profile_stats.get("unlocked_avatars", ["Alien Normal"])
+		var equipped = GameManager.profile_stats.get("equipped_avatar", "Alien Normal")
+		
+		for a_info in avatars_data:
+			var row = PanelContainer.new()
+			detail_vbox.add_child(row)
+			
+			var row_style = StyleBoxFlat.new()
+			row_style.bg_color = Color(0.06, 0.06, 0.08, 0.8)
+			row_style.border_width_left = 2; row_style.border_width_top = 2
+			row_style.border_width_right = 2; row_style.border_width_bottom = 2
+			row_style.corner_radius_top_left = 6; row_style.corner_radius_top_right = 6
+			row_style.corner_radius_bottom_right = 6; row_style.corner_radius_bottom_left = 6
+			
+			var is_unlocked = ua.has(a_info.name)
+			var is_equipped = equipped == a_info.name
+			
+			if is_equipped:
+				row_style.border_color = Color(0.8, 0.6, 0.2, 1.0)
+			else:
+				row_style.border_color = Color(0.2, 0.2, 0.25, 0.8)
+			row.add_theme_stylebox_override("panel", row_style)
+			
+			var margin_row = MarginContainer.new()
+			margin_row.add_theme_constant_override("margin_left", 12)
+			margin_row.add_theme_constant_override("margin_top", 10)
+			margin_row.add_theme_constant_override("margin_right", 12)
+			margin_row.add_theme_constant_override("margin_bottom", 10)
+			row.add_child(margin_row)
+			
+			var hbox = HBoxContainer.new()
+			hbox.add_theme_constant_override("separation", 15)
+			margin_row.add_child(hbox)
+			
+			var tex_path = "res://assets/img/alien_normal.png"
+			var mod_color = Color.WHITE
+			if a_info.name == "Alien Normal": tex_path = "res://assets/img/alien_normal.png"
+			elif a_info.name == "Alien Curador": tex_path = "res://assets/img/alien_curandero.png"
+			elif a_info.name == "Alien Kamikaze": tex_path = "res://assets/img/alien_kamikaze.png"
+			elif a_info.name == "Devorarábanos": tex_path = "res://assets/img/rabanito_diablo.png"
+			elif a_info.name == "Chayanne": tex_path = "res://assets/img/alien_amigo.png"
+			elif a_info.name == "Papa Espantapájaros": tex_path = "res://assets/img/alien_minero.png"
+			elif a_info.name == "Rábano Dorado":
+				tex_path = "res://assets/img/rabanito.png"
+				mod_color = Color(1.0, 0.8, 0.1)
+			elif a_info.name == "Rábano Cósmico":
+				tex_path = "res://assets/img/rabanito.png"
+				mod_color = Color(0.6, 0.3, 1.0)
+				
+			var tr = TextureRect.new()
+			tr.custom_minimum_size = Vector2(48, 48)
+			tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			
+			if is_unlocked:
+				tr.texture = load(tex_path)
+				tr.modulate = mod_color
+			else:
+				tr.texture = load("res://assets/img/alien_normal.png")
+				tr.modulate = Color(0.1, 0.1, 0.1, 0.6)
+				
+			hbox.add_child(tr)
+			
+			var vb_text = VBoxContainer.new()
+			vb_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			hbox.add_child(vb_text)
+			
+			var a_name_lbl = Label.new()
+			a_name_lbl.text = (a_info.name if is_unlocked else "🔒 " + a_info.name)
+			a_name_lbl.add_theme_font_override("font", button_font)
+			a_name_lbl.add_theme_font_size_override("font_size", 15)
+			if is_equipped:
+				a_name_lbl.modulate = Color(1.0, 0.8, 0.2)
+			elif not is_unlocked:
+				a_name_lbl.modulate = Color(0.5, 0.5, 0.5)
+			vb_text.add_child(a_name_lbl)
+			
+			var desc_lbl = Label.new()
+			desc_lbl.text = a_info.desc
+			desc_lbl.add_theme_font_override("font", button_font)
+			desc_lbl.add_theme_font_size_override("font_size", 12)
+			desc_lbl.modulate = Color(0.6, 0.6, 0.6)
+			vb_text.add_child(desc_lbl)
+			
+			if is_equipped:
+				var eq_lbl = Label.new()
+				eq_lbl.text = "EQUIPADO" if is_es else "EQUIPPED"
+				eq_lbl.add_theme_font_override("font", button_font)
+				eq_lbl.add_theme_font_size_override("font_size", 14)
+				eq_lbl.modulate = Color(0.2, 1.0, 0.2)
+				hbox.add_child(eq_lbl)
+			elif is_unlocked:
+				var btn_equip = Button.new()
+				btn_equip.text = "EQUIPAR" if is_es else "EQUIP"
+				btn_equip.custom_minimum_size = Vector2(90, 40)
+				btn_equip.add_theme_font_override("font", button_font)
+				btn_equip.add_theme_font_size_override("font_size", 12)
+				
+				var eq_style = StyleBoxFlat.new()
+				eq_style.bg_color = Color(0.15, 0.35, 0.15, 1.0)
+				eq_style.corner_radius_top_left = 6; eq_style.corner_radius_top_right = 6
+				eq_style.corner_radius_bottom_right = 6; eq_style.corner_radius_bottom_left = 6
+				btn_equip.add_theme_stylebox_override("normal", eq_style)
+				btn_equip.add_theme_stylebox_override("hover", eq_style)
+				btn_equip.add_theme_stylebox_override("pressed", eq_style)
+				hbox.add_child(btn_equip)
+				
+				btn_equip.pressed.connect(func():
+					GameManager.profile_stats["equipped_avatar"] = a_info.name
+					GameManager.save_game()
+					header_avatar_rect.texture = load(tex_path)
+					header_avatar_rect.modulate = mod_color
+					_populate_profile_category(cat_name, detail_vbox, header_avatar_rect, header_title_equip_lbl)
+				)
+			else:
+				var lock_lbl = Label.new()
+				lock_lbl.text = "BLOQUEADO" if is_es else "LOCKED"
+				lock_lbl.add_theme_font_override("font", button_font)
+				lock_lbl.add_theme_font_size_override("font_size", 13)
+				lock_lbl.modulate = Color(0.5, 0.5, 0.5)
+				hbox.add_child(lock_lbl)
+				
+	elif cat_name.contains("Colección") or cat_name.contains("Collection"):
+		var add_lbl = func(txt: String):
+			var lbl = Label.new()
+			lbl.text = txt
+			lbl.add_theme_font_override("font", button_font)
+			lbl.add_theme_font_size_override("font_size", 16)
+			detail_vbox.add_child(lbl)
+			
+		var bestiary_unlocked = 0
+		for k in GameManager.bestiary.keys():
+			if GameManager.bestiary[k] > 0:
+				bestiary_unlocked += 1
+				
+		var cards_total = GameManager.skills_data.keys().size()
+		var sy_total = GameManager.profile_stats.get("sinergias_discovered", []).size()
+		var av_total = GameManager.profile_stats.get("unlocked_avatars", []).size()
+		var ti_total = GameManager.profile_stats.get("unlocked_titles", []).size()
+		
+		add_lbl.call("📚 RESUMEN DE COLECCIÓN\n")
+		add_lbl.call("🃏 Cartas: " + str(GameManager.unlocked_skills.size()) + " / " + str(cards_total))
+		var spacer1 = Control.new(); spacer1.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer1)
+		add_lbl.call("👾 Bestiario: " + str(bestiary_unlocked) + " / 9")
+		var spacer2 = Control.new(); spacer2.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer2)
+		add_lbl.call("🔥 Sinergias: " + str(sy_total) + " / 11")
+		var spacer3 = Control.new(); spacer3.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer3)
+		add_lbl.call("🖼️ Avatares: " + str(av_total) + " / 8")
+		var spacer4 = Control.new(); spacer4.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer4)
+		add_lbl.call("🎖️ Títulos: " + str(ti_total) + " / 8")
+		
+	elif cat_name.contains("Curiosidades") or cat_name.contains("Trivia"):
+		var add_lbl = func(txt: String):
+			var lbl = Label.new()
+			lbl.text = txt
+			lbl.add_theme_font_override("font", button_font)
+			lbl.add_theme_font_size_override("font_size", 16)
+			detail_vbox.add_child(lbl)
+			
+		add_lbl.call("🌾 Rábanos Protegidos: " + str(GameManager.profile_stats.get("radishes_protected", 1)))
+		var spacer1 = Control.new(); spacer1.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer1)
+		add_lbl.call("Lost Rábanos Perdidos: " + str(GameManager.profile_stats.get("radishes_lost", 0)))
+		var spacer2 = Control.new(); spacer2.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer2)
+		add_lbl.call("🛋️ Aliens Enviados a Terapia: " + str(GameManager.profile_stats.get("aliens_in_therapy", 0)))
+		var spacer3 = Control.new(); spacer3.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer3)
+		add_lbl.call("📳 Pantallas Sacudidas: " + str(GameManager.profile_stats.get("screens_shaken", 0)))
+		var spacer4 = Control.new(); spacer4.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer4)
+		add_lbl.call("💥 Explosiones Provocadas: " + str(GameManager.profile_stats.get("explosions_caused", 0)))
+		var spacer5 = Control.new(); spacer5.custom_minimum_size = Vector2(0, 10); detail_vbox.add_child(spacer5)
+		add_lbl.call("🏃 Kilómetros Cortados: " + ("%.1f" % GameManager.profile_stats.get("kilometers_cut", 0.0)) + " km")
