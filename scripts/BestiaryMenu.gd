@@ -176,13 +176,7 @@ func _setup_modal() -> void:
 	modal_claim_btn.add_theme_font_override("font", button_font)
 	vbox.add_child(modal_claim_btn)
 
-	var btn_close = Button.new()
-	btn_close.text = "VOLVER"
-	btn_close.custom_minimum_size = Vector2(200, 70)
-	btn_close.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	btn_close.add_theme_font_override("font", button_font)
-	btn_close.pressed.connect(func(): modal_bg.visible = false)
-	vbox.add_child(btn_close)
+
 
 func create_entry(id: int, count: int) -> void:
 	var card_panel = PanelContainer.new()
