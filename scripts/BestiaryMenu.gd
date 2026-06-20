@@ -122,6 +122,28 @@ func _setup_modal() -> void:
 	modal_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
 	modal_bg.add_child(modal_panel)
 	
+	# Botón de cerrar en la esquina
+	var close_btn_wrapper = Control.new()
+	modal_panel.add_child(close_btn_wrapper)
+	
+	var btn_close_top = Button.new()
+	btn_close_top.text = " X "
+	btn_close_top.custom_minimum_size = Vector2(55, 55)
+	btn_close_top.add_theme_font_override("font", button_font)
+	btn_close_top.add_theme_font_size_override("font_size", 22)
+	
+	var close_style = StyleBoxFlat.new()
+	close_style.bg_color = Color(0.35, 0.1, 0.1, 1.0)
+	close_style.set_corner_radius_all(6)
+	btn_close_top.add_theme_stylebox_override("normal", close_style)
+	btn_close_top.add_theme_stylebox_override("hover", close_style)
+	btn_close_top.add_theme_stylebox_override("pressed", close_style)
+	
+	close_btn_wrapper.add_child(btn_close_top)
+	btn_close_top.position = Vector2(650 - 65, 10)
+	
+	btn_close_top.pressed.connect(func(): modal_bg.visible = false)
+	
 	var vbox = VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 25)
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
