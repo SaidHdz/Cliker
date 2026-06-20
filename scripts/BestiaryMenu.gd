@@ -13,6 +13,7 @@ var modal_desc: Label
 var modal_milestone_lbl: Label
 var modal_claim_btn: Button
 var gold_label_ref: Label
+var scene_back_btn: Button
 
 func _ready() -> void:
 	# 1. Fondo Negro Sólido
@@ -64,6 +65,7 @@ func _ready() -> void:
 	
 	var btn_back = $VBoxContainer/BtnBack
 	if btn_back:
+		scene_back_btn = btn_back
 		btn_back.get_parent().remove_child(btn_back)
 		add_child(btn_back)
 		
@@ -86,6 +88,8 @@ func _ready() -> void:
 		btn_back.offset_top = 8
 		btn_back.offset_right = -8
 		btn_back.offset_bottom = 63
+		if not btn_back.pressed.is_connected(_on_btn_back_pressed):
+			btn_back.pressed.connect(_on_btn_back_pressed)
 
 func _setup_modal() -> void:
 	modal_bg = ColorRect.new()
@@ -122,8 +126,14 @@ func _setup_modal() -> void:
 	modal_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
 	modal_bg.add_child(modal_panel)
 	
-	# Botón de cerrar en la esquina
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 25)
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	modal_panel.add_child(vbox)
+	
+	# Botón de cerrar en la esquina (añadido después de vbox para que se dibuje por encima de él)
 	var close_btn_wrapper = Control.new()
+	close_btn_wrapper.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	modal_panel.add_child(close_btn_wrapper)
 	
 	var btn_close_top = Button.new()
@@ -142,12 +152,7 @@ func _setup_modal() -> void:
 	close_btn_wrapper.add_child(btn_close_top)
 	btn_close_top.position = Vector2(650 - 65, 10)
 	
-	btn_close_top.pressed.connect(func(): modal_bg.visible = false)
-	
-	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 25)
-	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	modal_panel.add_child(vbox)
+	btn_close_top.pressed.connect(_close_modal)
 	
 	modal_title = Label.new()
 	modal_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -179,29 +184,34 @@ func _setup_modal() -> void:
 
 
 func create_entry(id: int, count: int) -> void:
-	var card_panel = PanelContainer.new()
-	card_panel.custom_minimum_size = Vector2(180, 160)
-	card_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card_panel.mouse_filter = Control.MOUSE_FILTER_PASS
+	# 1. El Botón ahora es la base de la tarjeta (adiós PanelContainer)
+	var btn = Button.new()
+	btn.custom_minimum_size = Vector2(180, 160)
+	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn.mouse_filter = Control.MOUSE_FILTER_PASS
 	
+	# 2. Le ponemos tu estilo directo al botón
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.08, 0.08, 0.12, 1.0)
 	style.border_width_left = 3; style.border_width_top = 3
 	style.border_width_right = 3; style.border_width_bottom = 3
 	style.border_color = Color(0.8, 0.6, 0.2, 1.0)
 	style.set_corner_radius_all(10)
-	card_panel.add_theme_stylebox_override("panel", style)
 	
-	var btn = Button.new()
-	btn.flat = true
-	btn.set_anchors_preset(Control.PRESET_FULL_RECT)
-	btn.mouse_filter = Control.MOUSE_FILTER_PASS
-	card_panel.add_child(btn)
+	btn.add_theme_stylebox_override("normal", style)
 	
+	# Creamos un estilo un poco más claro para cuando lo tocas/pasas el dedo
+	var hover_style = style.duplicate()
+	hover_style.bg_color = Color(0.12, 0.12, 0.16, 1.0)
+	btn.add_theme_stylebox_override("hover", hover_style)
+	btn.add_theme_stylebox_override("pressed", style)
+	
+	# 3. El VBox con el texto va dentro del botón
 	var vbox = VBoxContainer.new()
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	card_panel.add_child(vbox)
+	vbox.set_anchors_preset(Control.PRESET_FULL_RECT) # Ahora sí funciona porque el botón no es un "Container" restrictivo
+	btn.add_child(vbox)
 	
 	var data = GameManager.alien_data.get(id, {"name": "???", "desc": ""})
 	var is_discovered = count > 0
@@ -224,16 +234,28 @@ func create_entry(id: int, count: int) -> void:
 	if is_discovered:
 		btn.pressed.connect(_on_alien_clicked.bind(id))
 	else:
+		# Si no está descubierto, oscurecemos el botón y lo desactivamos
 		style.bg_color = Color(0.04, 0.04, 0.04, 1.0)
 		style.border_color = Color(0.3, 0.3, 0.3, 1.0)
+		hover_style.bg_color = Color(0.04, 0.04, 0.04, 1.0)
+		hover_style.border_color = Color(0.3, 0.3, 0.3, 1.0)
+		btn.disabled = true
 		
-	grid.add_child(card_panel)
+	grid.add_child(btn)
 
 func _on_alien_clicked(id: int) -> void:
 	var data = GameManager.alien_data.get(id, {"name": "???", "desc": "Sin datos."})
 	modal_title.text = data.name.to_upper()
 	modal_desc.text = data.desc + "\n\nDERROTADOS: " + str(GameManager.bestiary[id])
 	modal_bg.visible = true
+	
+	# Asegurar que el modal se dibuje por encima de todo (incluido el botón de volver de la escena)
+	move_child(modal_bg, -1)
+	
+	# Desactivar y difuminar (poner borroso) el botón de volver de la escena
+	if scene_back_btn:
+		scene_back_btn.disabled = true
+		scene_back_btn.modulate = Color(0.4, 0.4, 0.4, 0.5)
 	
 	modal_panel.pivot_offset = Vector2(325, 250)
 	modal_panel.scale = Vector2(0.8, 0.8)
@@ -316,6 +338,12 @@ func _claim_reward(id: int) -> void:
 		modal_claim_btn.pressed.disconnect(connection.callable)
 		
 	_update_milestone_ui(id)
+
+func _close_modal() -> void:
+	modal_bg.visible = false
+	if scene_back_btn:
+		scene_back_btn.disabled = false
+		scene_back_btn.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 func _on_btn_back_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/MenuInicio.tscn")
