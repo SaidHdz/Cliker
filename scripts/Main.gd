@@ -322,28 +322,37 @@ func _perform_raycast_slice(start: Vector2, end: Vector2) -> void:
 	var space_state = get_world_2d().direct_space_state
 	var query = PhysicsRayQueryParameters2D.create(start, end)
 	query.collide_with_areas = true; query.collide_with_bodies = true
-	var hits = 0
+	var hits = 0        # Sólo cuenta colisiones útiles (enemigos/cofres/orbs)
+	var traversals = 0  # Total de colisiones procesadas (para evitar bucle infinito)
 	
-	while hits < 10:
+	while hits < 10 and traversals < 40:
 		var result = space_state.intersect_ray(query)
 		if result:
 			var collider = result.collider
+			traversals += 1
 			
+			var is_relevant = false
 			if collider.is_in_group("enemies"):
 				if collider.has_method("take_damage"): _on_enemy_sliced(collider)
+				is_relevant = true
 			elif collider.is_in_group("chests"):
 				# Los cofres reciben daño limpio, sin desencadenar agujeros negros ni combos
 				if collider.has_method("take_damage"): 
 					var dmg = int(GameManager.click_damage * GameManager.prestige_multiplier)
 					collider.take_damage(dmg)
+				is_relevant = true
 			elif collider.is_in_group("orbs") and collider.has_method("magnetize_to"):
 				var base = get_tree().get_first_node_in_group("BaseRabanito")
 				if base: collider.magnetize_to(base.global_position)
+				is_relevant = true
+			# Si no es relevante (auras, hojas del escudo, etc.) lo ignoramos
+			# pero igual lo excluimos para evitar bucle infinito
 				
 			var new_exclude = query.exclude.duplicate()
 			new_exclude.append(collider.get_rid())
 			query.exclude = new_exclude
-			hits += 1
+			if is_relevant:
+				hits += 1
 		else: 
 			break
 
