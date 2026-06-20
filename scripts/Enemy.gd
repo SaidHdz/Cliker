@@ -215,6 +215,14 @@ func take_damage(amount: int, is_crit: bool = false, type: String = "normal") ->
 	if has_shield and type != "electric": # Ejemplo: rayo rompe escudo
 		amount = int(amount * 0.2)
 	
+	# Track stats
+	GameManager.increment_stat("total_damage", amount)
+	if is_crit:
+		GameManager.increment_stat("total_crit_damage", amount)
+		if amount > GameManager.profile_stats.get("max_crit_damage", 0):
+			GameManager.profile_stats["max_crit_damage"] = amount
+			GameManager.save_game()
+			
 	current_health -= amount
 	health_bar.value = current_health
 	

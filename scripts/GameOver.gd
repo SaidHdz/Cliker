@@ -42,6 +42,18 @@ func show_game_over() -> void:
 	# Calcular oro: 1 moneda por enemigo + bono por oleada
 	var gold_earned = GameManager.enemies_defeated + (GameManager.current_wave * 2)
 	GameManager.total_gold += gold_earned
+	GameManager.increment_stat("losses", 1)
+	GameManager.increment_stat("radishes_lost", 1)
+	GameManager.increment_stat("gold_earned", gold_earned)
+	
+	# Actualizar records en profile_stats
+	if GameManager.enemies_defeated > GameManager.profile_stats.get("max_kills_in_match", 0):
+		GameManager.profile_stats["max_kills_in_match"] = GameManager.enemies_defeated
+	if gold_earned > GameManager.profile_stats.get("max_gold_in_match", 0):
+		GameManager.profile_stats["max_gold_in_match"] = gold_earned
+	if GameManager.current_level > GameManager.profile_stats.get("max_level_reached", 1):
+		GameManager.profile_stats["max_level_reached"] = GameManager.current_level
+		
 	GameManager.save_game() # Guardar el oro ganado y récords
 	
 	# Mostrar las estadísticas si el Label existe

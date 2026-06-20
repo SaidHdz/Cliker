@@ -122,6 +122,9 @@ func _on_buy_pressed(id: String, cost: int) -> void:
 	# Verificamos si es un click real y no un drag (opcional pero recomendado)
 	if GameManager.total_gold >= cost:
 		GameManager.total_gold -= cost
+		GameManager.increment_stat("gold_spent", cost)
+		if cost > GameManager.profile_stats.get("most_expensive_upgrade", 0):
+			GameManager.profile_stats["most_expensive_upgrade"] = cost
 		if id == "damage":
 			GameManager.meta_base_damage += 1
 			GameManager.cost_meta_damage = int(GameManager.cost_meta_damage * 1.5)

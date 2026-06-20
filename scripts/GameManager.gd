@@ -32,6 +32,52 @@ var tutorial_completed: bool = false
 var last_login_day_num: int = 0
 var consecutive_logins: int = 0
 
+var profile_stats: Dictionary = {
+	"player_name": "Said",
+	"equipped_title": "Novato del Huerto",
+	"prestige": 0,
+	"unlocked_titles": ["Novato del Huerto"],
+	"equipped_avatar": "Alien Normal",
+	"unlocked_avatars": ["Alien Normal"],
+	
+	"time_played": 0.0,
+	"matches_played": 0,
+	"wins": 0,
+	"losses": 0,
+	"chests_opened": 0,
+	
+	"aliens_killed": 0,
+	"bosses_killed": 0,
+	"total_damage": 0,
+	"total_crit_damage": 0,
+	"finger_cuts": 0,
+	"enemies_burned": 0,
+	"enemies_electrocuted": 0,
+	"enemies_absorbed": 0,
+	
+	"gold_earned": 0,
+	"gold_spent": 0,
+	"coins_collected": 0,
+	"total_xp_earned": 0,
+	"most_expensive_upgrade": 0,
+	
+	"card_choices": {},
+	"sinergias_discovered": [],
+	
+	"max_crit_damage": 0,
+	"max_kills_in_match": 0,
+	"max_gold_in_match": 0,
+	"max_level_reached": 1,
+	"max_cards_level_5": 0,
+	
+	"radishes_protected": 1,
+	"radishes_lost": 0,
+	"aliens_in_therapy": 0,
+	"screens_shaken": 0,
+	"explosions_caused": 0,
+	"kilometers_cut": 0.0
+}
+
 # --- AJUSTES ---
 var music_volume: float = 0.8
 var sfx_volume: float = 0.8
@@ -739,6 +785,7 @@ func save_game() -> void:
 	config.set_value("Progreso", "tutorial_completed", tutorial_completed)
 	config.set_value("Progreso", "last_login_day_num", last_login_day_num)
 	config.set_value("Progreso", "consecutive_logins", consecutive_logins)
+	config.set_value("Perfil", "profile_stats", profile_stats)
 	config.set_value("Tienda", "meta_base_damage", meta_base_damage)
 	config.set_value("Tienda", "meta_base_health", meta_base_health)
 	config.set_value("Tienda", "meta_crit_chance", meta_crit_chance)
@@ -800,6 +847,11 @@ func load_game() -> void:
 		tutorial_completed = config.get_value("Progreso", "tutorial_completed", false)
 		last_login_day_num = config.get_value("Progreso", "last_login_day_num", 0)
 		consecutive_logins = config.get_value("Progreso", "consecutive_logins", 0)
+		var saved_profile = config.get_value("Perfil", "profile_stats", {})
+		if typeof(saved_profile) == TYPE_DICTIONARY:
+			for k in saved_profile.keys():
+				profile_stats[k] = saved_profile[k]
+		check_title_unlocks()
 		meta_base_damage = config.get_value("Tienda", "meta_base_damage", 1)
 		meta_base_health = config.get_value("Tienda", "meta_base_health", 100)
 		meta_crit_chance = config.get_value("Tienda", "meta_crit_chance", 0.0)
@@ -881,9 +933,13 @@ func gain_xp(amount: int) -> void:
 func notify_enemy_defeated(v: int = -1) -> void:
 	enemies_defeated += 1; enemies_killed_in_wave += 1
 	total_enemies_defeated += 1
+	increment_stat("aliens_killed", 1)
+	increment_stat("aliens_in_therapy", randi() % 3 + 1)
 	if v != -1 and bestiary.has(v): 
 		bestiary[v] += 1
-		if v == 8: pending_level_ups += 1; level_up.emit(current_level)
+		if v == 8: 
+			pending_level_ups += 1; level_up.emit(current_level)
+			increment_stat("bosses_killed", 1)
 	enemy_defeated.emit(enemies_defeated)
 	if enemies_killed_in_wave >= get_total_enemies_for_current_wave():
 		current_wave += 1; chests_spawned_this_wave = 0
@@ -963,6 +1019,51 @@ func hard_reset() -> void:
 	tutorial_completed = false
 	last_login_day_num = 0
 	consecutive_logins = 0
+	profile_stats = {
+		"player_name": "Said",
+		"equipped_title": "Novato del Huerto",
+		"prestige": 0,
+		"unlocked_titles": ["Novato del Huerto"],
+		"equipped_avatar": "Alien Normal",
+		"unlocked_avatars": ["Alien Normal"],
+		
+		"time_played": 0.0,
+		"matches_played": 0,
+		"wins": 0,
+		"losses": 0,
+		"chests_opened": 0,
+		
+		"aliens_killed": 0,
+		"bosses_killed": 0,
+		"total_damage": 0,
+		"total_crit_damage": 0,
+		"finger_cuts": 0,
+		"enemies_burned": 0,
+		"enemies_electrocuted": 0,
+		"enemies_absorbed": 0,
+		
+		"gold_earned": 0,
+		"gold_spent": 0,
+		"coins_collected": 0,
+		"total_xp_earned": 0,
+		"most_expensive_upgrade": 0,
+		
+		"card_choices": {},
+		"sinergias_discovered": [],
+		
+		"max_crit_damage": 0,
+		"max_kills_in_match": 0,
+		"max_gold_in_match": 0,
+		"max_level_reached": 1,
+		"max_cards_level_5": 0,
+		
+		"radishes_protected": 1,
+		"radishes_lost": 0,
+		"aliens_in_therapy": 0,
+		"screens_shaken": 0,
+		"explosions_caused": 0,
+		"kilometers_cut": 0.0
+	}
 	
 	meta_base_damage = 1
 	meta_base_health = 100
@@ -1134,6 +1235,8 @@ func prestige_deck() -> bool:
 		deck_unlocked_slots = 1
 		deck_equipped_cards = ["", "", ""]
 		veteran_badges += 1
+		increment_stat("prestige", 1)
+		increment_stat("radishes_protected", 1)
 		save_game()
 		return true
 	return false
@@ -1143,3 +1246,70 @@ func register_mastery(id: String) -> void:
 		mastered_skills.append(id)
 		mastery_total_count += 1
 		save_game()
+
+func _process(delta: float) -> void:
+	if profile_stats.has("time_played"):
+		profile_stats["time_played"] += delta
+
+func increment_stat(stat_name: String, amount: float = 1.0) -> void:
+	if profile_stats.has(stat_name):
+		profile_stats[stat_name] += amount
+	else:
+		profile_stats[stat_name] = amount
+	check_title_unlocks()
+
+func check_title_unlocks() -> void:
+	if not profile_stats.has("unlocked_titles"):
+		profile_stats["unlocked_titles"] = ["Novato del Huerto"]
+	
+	var ut = profile_stats["unlocked_titles"]
+	
+	if profile_stats.get("matches_played", 0) >= 1 and not ut.has("Novato del Huerto"):
+		ut.append("Novato del Huerto")
+		
+	if best_wave >= 10 and not ut.has("Defensor"):
+		ut.append("Defensor")
+		
+	if best_wave >= 20 and not ut.has("Jardinero de Guerra"):
+		ut.append("Jardinero de Guerra")
+		
+	if total_enemies_defeated >= 10000 and not ut.has("Exterminador"):
+		ut.append("Exterminador")
+		
+	var boss_kills = bestiary.get(8, 0)
+	if boss_kills >= 100 and not ut.has("Cazajefes"):
+		ut.append("Cazajefes")
+		
+	if best_wave >= 50 and not ut.has("El Elegido del Rábano"):
+		ut.append("El Elegido del Rábano")
+		
+	var prestige_val = profile_stats.get("prestige", 0)
+	if prestige_val >= 1 and not ut.has("El Dorado"):
+		ut.append("El Dorado")
+		
+	if total_enemies_defeated >= 50000 and not ut.has("Devorador de Invasores"):
+		ut.append("Devorador de Invasores")
+		
+	profile_stats["unlocked_titles"] = ut
+	
+	if not profile_stats.has("unlocked_avatars"):
+		profile_stats["unlocked_avatars"] = ["Alien Normal"]
+	var ua = profile_stats["unlocked_avatars"]
+	
+	if not ua.has("Alien Normal"): ua.append("Alien Normal")
+	
+	if bestiary.get(1, 0) >= 50 and not ua.has("Alien Curador"): ua.append("Alien Curador")
+	
+	if bestiary.get(2, 0) >= 50 and not ua.has("Alien Kamikaze"): ua.append("Alien Kamikaze")
+	
+	if best_wave >= 15 and not ua.has("Devorarábanos"): ua.append("Devorarábanos")
+	
+	if mastery_total_count >= 3 and not ua.has("Chayanne"): ua.append("Chayanne")
+	
+	if profile_stats.get("gold_spent", 0) >= 5000 and not ua.has("Papa Espantapájaros"): ua.append("Papa Espantapájaros")
+	
+	if best_wave >= 30 and not ua.has("Rábano Dorado"): ua.append("Rábano Dorado")
+	
+	if best_wave >= 50 and not ua.has("Rábano Cosmic"): ua.append("Rábano Cósmico")
+	
+	profile_stats["unlocked_avatars"] = ua

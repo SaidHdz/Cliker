@@ -49,6 +49,8 @@ var radish_rain_timer: float = 0.0
 
 func _ready() -> void:
 	print("Escena Principal: Iniciando...")
+	GameManager.increment_stat("matches_played", 1)
+	GameManager.save_game()
 	process_mode = Node.PROCESS_MODE_PAUSABLE
 	get_tree().paused = false
 	
@@ -129,6 +131,8 @@ func _on_level_up(_new_level: int) -> void:
 		shake_camera(0.2, 8)
 
 func _on_chest_opened() -> void:
+	GameManager.increment_stat("chests_opened", 1)
+	GameManager.save_game()
 	if is_instance_valid(chest_menu) and chest_menu.has_method("show_menu"):
 		chest_menu.show_menu()
 
@@ -339,6 +343,9 @@ func _on_enemy_sliced(enemy: Node2D) -> void:
 	# 1. BLINDAJE: Evita acribillar cadáveres por el drag de la pantalla táctil
 	if "current_health" in enemy and enemy.current_health <= 0:
 		return
+		
+	GameManager.increment_stat("finger_cuts", 1)
+	GameManager.increment_stat("kilometers_cut", 0.001)
 
 	var final_crit_chance = GameManager.crit_chance
 	var crit_boost_lvl = GameManager.get_skill_level("crit_boost")
@@ -660,6 +667,7 @@ func spawn_variant_at(variant: int, pos: Vector2) -> Node2D:
 
 func shake_camera(duration: float, intensity: float):
 	if not GameManager.screen_shake_enabled: return
+	GameManager.increment_stat("screens_shaken", 1)
 	var camera = get_node_or_null("Camera2D")
 	if not is_instance_valid(camera): return
 	var tween = create_tween()
@@ -873,6 +881,7 @@ func _physics_process(delta: float) -> void:
 func _execute_nuclear_explosion() -> void:
 	shake_camera(1.2, 30)
 	AudioManager.play("crit")
+	GameManager.increment_stat("explosions_caused", 1)
 	
 	var flash = ColorRect.new()
 	flash.color = Color(1.0, 0.7, 0.3, 0.7)
@@ -1085,6 +1094,7 @@ func _trigger_radish_rain() -> void:
 	radish.queue_free()
 
 func create_micro_explosion(pos: Vector2) -> void:
+	GameManager.increment_stat("explosions_caused", 1)
 	var ring = Line2D.new()
 	ring.default_color = Color(1.0, 1.0, 1.0, 0.4)
 	ring.width = 2.0

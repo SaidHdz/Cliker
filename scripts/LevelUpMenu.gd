@@ -220,6 +220,23 @@ func _on_card_pressed(index: int) -> void:
 		get_tree().paused = false
 
 func apply_upgrade(id: String) -> void:
+	# Track card choices and synergies
+	if not GameManager.profile_stats.has("card_choices"):
+		GameManager.profile_stats["card_choices"] = {}
+	var choices = GameManager.profile_stats["card_choices"]
+	choices[id] = choices.get(id, 0) + 1
+	GameManager.profile_stats["card_choices"] = choices
+	
+	var syns = ["infernal_hole", "orbital_satellite", "radioactive_swamp", "field_squad", "living_fortress", "ajo_negativo", "los_compadres", "war_garden", "infected_potato", "excalibur_vegetal", "deforesador"]
+	if id in syns:
+		if not GameManager.profile_stats.has("sinergias_discovered"):
+			GameManager.profile_stats["sinergias_discovered"] = []
+		var sd = GameManager.profile_stats["sinergias_discovered"]
+		if not sd.has(id):
+			sd.append(id)
+			GameManager.profile_stats["sinergias_discovered"] = sd
+	GameManager.save_game()
+
 	if GameManager.skills_data.has(id) or GameManager.flat_upgrades.has(id):
 		GameManager.unlock_skill(id)
 		if not GameManager.skill_levels.has(id): GameManager.skill_levels[id] = 0
