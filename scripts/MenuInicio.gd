@@ -61,8 +61,6 @@ func _ready() -> void:
 	col_center.add_child(deck_panel)
 	col_center.move_child(deck_panel, 2) # Justo debajo de BtnStart (BtnStart es el índice 1)
 	
-	update_ui()
-	
 	# Conexiones
 	btn_start.pressed.connect(_on_btn_start_pressed)
 	
@@ -175,6 +173,8 @@ func _ready() -> void:
 	next_unlock_lbl.add_theme_font_size_override("font_size", 15)
 	unlock_margin.add_child(next_unlock_lbl)
 	col_left.add_child(next_unlock_panel)
+	
+	update_ui()
 
 func _on_btn_shop_pressed() -> void:
 	var shop_scene = load("res://scenes/ShopMenu.tscn")
@@ -521,7 +521,7 @@ func show_settings_dialog() -> void:
 	panel.add_child(margin)
 	
 	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 18)
+	vbox.add_theme_constant_override("separation", 12)
 	margin.add_child(vbox)
 	
 	# TITLE
@@ -533,6 +533,16 @@ func show_settings_dialog() -> void:
 	
 	var sep = HSeparator.new()
 	vbox.add_child(sep)
+	
+	# ScrollContainer for settings controls
+	var settings_scroll = ScrollContainer.new()
+	settings_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_child(settings_scroll)
+	
+	var settings_vbox = VBoxContainer.new()
+	settings_vbox.add_theme_constant_override("separation", 18)
+	settings_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	settings_scroll.add_child(settings_vbox)
 	
 	# References for updating labels dynamically
 	var lbl_music = Label.new()
@@ -611,7 +621,7 @@ func show_settings_dialog() -> void:
 	# Add Music UI
 	var hb_music = HBoxContainer.new()
 	hb_music.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_child(hb_music)
+	settings_vbox.add_child(hb_music)
 	
 	lbl_music.custom_minimum_size = Vector2(250, 0)
 	lbl_music.add_theme_font_override("font", button_font)
@@ -635,7 +645,7 @@ func show_settings_dialog() -> void:
 	# Add SFX UI
 	var hb_sfx = HBoxContainer.new()
 	hb_sfx.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_child(hb_sfx)
+	settings_vbox.add_child(hb_sfx)
 	
 	lbl_sfx.custom_minimum_size = Vector2(250, 0)
 	lbl_sfx.add_theme_font_override("font", button_font)
@@ -658,7 +668,7 @@ func show_settings_dialog() -> void:
 	
 	# Add Damage Numbers Toggle Row
 	var hb_dmg = HBoxContainer.new()
-	vbox.add_child(hb_dmg)
+	settings_vbox.add_child(hb_dmg)
 	lbl_damage_nums.custom_minimum_size = Vector2(300, 0)
 	lbl_damage_nums.add_theme_font_override("font", button_font)
 	lbl_damage_nums.add_theme_font_size_override("font_size", 22)
@@ -671,7 +681,7 @@ func show_settings_dialog() -> void:
 	
 	# Add Shaders Toggle Row
 	var hb_shad = HBoxContainer.new()
-	vbox.add_child(hb_shad)
+	settings_vbox.add_child(hb_shad)
 	lbl_shaders.custom_minimum_size = Vector2(300, 0)
 	lbl_shaders.add_theme_font_override("font", button_font)
 	lbl_shaders.add_theme_font_size_override("font_size", 22)
@@ -684,7 +694,7 @@ func show_settings_dialog() -> void:
 	
 	# Add Screen Shake Toggle Row
 	var hb_shk = HBoxContainer.new()
-	vbox.add_child(hb_shk)
+	settings_vbox.add_child(hb_shk)
 	lbl_shake.custom_minimum_size = Vector2(300, 0)
 	lbl_shake.add_theme_font_override("font", button_font)
 	lbl_shake.add_theme_font_size_override("font_size", 22)
@@ -697,7 +707,7 @@ func show_settings_dialog() -> void:
 	
 	# Add Language Row
 	var hb_l = HBoxContainer.new()
-	vbox.add_child(hb_l)
+	settings_vbox.add_child(hb_l)
 	lbl_lang.custom_minimum_size = Vector2(300, 0)
 	lbl_lang.add_theme_font_override("font", button_font)
 	lbl_lang.add_theme_font_size_override("font_size", 22)
@@ -710,17 +720,17 @@ func show_settings_dialog() -> void:
 	
 	# Add Credits Box
 	var cred_sep = HSeparator.new()
-	vbox.add_child(cred_sep)
+	settings_vbox.add_child(cred_sep)
 	credits_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	credits_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	credits_lbl.add_theme_font_override("font", button_font)
 	credits_lbl.add_theme_font_size_override("font_size", 16)
 	credits_lbl.modulate = Color(0.6, 0.6, 0.6, 1)
-	vbox.add_child(credits_lbl)
+	settings_vbox.add_child(credits_lbl)
 	
 	# Add Hard Reset (Red Button)
 	var reset_sep = HSeparator.new()
-	vbox.add_child(reset_sep)
+	settings_vbox.add_child(reset_sep)
 	
 	var style_reset = StyleBoxFlat.new()
 	style_reset.bg_color = Color(0.7, 0.1, 0.1, 1.0)
@@ -740,7 +750,7 @@ func show_settings_dialog() -> void:
 	btn_reset.add_theme_font_override("font", button_font)
 	btn_reset.add_theme_font_size_override("font_size", 22)
 	btn_reset.custom_minimum_size = Vector2(0, 70)
-	vbox.add_child(btn_reset)
+	settings_vbox.add_child(btn_reset)
 	
 	# Add Exit Button inside settings
 	btn_exit_game.custom_minimum_size = Vector2(0, 70)
@@ -761,9 +771,9 @@ func show_settings_dialog() -> void:
 	btn_exit_game.add_theme_stylebox_override("normal", style_exit)
 	btn_exit_game.add_theme_stylebox_override("hover", style_exit)
 	btn_exit_game.add_theme_stylebox_override("pressed", style_exit)
-	vbox.add_child(btn_exit_game)
+	settings_vbox.add_child(btn_exit_game)
 	
-	# Add Close Button
+	# Add Close Button (pinned to bottom of vbox)
 	btn_close_settings.add_theme_font_override("font", button_font)
 	btn_close_settings.add_theme_font_size_override("font_size", 24)
 	btn_close_settings.custom_minimum_size = Vector2(0, 75)
