@@ -741,50 +741,49 @@ func show_settings_dialog() -> void:
 	credits_lbl.modulate = Color(0.6, 0.6, 0.6, 1)
 	settings_vbox.add_child(credits_lbl)
 	
-	# Add Hard Reset (Red Button)
+	# Add Hard Reset and Exit Buttons inside settings side-by-side
 	var reset_sep = HSeparator.new()
 	settings_vbox.add_child(reset_sep)
 	
 	var style_reset = StyleBoxFlat.new()
 	style_reset.bg_color = Color(0.7, 0.1, 0.1, 1.0)
-	style_reset.border_width_left = 2
-	style_reset.border_width_top = 2
-	style_reset.border_width_right = 2
-	style_reset.border_width_bottom = 2
+	style_reset.border_width_left = 2; style_reset.border_width_top = 2
+	style_reset.border_width_right = 2; style_reset.border_width_bottom = 2
 	style_reset.border_color = Color(0.9, 0.3, 0.3, 1.0)
-	style_reset.corner_radius_top_left = 8
-	style_reset.corner_radius_top_right = 8
-	style_reset.corner_radius_bottom_right = 8
-	style_reset.corner_radius_bottom_left = 8
+	style_reset.corner_radius_top_left = 8; style_reset.corner_radius_top_right = 8
+	style_reset.corner_radius_bottom_right = 8; style_reset.corner_radius_bottom_left = 8
 	
 	btn_reset.add_theme_stylebox_override("normal", style_reset)
 	btn_reset.add_theme_stylebox_override("hover", style_reset)
 	btn_reset.add_theme_stylebox_override("pressed", style_reset)
 	btn_reset.add_theme_font_override("font", button_font)
-	btn_reset.add_theme_font_size_override("font_size", 22)
-	btn_reset.custom_minimum_size = Vector2(0, 70)
-	settings_vbox.add_child(btn_reset)
-	
-	# Add Exit Button inside settings
-	btn_exit_game.custom_minimum_size = Vector2(0, 70)
-	btn_exit_game.add_theme_font_override("font", button_font)
-	btn_exit_game.add_theme_font_size_override("font_size", 22)
+	btn_reset.add_theme_font_size_override("font_size", 20)
+	btn_reset.custom_minimum_size = Vector2(0, 60)
+	btn_reset.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
 	var style_exit = StyleBoxFlat.new()
 	style_exit.bg_color = Color(0.35, 0.1, 0.1, 1.0)
-	style_exit.border_width_left = 2
-	style_exit.border_width_top = 2
-	style_exit.border_width_right = 2
-	style_exit.border_width_bottom = 2
+	style_exit.border_width_left = 2; style_exit.border_width_top = 2
+	style_exit.border_width_right = 2; style_exit.border_width_bottom = 2
 	style_exit.border_color = Color(0.55, 0.2, 0.2, 1.0)
-	style_exit.corner_radius_top_left = 8
-	style_exit.corner_radius_top_right = 8
-	style_exit.corner_radius_bottom_right = 8
-	style_exit.corner_radius_bottom_left = 8
+	style_exit.corner_radius_top_left = 8; style_exit.corner_radius_top_right = 8
+	style_exit.corner_radius_bottom_right = 8; style_exit.corner_radius_bottom_left = 8
+	
 	btn_exit_game.add_theme_stylebox_override("normal", style_exit)
 	btn_exit_game.add_theme_stylebox_override("hover", style_exit)
 	btn_exit_game.add_theme_stylebox_override("pressed", style_exit)
-	settings_vbox.add_child(btn_exit_game)
+	btn_exit_game.add_theme_font_override("font", button_font)
+	btn_exit_game.add_theme_font_size_override("font_size", 20)
+	btn_exit_game.custom_minimum_size = Vector2(0, 60)
+	btn_exit_game.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	
+	var hb_reset_exit = HBoxContainer.new()
+	hb_reset_exit.add_theme_constant_override("separation", 15)
+	hb_reset_exit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	settings_vbox.add_child(hb_reset_exit)
+	
+	hb_reset_exit.add_child(btn_reset)
+	hb_reset_exit.add_child(btn_exit_game)
 	
 	# Add Close Button (pinned to bottom of vbox)
 	btn_close_settings.add_theme_font_override("font", button_font)
@@ -1211,10 +1210,10 @@ func show_profile_dialog() -> void:
 	
 	var panel = PanelContainer.new()
 	overlay.add_child(panel)
-	_center_panel(panel, 520, 480)
+	_center_panel(panel, 860, 540)
 	
 	var panel_style = StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.08, 0.08, 0.12, 1.0)
+	panel_style.bg_color = Color(0.08, 0.08, 0.1, 1.0)
 	panel_style.border_width_left = 3
 	panel_style.border_width_top = 3
 	panel_style.border_width_right = 3
@@ -1225,6 +1224,34 @@ func show_profile_dialog() -> void:
 	panel_style.corner_radius_bottom_right = 12
 	panel_style.corner_radius_bottom_left = 12
 	panel.add_theme_stylebox_override("panel", panel_style)
+	
+	# Botón de cerrar en la esquina superior derecha del panel (fuera de márgenes)
+	var btn_close_top = Button.new()
+	btn_close_top.text = " X "
+	btn_close_top.custom_minimum_size = Vector2(36, 36)
+	btn_close_top.add_theme_font_override("font", button_font)
+	btn_close_top.add_theme_font_size_override("font_size", 14)
+	
+	var close_style = StyleBoxFlat.new()
+	close_style.bg_color = Color(0.35, 0.1, 0.1, 1.0)
+	close_style.set_corner_radius_all(6)
+	btn_close_top.add_theme_stylebox_override("normal", close_style)
+	btn_close_top.add_theme_stylebox_override("hover", close_style)
+	btn_close_top.add_theme_stylebox_override("pressed", close_style)
+	
+	panel.add_child(btn_close_top)
+	btn_close_top.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	btn_close_top.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	btn_close_top.grow_vertical = Control.GROW_DIRECTION_END
+	btn_close_top.offset_left = -46
+	btn_close_top.offset_top = 10
+	btn_close_top.offset_right = -10
+	btn_close_top.offset_bottom = 46
+	
+	btn_close_top.pressed.connect(func():
+		update_ui()
+		overlay.queue_free()
+	)
 	
 	var margin = MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 20)
@@ -1239,35 +1266,63 @@ func show_profile_dialog() -> void:
 	
 	var header_vb = VBoxContainer.new()
 	header_vb.alignment = BoxContainer.ALIGNMENT_CENTER
-	header_vb.add_theme_constant_override("separation", 4)
+	header_vb.add_theme_constant_override("separation", 10)
 	vbox.add_child(header_vb)
 	
 	var title_lbl = Label.new()
 	title_lbl.text = "PERFIL" if is_es else "PROFILE"
 	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_lbl.label_settings = label_font
-	title_lbl.add_theme_font_size_override("font_size", 22)
+	title_lbl.add_theme_font_size_override("font_size", 24)
+	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header_vb.add_child(title_lbl)
 	
+	# HBox para foto + nombre + boton guardar
+	var name_hbox = HBoxContainer.new()
+	name_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	name_hbox.add_theme_constant_override("separation", 15)
+	header_vb.add_child(name_hbox)
+	
 	var avatar_rect = TextureRect.new()
-	avatar_rect.custom_minimum_size = Vector2(80, 80)
+	avatar_rect.custom_minimum_size = Vector2(64, 64)
 	avatar_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	avatar_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	avatar_rect.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	header_vb.add_child(avatar_rect)
+	name_hbox.add_child(avatar_rect)
 	
 	var name_edit = LineEdit.new()
 	name_edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_edit.add_theme_font_override("font", button_font)
 	name_edit.add_theme_font_size_override("font_size", 16)
-	name_edit.custom_minimum_size = Vector2(200, 36)
-	name_edit.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	name_edit.custom_minimum_size = Vector2(240, 42)
 	name_edit.max_length = 15
-	name_edit.text_changed.connect(func(new_name):
+	name_hbox.add_child(name_edit)
+	
+	var btn_save_name = Button.new()
+	btn_save_name.text = "GUARDAR" if is_es else "SAVE"
+	btn_save_name.custom_minimum_size = Vector2(110, 42)
+	btn_save_name.add_theme_font_override("font", button_font)
+	btn_save_name.add_theme_font_size_override("font_size", 12)
+	
+	var save_style = StyleBoxFlat.new()
+	save_style.bg_color = Color(0.12, 0.45, 0.22, 1.0)
+	save_style.set_corner_radius_all(6)
+	btn_save_name.add_theme_stylebox_override("normal", save_style)
+	btn_save_name.add_theme_stylebox_override("hover", save_style)
+	btn_save_name.add_theme_stylebox_override("pressed", save_style)
+	name_hbox.add_child(btn_save_name)
+	
+	btn_save_name.pressed.connect(func():
+		var new_name = name_edit.text.strip_edges()
+		if new_name == "":
+			new_name = "Said"
 		GameManager.profile_stats["player_name"] = new_name
 		GameManager.save_game()
+		name_edit.text = new_name
+		btn_save_name.text = "OK!"
+		await get_tree().create_timer(1.0).timeout
+		if is_instance_valid(btn_save_name):
+			btn_save_name.text = "GUARDAR" if is_es else "SAVE"
 	)
-	header_vb.add_child(name_edit)
 	
 	var title_equip_lbl = Label.new()
 	title_equip_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1317,9 +1372,18 @@ func show_profile_dialog() -> void:
 	var sep = HSeparator.new()
 	vbox.add_child(sep)
 	
+	# HBox inferior dividido en 20% y 80%
+	var bottom_hbox = HBoxContainer.new()
+	bottom_hbox.add_theme_constant_override("separation", 20)
+	bottom_hbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_child(bottom_hbox)
+	
+	# Left: nav_scroll (20%)
 	var nav_scroll = ScrollContainer.new()
+	nav_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	nav_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_child(nav_scroll)
+	nav_scroll.size_flags_stretch_ratio = 1.0
+	bottom_hbox.add_child(nav_scroll)
 	_setup_drag_scroll(nav_scroll)
 	
 	var nav_vbox = VBoxContainer.new()
@@ -1327,70 +1391,18 @@ func show_profile_dialog() -> void:
 	nav_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	nav_scroll.add_child(nav_vbox)
 	
-	var detail_container = VBoxContainer.new()
-	detail_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	detail_container.visible = false
-	vbox.add_child(detail_container)
-	
-	var top_hbox = HBoxContainer.new()
-	top_hbox.custom_minimum_size = Vector2(0, 50)
-	detail_container.add_child(top_hbox)
-	
-	var btn_back = Button.new()
-	btn_back.text = "VOLVER" if is_es else "BACK"
-	btn_back.custom_minimum_size = Vector2(120, 45)
-	btn_back.add_theme_font_override("font", button_font)
-	btn_back.add_theme_font_size_override("font_size", 14)
-	top_hbox.add_child(btn_back)
-	
-	var detail_title = Label.new()
-	detail_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	detail_title.add_theme_font_override("font", button_font)
-	detail_title.add_theme_font_size_override("font_size", 18)
-	detail_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top_hbox.add_child(detail_title)
-	
+	# Right: detail_scroll (80%)
 	var detail_scroll = ScrollContainer.new()
+	detail_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	detail_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	detail_container.add_child(detail_scroll)
+	detail_scroll.size_flags_stretch_ratio = 4.0
+	bottom_hbox.add_child(detail_scroll)
 	_setup_drag_scroll(detail_scroll)
 	
 	var detail_vbox = VBoxContainer.new()
 	detail_vbox.add_theme_constant_override("separation", 8)
 	detail_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	detail_scroll.add_child(detail_vbox)
-	
-	var btn_close = Button.new()
-	btn_close.text = "CERRAR" if is_es else "CLOSE"
-	btn_close.custom_minimum_size = Vector2(0, 65)
-	
-	var close_style = StyleBoxFlat.new()
-	close_style.bg_color = Color(0.35, 0.1, 0.1, 1.0)
-	close_style.border_width_left = 2; close_style.border_width_top = 2
-	close_style.border_width_right = 2; close_style.border_width_bottom = 2
-	close_style.border_color = Color(0.55, 0.2, 0.2, 1.0)
-	close_style.corner_radius_top_left = 8
-	close_style.corner_radius_top_right = 8
-	close_style.corner_radius_bottom_right = 8
-	close_style.corner_radius_bottom_left = 8
-	
-	btn_close.add_theme_stylebox_override("normal", close_style)
-	btn_close.add_theme_stylebox_override("hover", close_style)
-	btn_close.add_theme_stylebox_override("pressed", close_style)
-	btn_close.add_theme_font_override("font", button_font)
-	btn_close.add_theme_font_size_override("font_size", 20)
-	vbox.add_child(btn_close)
-	
-	btn_close.pressed.connect(func():
-		update_ui()
-		overlay.queue_free()
-	)
-	
-	btn_back.pressed.connect(func():
-		detail_container.visible = false
-		nav_scroll.visible = true
-		btn_close.visible = true
-	)
 	
 	var cats = [
 		"Estadísticas" if is_es else "Stats",
@@ -1401,12 +1413,13 @@ func show_profile_dialog() -> void:
 		"Curiosidades" if is_es else "Trivia"
 	]
 	
+	var cat_buttons = []
 	for cat in cats:
 		var btn = Button.new()
-		btn.text = cat
-		btn.custom_minimum_size = Vector2(0, 55)
+		btn.text = cat.to_upper()
+		btn.custom_minimum_size = Vector2(0, 50)
 		btn.add_theme_font_override("font", button_font)
-		btn.add_theme_font_size_override("font_size", 16)
+		btn.add_theme_font_size_override("font_size", 12)
 		
 		var btn_style = StyleBoxFlat.new()
 		btn_style.bg_color = Color(0.12, 0.12, 0.16, 0.9)
@@ -1421,13 +1434,28 @@ func show_profile_dialog() -> void:
 		btn.add_theme_stylebox_override("pressed", btn_style)
 		
 		nav_vbox.add_child(btn)
-		_connect_button_with_drag_protection(btn, func():
-			nav_scroll.visible = false
-			btn_close.visible = false
-			detail_container.visible = true
-			detail_title.text = cat.to_upper()
-			_populate_profile_category(cat, detail_vbox, avatar_rect, title_equip_lbl)
+		cat_buttons.append({"btn": btn, "style": btn_style, "cat": cat})
+		
+	var update_active_button = func(active_cat: String):
+		for item in cat_buttons:
+			if item.cat == active_cat:
+				item.style.border_color = Color(0.8, 0.6, 0.2, 1.0) # Gold border for selected
+				item.style.bg_color = Color(0.16, 0.16, 0.22, 1.0)
+			else:
+				item.style.border_color = Color(0.25, 0.25, 0.35, 1.0) # Normal border
+				item.style.bg_color = Color(0.12, 0.12, 0.16, 0.9)
+				
+	for item in cat_buttons:
+		var current_cat = item.cat
+		_connect_button_with_drag_protection(item.btn, func():
+			update_active_button.call(current_cat)
+			_populate_profile_category(current_cat, detail_vbox, avatar_rect, title_equip_lbl)
 		)
+		
+	# Populate by default with the first category (Stats)
+	var default_cat = "Estadísticas" if is_es else "Stats"
+	update_active_button.call(default_cat)
+	_populate_profile_category(default_cat, detail_vbox, avatar_rect, title_equip_lbl)
 
 func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, header_avatar_rect: TextureRect, header_title_equip_lbl: Label) -> void:
 	var is_es = GameManager.language == "es"

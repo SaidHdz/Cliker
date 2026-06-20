@@ -254,17 +254,16 @@ func _open_card_selector_modal() -> void:
 	add_child(bg)
 	modal_instance = bg
 	
-	# 2. Panel central (90% del tamaño de la pantalla)
+	# CenterContainer para centrar perfectamente el panel en cualquier pantalla
+	var center_container = CenterContainer.new()
+	center_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	center_container.mouse_filter = Control.MOUSE_FILTER_PASS
+	bg.add_child(center_container)
+	
+	# 2. Panel central (860x480)
 	var panel = PanelContainer.new()
 	panel.custom_minimum_size = Vector2(860, 480)
-	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	bg.add_child(panel)
-	
-	# Centrar el panel usando anchors
-	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	center_container.add_child(panel)
 	
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.08, 0.08, 0.1, 0.95)
@@ -279,12 +278,18 @@ func _open_card_selector_modal() -> void:
 	style.corner_radius_bottom_right = 12
 	panel.add_theme_stylebox_override("panel", style)
 	
+	# MarginContainer para dar espacio a los bordes
+	var margin = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 20)
+	margin.add_theme_constant_override("margin_top", 20)
+	margin.add_theme_constant_override("margin_right", 20)
+	margin.add_theme_constant_override("margin_bottom", 20)
+	panel.add_child(margin)
+	
 	# 3. Contenedor vertical principal del modal
 	var main_vbox = VBoxContainer.new()
 	main_vbox.add_theme_constant_override("separation", 12)
-	# Haremos un margen
-	main_vbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	panel.add_child(main_vbox)
+	margin.add_child(main_vbox)
 	
 	# Cabecera: Título + Botón de Cerrar
 	var header = HBoxContainer.new()
@@ -405,25 +410,19 @@ func _open_card_selector_modal() -> void:
 				
 		card_vbox.add_child(status_lbl)
 		
-		# Lógica de clicks con detección de drag
+		# Botón transparente para interactuar
+		var select_btn = Button.new()
+		select_btn.flat = true
+		card_panel.add_child(select_btn)
+		
 		if is_unlocked:
-			var drag_threshold = 10.0
-			var press_start_pos = Vector2.ZERO
-			var was_dragged = false
-			
-			card_panel.gui_input.connect(func(event):
-				if event is InputEventMouseButton or event is InputEventScreenTouch:
-					if event.pressed:
-						press_start_pos = event.position
-						was_dragged = false
-					else:
-						if not was_dragged and event.position.distance_to(press_start_pos) < drag_threshold:
-							_equip_card(skill_id)
-							bg.queue_free()
-				elif event is InputEventMouseMotion or event is InputEventScreenDrag:
-					if event.position.distance_to(press_start_pos) > drag_threshold:
-						was_dragged = true
+			_connect_button_with_drag_protection(select_btn, func():
+				_equip_card(skill_id)
+				bg.queue_free()
 			)
+		else:
+			select_btn.disabled = true
+			select_btn.focus_mode = Control.FOCUS_NONE
 			
 		modal_grid.add_child(card_panel)
 
@@ -457,6 +456,24 @@ func _setup_drag_scroll(scroll_container: ScrollContainer) -> void:
 			var diff = event.position - drag_data.drag_start
 			scroll_container.scroll_horizontal = drag_data.scroll_start.x - diff.x
 			scroll_container.scroll_vertical = drag_data.scroll_start.y - diff.y
+	)
+
+func _connect_button_with_drag_protection(btn: Button, callback: Callable) -> void:
+	btn.mouse_filter = Control.MOUSE_FILTER_PASS
+	var drag_threshold = 10.0
+	var press_pos = Vector2.ZERO
+	var was_dragged = false
+	btn.gui_input.connect(func(event):
+		if event is InputEventMouseButton or event is InputEventScreenTouch:
+			if event.pressed:
+				press_pos = event.position
+				was_dragged = false
+			else:
+				if not was_dragged and event.position.distance_to(press_pos) < drag_threshold:
+					callback.call()
+		elif event is InputEventMouseMotion or event is InputEventScreenDrag:
+			if event.position.distance_to(press_pos) > drag_threshold:
+				was_dragged = true
 	)
 
 func _on_btn_upgrade_deck_pressed() -> void:
