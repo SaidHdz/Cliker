@@ -69,6 +69,55 @@ func _ready() -> void:
 		btn_back.offset_right = -4
 		btn_back.offset_bottom = 59
 		
+	# Botón "Guardar Mazo" abajo de la selección de ranuras
+	var hb_save = HBoxContainer.new()
+	hb_save.alignment = BoxContainer.ALIGNMENT_CENTER
+	$VBoxContainer.add_child(hb_save)
+	$VBoxContainer.move_child(hb_save, 3) # Posición 3 (debajo de HBoxSlots)
+	
+	var btn_save = Button.new()
+	btn_save.text = "GUARDAR MAZO"
+	btn_save.custom_minimum_size = Vector2(280, 45)
+	btn_save.add_theme_font_override("font", button_font)
+	btn_save.add_theme_font_size_override("font_size", 16)
+	
+	var save_style = StyleBoxFlat.new()
+	save_style.bg_color = Color(0.12, 0.35, 0.12, 1.0)
+	save_style.set_corner_radius_all(6)
+	btn_save.add_theme_stylebox_override("normal", save_style)
+	btn_save.add_theme_stylebox_override("hover", save_style)
+	btn_save.add_theme_stylebox_override("pressed", save_style)
+	
+	var save_hover = StyleBoxFlat.new()
+	save_hover.bg_color = Color(0.16, 0.45, 0.16, 1.0)
+	save_hover.set_corner_radius_all(6)
+	btn_save.add_theme_stylebox_override("hover", save_hover)
+	
+	var save_pressed = StyleBoxFlat.new()
+	save_pressed.bg_color = Color(0.08, 0.25, 0.08, 1.0)
+	save_pressed.set_corner_radius_all(6)
+	btn_save.add_theme_stylebox_override("pressed", save_pressed)
+	
+	hb_save.add_child(btn_save)
+	
+	btn_save.pressed.connect(func():
+		GameManager.save_game()
+		if AudioManager.has_method("play"):
+			AudioManager.play("click")
+		
+		btn_save.text = "¡MAZO GUARDADO!"
+		var orig_color = save_style.bg_color
+		save_style.bg_color = Color(0.2, 0.6, 0.2, 1.0)
+		btn_save.disabled = true
+		
+		await get_tree().create_timer(1.5).timeout
+		
+		if is_instance_valid(btn_save):
+			btn_save.text = "GUARDAR MAZO"
+			save_style.bg_color = orig_color
+			btn_save.disabled = false
+	)
+		
 	update_ui()
 
 func update_ui() -> void:
