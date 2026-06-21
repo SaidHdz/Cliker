@@ -10,6 +10,7 @@ var current_health: int = 100
 
 # --- HABILIDADES (ESCENAS) ---
 var shield_scene = preload("res://scenes/orbital_shield.tscn")
+var damage_number_scene = preload("res://scenes/damage_number.tscn")
 
 var active_shield: Node2D
 var shield_shader_overlay: TextureRect
@@ -54,10 +55,15 @@ func _ready() -> void:
 func update_components() -> void:
 	# 1. Escudo de Hojas (Shield)
 	var shield_lvl = GameManager.get_skill_level("shield")
-	if shield_lvl > 0 and active_shield == null:
-		active_shield = shield_scene.instantiate()
-		active_shield.z_index = 5
-		call_deferred("add_child", active_shield)
+	if shield_lvl > 0:
+		if active_shield == null:
+			active_shield = shield_scene.instantiate()
+			active_shield.z_index = 5
+			call_deferred("add_child", active_shield)
+	else:
+		if active_shield != null:
+			active_shield.queue_free()
+			active_shield = null
 		
 	# Actualizar visibilidad del overlay del escudo
 	shield_shader_overlay.visible = GameManager.shield_energy_hits > 0 or (active_shield != null)
@@ -79,6 +85,8 @@ func update_components() -> void:
 	_update_states_visibility()
 	
 	# 3. Propagar actualizaciones a los componentes hijos
+	if active_shield and active_shield.has_method("update_component"):
+		active_shield.update_component()
 	if has_node("CosmicMagnetComponent"): get_node("CosmicMagnetComponent").update_component()
 	if has_node("ToxicAuraComponent"): get_node("ToxicAuraComponent").update_component()
 	if has_node("TurretComponent"): get_node("TurretComponent").update_component()
@@ -113,16 +121,16 @@ func take_damage(amount: int, type: String = "normal") -> void:
 	if current_health <= 0:
 		game_over()
 
-func spawn_damage_number(amount: int, is_crit: bool, type: String) -> void:
-	if not GameManager.damage_numbers_enabled:
-		return
-	if not is_crit and GameManager.active_damage_numbers > 40:
-		return
+func spawn_damage_number(amount: int, is_crit: bool = false, type: String = "normal") -> void:
+	# En lugar de .instantiate(), le pedimos uno al Pool
+	var l = GameManager.get_damage_number(damage_number_scene)
+	if not is_instance_valid(l): return # Si el jugador apagó los números en Ajustes
+	
+	# Si no tiene padre (es nuevo), lo agregamos. Si ya tiene (es reciclado), solo lo movemos.
+	if not l.is_inside_tree():
+		get_tree().current_scene.call_deferred("add_child", l)
 		
-	var damage_number_scene = preload("res://scenes/damage_number.tscn")
-	var l = damage_number_scene.instantiate()
-	get_tree().current_scene.add_child(l)
-	if l.has_method("set_values"):
+	if l.has_method("set_values"): 
 		l.set_values(amount, is_crit, global_position + Vector2(randf_range(-20, 20), -40), type)
 
 func game_over() -> void:

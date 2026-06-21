@@ -1,15 +1,65 @@
 extends Node2D
 
+# --- VARIABLES DE OPTIMIZACIÓN ---
+var last_lightning_time: float = 0.0
+var explosions_this_frame: int = 0
+
 @export_group("Debug Settings")
 @export var debug_mode: bool = false
 @export_enum(
-	"fire_slice", "explosive_slice", "fire_wall", "lightning_slice", "shield", 
-	"seed_nova", "mining_cart", "thorns", "toxic_aura", "pet_chayanne", 
-	"black_hole", "aura", "turret", "pet_minigun", "tornado", "axe_thrower", 
-	"satellite", "tamed_alien", "scarecrow", "cosmic_magnet", "boomerang",
-	"mirror_slice", "double_slice", "wind_gust", "toxic_compost", 
-	"energy_shield", "sword_craft", "earthquake", "auto_speed", 
-	"damage_boost", "crit_boost", "infernal_hole"
+	"Abono Mágico:steroids",
+	"Abono Tóxico:toxic_compost",
+	"Agujero Infernal:infernal_hole",
+	"Agujero Negro:black_hole",
+	"Tajo Negativo:tajo_negativo",
+	"Alien Domesticado:tamed_alien",
+	"Aura Conquistador:conqueror_aura",
+	"Aura de Hojas:seed_nova",
+	"Aura Rabanesca:aura",
+	"Avalancha de Nieve:frost_avalanche",
+	"Búmeran:boomerang",
+	"Campesino Extremo:campesino_extremo",
+	"Carro Minero:mining_cart",
+	"Chalan con Minigun:pet_minigun",
+	"Chayanne Chiquito:pet_chayanne",
+	"Corte Espejo:mirror_slice",
+	"Corte Fantasmal:auto_speed",
+	"Corte Hot:fire_slice",
+	"Deforesador Supremo:deforesador",
+	"Disco Sayonara:sayonara",
+	"Escuadrón del Campo:field_squad",
+	"Escudo de Energía:energy_shield",
+	"Escudo de Hojas:shield",
+	"Espada de Craft:sword_craft",
+	"Espinas del Rábano:thorns",
+	"Excalibur Vegetal:excalibur_vegetal",
+	"Filo Sangrón:damage_boost",
+	"Fortaleza Viviente:living_fortress",
+	"Frenesí de Cosecha:crit_boost",
+	"Hojas Metralleta:turret",
+	"Imán Cósmico:cosmic_magnet",
+	"Jardín de Guerra:war_garden",
+	"Leñador Furioso:axe_thrower",
+	"Lluvia de Rábanos:lluvia_rabanos",
+	"Los Compadres:los_compadres",
+	"Mini Tornado:tornado",
+	"Pantano Radioactivo:radioactive_swamp",
+	"Papa Espantapájaros:scarecrow",
+	"Papa Infectada:infected_potato",
+	"Ráfaga de Viento:wind_gust",
+	"Raíces Profundas:heal",
+	"Reactor Nuclear:reactor_nuclear",
+	"Satélite Agrícola:satellite",
+	"Satélite Orbital:orbital_satellite",
+	"Señal Pirata:senal_pirata",
+	"Sindicato Alienígena:sindicato_alien",
+	"Sobrecarga Cuántica:sobrecarga_cuantica",
+	"Tajo Doble:double_slice",
+	"Tajo Explosivo:explosive_slice",
+	"Tajo Pintor:fire_wall",
+	"Tajo Relámpago:lightning_slice",
+	"Terremoto:earthquake",
+	"Veneno Radiactivo:toxic_aura"
 ) var debug_skill_id: String = "fire_slice"
 @export_range(1, 5) var debug_skill_level: int = 1
 @export var debug_start_wave: int = 1
@@ -46,8 +96,8 @@ var steroid_cooldown_timer: Timer
 var nuclear_timer: float = 0.0
 
 var active_touches: Dictionary = {}
-var barda_line: Line2D
-var barda_damage_timer: float = 0.0
+#var barda_line: Line2D
+#var barda_damage_timer: float = 0.0
 var pirate_timer: float = 0.0
 var radish_rain_timer: float = 0.0
 
@@ -55,12 +105,12 @@ func _ready() -> void:
 	print("Escena Principal: Iniciando...")
 	GameManager.increment_stat("matches_played", 1)
 	
-	barda_line = Line2D.new()
-	barda_line.width = 12.0
-	barda_line.default_color = Color(0.1, 0.8, 1.0, 0.7) # Celeste brillante semi-transparente
-	barda_line.z_index = 10
-	barda_line.visible = false
-	add_child(barda_line)
+#	barda_line = Line2D.new()
+#	barda_line.width = 12.0
+#	barda_line.default_color = Color(0.1, 0.8, 1.0, 0.7) # Celeste brillante semi-transparente
+#	barda_line.z_index = 10
+#	barda_line.visible = false
+#	add_child(barda_line)
 	GameManager.save_game()
 	process_mode = Node.PROCESS_MODE_PAUSABLE
 	get_tree().paused = false
@@ -93,10 +143,53 @@ func _ready() -> void:
 	
 	# Lógica del modo Debug para forzar niveles de habilidad
 	if debug_mode and debug_skill_id != "":
+		# Resetear estados de habilidades previas
 		GameManager.skill_levels.clear()
-		GameManager.skill_levels[debug_skill_id] = debug_skill_level
-		GameManager._apply_skill_instantly(debug_skill_id)
-		GameManager.skill_levels[debug_skill_id] = debug_skill_level
+		GameManager.unlocked_skills.clear()
+		
+		# Resetear flags de habilidades
+		GameManager.has_earthquake = false
+		GameManager.has_frost_avalanche = false
+		GameManager.has_infernal_hole = false
+		GameManager.has_orbital_satellite = false
+		GameManager.has_radioactive_swamp = false
+		GameManager.has_field_squad = false
+		GameManager.has_living_fortress = false
+		GameManager.has_tajo_negativo = false
+		GameManager.has_los_compadres = false
+		GameManager.has_war_garden = false
+		GameManager.has_infected_potato = false
+		GameManager.has_excalibur_vegetal = false
+		GameManager.has_deforesador = false
+		GameManager.has_fire_slice = false
+		GameManager.has_mirror_slice = false
+		GameManager.has_explosive_slice = false
+		GameManager.has_toxic_compost = false
+		GameManager.has_double_slice = false
+		GameManager.has_lightning_slice = false
+		GameManager.has_wind_gust = false
+		GameManager.wind_gust_count = 0
+		GameManager.has_black_hole = false
+		GameManager.has_fire_wall = false
+		GameManager.has_knockback_aura = false
+		GameManager.has_mining_cart = false
+		GameManager.has_sword_craft = false
+		GameManager.has_energy_shield = false
+		GameManager.shield_energy_hits = 0
+		GameManager.pet_chayanne_level = 0
+		GameManager.seed_nova_count = 0
+		GameManager.turret_level = 0
+		GameManager.shield_level = 0
+		
+		# Forzar nivel de la habilidad de debug
+		GameManager.unlock_skill(debug_skill_id)
+		GameManager._apply_skill_instantly(debug_skill_id, debug_skill_level)
+		
+		# Actualizar base de inmediato para aplicar cambios de componentes
+		var base = get_tree().get_first_node_in_group("BaseRabanito")
+		if is_instance_valid(base) and base.has_method("update_components"):
+			base.update_components()
+			
 		print("--- DEBUG MODE ACTIVE --- Forzando habilidad: ", debug_skill_id, " a Nivel: ", debug_skill_level)
 	
 	if debug_mode and debug_start_wave > 1:
@@ -168,7 +261,7 @@ func _check_active_skills() -> void:
 	var sc = get_tree().get_nodes_in_group("BaseRabanito")
 	var has_scarecrow = false
 	for n in sc: if n.name.begins_with("Scarecrow"): has_scarecrow = true
-	if GameManager.get_skill_level("scarecrow") >= 1 and not has_scarecrow: _spawn_scarecrow()
+	if GameManager.get_skill_level("scarecrow") >= 1 and not has_scarecrow and not GameManager.scarecrow_cooldown_active: _spawn_scarecrow()
 	
 	var allies = get_tree().get_nodes_in_group("allies")
 	var has_alien = false
@@ -272,6 +365,10 @@ func _get_event_global_pos(event: InputEvent) -> Vector2:
 	return get_global_mouse_position()
 
 func _input(event: InputEvent) -> void:
+	# Si es un toque en pantalla y NO es el primer dedo (index 0), se ignora.
+	if event is InputEventScreenTouch or event is InputEventScreenDrag:
+		if event.index != 0:
+			return
 	# Registro multitáctil y mouse
 	if event is InputEventScreenTouch:
 		if event.pressed:
@@ -399,17 +496,30 @@ func _on_enemy_sliced(enemy: Node2D) -> void:
 	if crit_boost_lvl > 0:
 		var enemy_count = get_tree().get_nodes_in_group("enemies").size()
 		var meta_lvl = GameManager.get_card_upgrade_int_level("crit_boost")
-		var crit_boost_meta = GameManager.card_upgrade_levels.get("crit_boost", 0)
-		var is_spec = (typeof(crit_boost_meta) == TYPE_STRING and crit_boost_meta == "4_spec")
 		
-		var percent_per_enemy = 0.01 + (crit_boost_lvl - 1) * 0.002 + meta_lvl * 0.002
-		var max_boost = 0.40 + meta_lvl * 0.05
-		if is_spec:
-			percent_per_enemy += 0.004
-			max_boost += 0.10
+		# Carta de crítico según el nivel meta (Máximo +25% total):
+		# - Nivel 0: 1.0% por enemigo, máx +10%
+		# - Nivel 1: 1.0% por enemigo, máx +15%
+		# - Nivel 2: 1.2% por enemigo, máx +20%
+		# - Nivel 3 y 4: 1.4% por enemigo, máx +25%
+		var percent_per_enemy = 0.01
+		var max_boost = 0.10
+		
+		if meta_lvl == 1:
+			percent_per_enemy = 0.010
+			max_boost = 0.15
+		elif meta_lvl == 2:
+			percent_per_enemy = 0.012
+			max_boost = 0.20
+		elif meta_lvl >= 3:
+			percent_per_enemy = 0.014
+			max_boost = 0.25
 			
 		var boost = min(enemy_count * percent_per_enemy, max_boost)
 		final_crit_chance += boost
+
+	# Cap duro de 50%
+	final_crit_chance = min(final_crit_chance, 0.50)
 
 	var is_crit = randf() < final_crit_chance
 	var damage = int(GameManager.click_damage * GameManager.prestige_multiplier * GameManager.steroid_multiplier)
@@ -441,36 +551,46 @@ func _on_enemy_sliced(enemy: Node2D) -> void:
 	if not GameManager.tutorial_completed and tutorial_step == 1:
 		advance_tutorial()
 	
-	# 3. EFECTOS ESPECIALES (Usando add_child directo para evitar fugas al root)
+	# 3. EFECTOS ESPECIALES (Optimizados para CPU)
+	var current_time = Time.get_ticks_msec() / 1000.0
+	
 	if GameManager.has_lightning_slice and GameManager.get_skill_level("lightning_slice") != 0: 
-		_perform_chain_lightning(enemy)
-		
-		# ¡Gatillo para el Nivel 5: Tormenta de Rayos del Cielo!
-		var lightning_lvl_val = GameManager.get_skill_level("lightning_slice")
-		var lightning_lvl = 4 if typeof(lightning_lvl_val) == TYPE_STRING else lightning_lvl_val
-		if lightning_lvl >= 5:
-			_trigger_random_storm(enemy_pos) # Le pasamos la posición donde cortaste
+		# CANDADO 1: Solo 1 cálculo de rayo eléctrico cada 150ms.
+		# Ahorra miles de cálculos de distancia si cortas 20 aliens de un solo tajo.
+		if current_time - last_lightning_time > 0.15:
+			last_lightning_time = current_time
+			_perform_chain_lightning(enemy)
+			
+			var lightning_lvl_val = GameManager.get_skill_level("lightning_slice")
+			var lightning_lvl = 4 if typeof(lightning_lvl_val) == TYPE_STRING else lightning_lvl_val
+			if lightning_lvl >= 5:
+				_trigger_random_storm(enemy_pos) 
 	
 	var explosive_lvl = GameManager.get_skill_level("explosive_slice")
 	if explosive_lvl >= 1:
 		var prob = 0.05
 		if explosive_lvl >= 5: prob = 0.08 
 		
-		if randf() < prob:
+		# CANDADO 2: Máximo 3 explosiones instanciadas por frame.
+		if randf() < prob and explosions_this_frame < 3:
+			explosions_this_frame += 1
 			var b = bomb_scene.instantiate()
 			b.z_index = 3
-			call_deferred("add_child", b) # Corregido
+			call_deferred("add_child", b)
 			b.global_position = enemy_pos
 			if b.has_method("setup_level"): b.setup_level(explosive_lvl)
 
-	if GameManager.has_black_hole and randf() < 0.01:
+	# Candado de Agujero Negro (Máximo 1% de prob, pero aseguramos no saturar)
+	if GameManager.has_black_hole and randf() < 0.01 and explosions_this_frame < 3:
+		explosions_this_frame += 1
 		var bh = black_hole_scene.instantiate()
-		call_deferred("add_child", bh) # Corregido
+		call_deferred("add_child", bh) 
 		bh.global_position = enemy_pos
 		
-	if GameManager.has_fire_wall and randf() < 0.10:
+	if GameManager.has_fire_wall and randf() < 0.10 and explosions_this_frame < 3:
+		explosions_this_frame += 1
 		var fw = fire_wall_scene.instantiate()
-		call_deferred("add_child", fw) # Corregido
+		call_deferred("add_child", fw) 
 		fw.global_position = enemy_pos
 		
 func _perform_chain_lightning(source: Node2D) -> void:
@@ -905,35 +1025,36 @@ func finish_tutorial() -> void:
 		print("DEBUG: SpawnTimer encendido post-tutorial. Oleada: ", GameManager.current_wave)
 
 func _physics_process(delta: float) -> void:
+	explosions_this_frame = 0 # RESETEAR EXPLOSIONES CADA FRAME
 	# Lógica de "barda" o tajo continuo con dos dedos
-	if active_touches.size() >= 2:
-		var keys = active_touches.keys()
-		var p1 = active_touches[keys[0]]
-		var p2 = active_touches[keys[1]]
+	#if active_touches.size() >= 2:
+	#	var keys = active_touches.keys()
+	#	var p1 = active_touches[keys[0]]
+	#	var p2 = active_touches[keys[1]]
 		
 		# Actualizar línea visual
-		if is_instance_valid(barda_line):
-			barda_line.clear_points()
-			barda_line.add_point(p1)
-			barda_line.add_point(p2)
-			barda_line.visible = true
+	#	if is_instance_valid(barda_line):
+	#		barda_line.clear_points()
+	#		barda_line.add_point(p1)
+	#		barda_line.add_point(p2)
+	#		barda_line.visible = true
 			
 		# Aplicar daño periódico
-		barda_damage_timer += delta
-		if barda_damage_timer >= 0.15:
-			barda_damage_timer = 0.0
-			var enemies = get_tree().get_nodes_in_group("enemies")
-			for enemy in enemies:
-				if is_instance_valid(enemy) and "current_health" in enemy and enemy.current_health > 0:
-					var dist = _distance_to_segment(enemy.global_position, p1, p2)
-					if dist < 45.0: # Rango de la barda
-						if enemy.has_method("take_damage"):
-							var dmg = int(GameManager.click_damage * GameManager.prestige_multiplier * GameManager.steroid_multiplier)
-							enemy.take_damage(dmg, false, "normal")
-	else:
-		if is_instance_valid(barda_line) and barda_line.visible:
-			barda_line.visible = false
-			barda_line.clear_points()
+	#	barda_damage_timer += delta
+	#	if barda_damage_timer >= 0.15:
+	#		barda_damage_timer = 0.0
+	#		var enemies = get_tree().get_nodes_in_group("enemies")
+	#		for enemy in enemies:
+	#			if is_instance_valid(enemy) and "current_health" in enemy and enemy.current_health > 0:
+	#				var dist = _distance_to_segment(enemy.global_position, p1, p2)
+	#				if dist < 45.0: # Rango de la barda
+	#					if enemy.has_method("take_damage"):
+	#						var dmg = int(GameManager.click_damage * GameManager.prestige_multiplier * GameManager.steroid_multiplier)
+	#						enemy.take_damage(dmg, false, "normal")
+	#else:
+	#	if is_instance_valid(barda_line) and barda_line.visible:
+	#		barda_line.visible = false
+	#		barda_line.clear_points()
 
 	# 1. Campesino Extremo (Recogida automática de monedas, orbes y cofres)
 	if GameManager.campesino_extremo_rounds > 0:
@@ -1145,7 +1266,7 @@ func _trigger_radish_rain() -> void:
 	
 	await t.finished
 	
-	shake_camera(0.5, 15)
+	shake_camera(0.2, 4)
 	AudioManager.play("crit")
 	
 	var ring = Line2D.new()

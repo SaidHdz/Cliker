@@ -54,8 +54,7 @@ func _spawn_boomerang(target: Node2D) -> void:
 	if lvl >= 3: reach = 500.0
 	if meta_upgrade >= 3: reach *= 1.15
 	
-	var has_synergy = GameManager.has_deforesador
-	
+	# 1. Siempre lanzar el búmeran normal
 	var boom = load("res://scenes/boomerang_projectile.tscn").instantiate()
 	boom.global_position = base.global_position
 	get_parent().add_child(boom)
@@ -66,50 +65,56 @@ func _spawn_boomerang(target: Node2D) -> void:
 	var dir = base.global_position.direction_to(target.global_position)
 	var target_pos = base.global_position + (dir * reach)
 	
-	if has_synergy:
-		boom.scale = Vector2(3.0, 3.0)
-		boom.modulate = Color(1.5, 0.5, 0.0) # Naranja orbital brillante
+	if lvl >= 5: boom.modulate = Color.CYAN
+	
+	var t_rot = create_tween().bind_node(boom).set_loops(50)
+	t_rot.tween_property(boom, "rotation", PI * 2, 0.3).as_relative()
+	
+	var move_t = create_tween()
+	move_t.tween_property(boom, "global_position", target_pos, travel_time).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	move_t.tween_property(boom, "global_position", base.global_position, travel_time).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	move_t.finished.connect(boom.queue_free)
+	
+	if boom.has_signal("area_entered"):
+		boom.area_entered.connect(func(area):
+			if area.is_in_group("enemies") and area.has_method("take_damage"):
+				var dmg_type = "electric" if lvl >= 5 else "normal"
+				var is_crit = false
+				var meta_val = GameManager.card_upgrade_levels.get("boomerang", 0)
+				if typeof(meta_val) == TYPE_STRING and meta_val == "4_spec":
+					is_crit = randf() < 0.25
+				var final_damage = int(damage * 2.0) if is_crit else damage
+				area.take_damage(final_damage, is_crit, dmg_type)
+		)
 		
-		var t_rot = create_tween().bind_node(boom).set_loops(100)
-		t_rot.tween_property(boom, "rotation", PI * 2, 0.1).as_relative()
+	# 2. Si tiene la sinergia deforestador, lanzar adicionalmente el súper búmeran naranja
+	var has_synergy = GameManager.has_deforesador
+	if has_synergy:
+		var s_boom = load("res://scenes/boomerang_projectile.tscn").instantiate()
+		s_boom.global_position = base.global_position
+		get_parent().add_child(s_boom)
+		
+		s_boom.scale = Vector2(3.0, 3.0)
+		s_boom.modulate = Color(1.5, 0.5, 0.0) # Naranja orbital brillante
+		
+		var s_t_rot = create_tween().bind_node(s_boom).set_loops(100)
+		s_t_rot.tween_property(s_boom, "rotation", PI * 2, 0.1).as_relative()
 		
 		var shred_timer = Timer.new()
 		shred_timer.wait_time = 0.2
 		shred_timer.timeout.connect(func():
-			if is_instance_valid(boom):
+			if is_instance_valid(s_boom):
 				var sq_dist = 80.0 * 80.0
 				for e in get_tree().get_nodes_in_group("enemies"):
 					if is_instance_valid(e) and "current_health" in e and e.current_health > 0:
-						if boom.global_position.distance_squared_to(e.global_position) < sq_dist:
+						if s_boom.global_position.distance_squared_to(e.global_position) < sq_dist:
 							e.take_damage(int(damage * 0.4), false, "normal")
 		)
-		boom.add_child(shred_timer)
+		s_boom.add_child(shred_timer)
 		shred_timer.start()
 		
-		var move_t = create_tween()
-		move_t.tween_property(boom, "global_position", target_pos, travel_time).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		move_t.tween_interval(2.0)
-		move_t.tween_property(boom, "global_position", base.global_position, travel_time).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-		move_t.finished.connect(boom.queue_free)
-	else:
-		if lvl >= 5: boom.modulate = Color.CYAN
-		
-		var t_rot = create_tween().bind_node(boom).set_loops(50)
-		t_rot.tween_property(boom, "rotation", PI * 2, 0.3).as_relative()
-		
-		var move_t = create_tween()
-		move_t.tween_property(boom, "global_position", target_pos, travel_time).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		move_t.tween_property(boom, "global_position", base.global_position, travel_time).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-		move_t.finished.connect(boom.queue_free)
-		
-		if boom.has_signal("area_entered"):
-			boom.area_entered.connect(func(area):
-				if area.is_in_group("enemies") and area.has_method("take_damage"):
-					var dmg_type = "electric" if lvl >= 5 else "normal"
-					var is_crit = false
-					var meta_val = GameManager.card_upgrade_levels.get("boomerang", 0)
-					if typeof(meta_val) == TYPE_STRING and meta_val == "4_spec":
-						is_crit = randf() < 0.25
-					var final_damage = int(damage * 2.0) if is_crit else damage
-					area.take_damage(final_damage, is_crit, dmg_type)
-			)
+		var s_move_t = create_tween()
+		s_move_t.tween_property(s_boom, "global_position", target_pos, travel_time).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		s_move_t.tween_interval(2.0)
+		s_move_t.tween_property(s_boom, "global_position", base.global_position, travel_time).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		s_move_t.finished.connect(s_boom.queue_free)

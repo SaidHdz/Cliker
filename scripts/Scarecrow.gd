@@ -12,26 +12,22 @@ func _ready() -> void:
 	add_to_group("BaseRabanito") # Funciona, pero lo manejaremos con cuidado
 	original_scale = scale
 	
-	# Barra de salud dinámica
-	health_bar = ProgressBar.new()
-	add_child(health_bar)
-	health_bar.size = Vector2(40, 6)
-	health_bar.position = Vector2(-20, -18)
-	health_bar.show_percentage = false
-	
-	var bg = StyleBoxFlat.new()
-	bg.bg_color = Color(0, 0, 0, 0.6)
-	bg.set_corner_radius_all(3)
-	
-	var fill = StyleBoxFlat.new()
-	fill.bg_color = Color(0.8, 0.2, 0.2) # Rojo
-	fill.set_corner_radius_all(3)
-	
-	health_bar.add_theme_stylebox_override("background", bg)
-	health_bar.add_theme_stylebox_override("fill", fill)
-	
-	health_bar.max_value = max_health
-	health_bar.value = current_health
+	# Barra de salud dinámica del nodo de la escena
+	health_bar = get_node("ProgressBar")
+	if health_bar:
+		var bg = StyleBoxFlat.new()
+		bg.bg_color = Color(0, 0, 0, 0.6)
+		bg.set_corner_radius_all(3)
+		
+		var fill = StyleBoxFlat.new()
+		fill.bg_color = Color(0.8, 0.2, 0.2) # Rojo
+		fill.set_corner_radius_all(3)
+		
+		health_bar.add_theme_stylebox_override("background", bg)
+		health_bar.add_theme_stylebox_override("fill", fill)
+		
+		health_bar.max_value = max_health
+		health_bar.value = current_health
 	
 	# Reemplazamos el physics_process por un Timer súper ligero
 	aggro_timer = Timer.new()
@@ -42,6 +38,9 @@ func _ready() -> void:
 	
 	# Restaurar target original a los enemigos cuando esto muera
 	tree_exiting.connect(_restore_enemy_targets)
+	
+	# Conectar señal para detectar cuando los enemigos entran en su área
+	area_entered.connect(_on_area_entered)
 
 func setup_level(lvl_val: Variant) -> void:
 	current_level_val = lvl_val
@@ -103,7 +102,10 @@ func _attract_enemies() -> void:
 	for e in enemies:
 		if is_instance_valid(e) and "target_base" in e:
 			if global_position.distance_squared_to(e.global_position) < attr_range_sq:
-				e.target_base = self
+				if e.target_base != self:
+					e.target_base = self
+					if e.has_method("interrupt_attack"):
+						e.interrupt_attack()
 
 func _restore_enemy_targets() -> void:
 	# Búsqueda segura de la base real
@@ -119,6 +121,13 @@ func _restore_enemy_targets() -> void:
 	for e in enemies:
 		if is_instance_valid(e) and "target_base" in e and e.target_base == self:
 			e.target_base = real_base
+			if e.has_method("interrupt_attack"):
+				e.interrupt_attack()
+
+func _on_area_entered(area: Area2D) -> void:
+	if area.is_in_group("enemies"):
+		if area.has_method("kamikaze_attack"):
+			area.kamikaze_attack()
 
 func take_damage(amount: int, type: String = "normal") -> void:
 	if is_invulnerable: return
@@ -152,5 +161,9 @@ func die() -> void:
 		get_parent().call_deferred("add_child", b)
 		b.global_position = global_position
 		if b.has_method("setup_level"): b.setup_level(3)
+		
+	# Iniciar cooldown de 8 segundos en GameManager
+	if GameManager.has_method("start_scarecrow_cooldown"):
+		GameManager.start_scarecrow_cooldown()
 		
 	queue_free()

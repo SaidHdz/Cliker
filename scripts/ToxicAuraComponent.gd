@@ -14,6 +14,8 @@ func _ready() -> void:
 	overlay.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	overlay.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.z_index = 1
+	overlay.z_as_relative = false
 	overlay.visible = false
 	add_child(overlay)
 	
@@ -44,7 +46,7 @@ func update_component() -> void:
 			var mat = ShaderMaterial.new()
 			mat.shader = shader
 			overlay.material = mat
-		overlay.texture = null
+		overlay.texture = preload("res://assets/img/vortice.png")
 		overlay.modulate = Color.WHITE
 	else:
 		overlay.material = null
@@ -60,10 +62,13 @@ func update_component() -> void:
 		toxic_timer.start()
 		
 	# Calcular radio del área
-	var radius = 100.0
-	if toxic_lvl >= 2: radius *= 1.1
-	if toxic_lvl >= 3: radius *= 1.2
-	if toxic_lvl >= 5: radius *= 2.0 # Nube tóxica gigante
+	var radius = 150.0 # Aumentado un 50% de la base de 100.0
+	if get_parent() and get_parent().name.begins_with("Scarecrow"):
+		radius = 120.0 # Mantener el radio original de 120.0 para el espantapájaros
+	else:
+		if toxic_lvl >= 2: radius *= 1.1
+		if toxic_lvl >= 3: radius *= 1.2
+		if toxic_lvl >= 5: radius *= 2.0 # Nube tóxica gigante
 	
 	# Actualizar colisión
 	if collision_shape and collision_shape.shape is CircleShape2D:

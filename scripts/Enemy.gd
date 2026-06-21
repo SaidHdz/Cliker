@@ -33,6 +33,7 @@ var attack_timer: Timer
 var shot_timer: Timer
 var is_attacking: bool = false
 var damage_to_base: int = 1
+var extra_damage: int = 0
 var lightning_overlay: ColorRect
 
 # --- VARIABLES DE ESTADOS (ROGUELITE) ---
@@ -117,6 +118,10 @@ func _ready() -> void:
 	
 	move_speed = move_speed * base_speed_mult
 	original_move_speed = move_speed
+	
+	# Aumento de daño de enemigo: 1 de daño extra cada 2 oleadas
+	extra_damage = int((wave - 1) / 2)
+	damage_to_base += extra_damage
 	
 	# Inicializar timer de Stun
 	stun_timer = Timer.new()
@@ -333,22 +338,20 @@ func _on_bleed_tick() -> void:
 		if bleed_ticks <= 0: bleed_timer.stop()
 
 func spawn_damage_number(amount: int, is_crit: bool = false, type: String = "normal") -> void:
-	if not GameManager.damage_numbers_enabled:
-		return
+	# En lugar de .instantiate(), le pedimos uno al Pool
+	var l = GameManager.get_damage_number(damage_number_scene)
+	if not is_instance_valid(l): return # Si el jugador apagó los números en Ajustes
+	
+	# Si no tiene padre (es nuevo), lo agregamos. Si ya tiene (es reciclado), solo lo movemos.
+	if not l.is_inside_tree():
+		get_tree().current_scene.call_deferred("add_child", l)
 		
-	if is_instance_valid(active_damage_lbl):
-		active_damage_lbl.refresh_damage(amount, is_crit, type)
-	else:
-		if not is_crit and GameManager.active_damage_numbers > 40:
-			return
-		var l = damage_number_scene.instantiate()
-		active_damage_lbl = l
-		get_tree().current_scene.add_child(l)
-		l.set_values(amount, is_crit, global_position + Vector2(randf_range(-15, 15), -40), type)
+	if l.has_method("set_values"): 
+		l.set_values(amount, is_crit, global_position + Vector2(randf_range(-20, 20), -40), type)
 
 func apply_lightning_effect() -> void:
 	is_electrified = true
-	if GameManager.has_ajo_negativo and has_method("apply_fire"):
+	if GameManager.has_tajo_negativo and has_method("apply_fire"):
 		apply_fire()
 	if is_instance_valid(lightning_overlay):
 		lightning_overlay.visible = true
@@ -359,7 +362,7 @@ func apply_lightning_effect() -> void:
 
 func kamikaze_attack() -> void:
 	if current_variant == EnemyVariant.KAMIKAZE:
-		if is_instance_valid(target_base): target_base.take_damage(30)
+		if is_instance_valid(target_base): target_base.take_damage(30 + extra_damage)
 		die()
 		return
 	if not is_attacking and current_health > 0:
@@ -406,7 +409,7 @@ func die() -> void:
 	var current_fire_lvl = GameManager.get_skill_level("fire_slice")
 	
 	# Nivel 3 Corte Hot: Explosión al morir si está quemado
-	if (current_fire_lvl >= 3 and fire_ticks > 0) or (GameManager.has_ajo_negativo and is_electrified):
+	if (current_fire_lvl >= 3 and fire_ticks > 0) or (GameManager.has_tajo_negativo and is_electrified):
 		_spawn_fire_explosion()
 	
 	# Nivel 5 Corte Hot: Brasas permanentes
@@ -537,6 +540,7 @@ func _on_special_timer_timeout() -> void:
 		get_parent().add_child(s)
 		s.global_position = global_position
 		if s.has_method("set_target"): s.set_target(target_base.global_position)
+		if "extra_damage" in s: s.extra_damage = extra_damage
 		s.add_to_group("enemies")
 		
 	elif current_variant == EnemyVariant.HEALER:

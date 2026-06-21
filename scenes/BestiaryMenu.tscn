@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://cxq7y8m5v2b4k"]
 
-[ext_resource type="Script" uid="uid://ba4v7f2s6d8n1" path="res://scripts/BestiaryMenu.gd" id="1_bestiary"]
+[ext_resource type="Script" uid="uid://q4rp053c8bo3" path="res://scripts/BestiaryMenu.gd" id="1_bestiary"]
 [ext_resource type="FontFile" uid="uid://dsvp1oqy7jude" path="res://assets/fuentes/BoldPixels.ttf" id="2_font"]
 
 [node name="BestiaryMenu" type="Control"]

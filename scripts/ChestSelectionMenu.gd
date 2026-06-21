@@ -103,6 +103,7 @@ func _on_reward_selected(id: String) -> void:
 	match id:
 		"sayonara":
 			GameManager.sayonara_uses += 1
+			GameManager.increment_stat("sayonara_uses_total", 1)
 			if scene.has_method("activate_sayonara"): scene.activate_sayonara()
 		"steroids":
 			GameManager.steroids_rounds = 2

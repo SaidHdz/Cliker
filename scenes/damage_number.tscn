@@ -4,6 +4,7 @@
 [ext_resource type="LabelSettings" uid="uid://d2ej7h3xd4dd3" path="res://scenes/Font.tres" id="1_l4fel"]
 
 [node name="DamageNumber" type="Label"]
+z_index = 20
 offset_right = 32.0
 offset_bottom = 28.0
 scale = Vector2(0.6, 0.6)

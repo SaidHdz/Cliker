@@ -1,0 +1,8 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://cnvp1njp2x0ro"]
+
+[ext_resource type="Shader" uid="uid://bkp4tcmkh3mv4" path="res://shaders/xray_outline.gdshader" id="1_fqxma"]
+
+[resource]
+shader = ExtResource("1_fqxma")
+shader_parameter/outline_color = Color(1, 1, 1, 0.8)
+shader_parameter/width = 2.0

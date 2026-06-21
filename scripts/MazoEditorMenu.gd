@@ -30,14 +30,18 @@ var skills_list = [
 
 	# Mejoras Planas (Flat Upgrades)
 	"heal", "damage_boost", "crit_boost", "auto_speed",
-	"mirror_slice", "double_slice", "wind_gust", "toxic_compost",
-	"energy_shield", "sword_craft", "frost_avalanche", "earthquake"
+	"mirror_slice", "double_slice", # "wind_gust",
+	"toxic_compost", "energy_shield", "sword_craft", "frost_avalanche", "earthquake"
 ]
 
 func _ready() -> void:
 	# Ocultar el scroll container original para que las ranuras ocupen toda la pantalla
 	if has_node("VBoxContainer/ScrollContainer"):
 		$VBoxContainer/ScrollContainer.visible = false
+		
+	# Ocultar la sección de prestigio para desactivarla
+	if has_node("VBoxContainer/HBoxPrestige"):
+		$VBoxContainer/HBoxPrestige.visible = false
 		
 	# Asegurarse de que el mazo tenga al menos slot 1 desbloqueado por defecto si cumple la condición
 	if GameManager.best_wave >= 10 and GameManager.deck_unlocked_slots == 0:
@@ -261,34 +265,44 @@ func update_slots() -> void:
 				slot_panel.move_child(select_btn, 0)
 		else:
 			# Ranura bloqueada
-			var req_wave = 20 if i == 1 else 30
-			var req_cost = 5000 if i == 1 else 15000
+			var req_wave = 10
+			var req_cost = 0
+			if i == 1:
+				req_wave = 20
+				req_cost = 5000
+			elif i == 2:
+				req_wave = 30
+				req_cost = 15000
 			
 			var lock_lbl = Label.new()
-			lock_lbl.text = "BLOQUEADO\nOleada Récord: " + str(req_wave)
+			if i == 0:
+				lock_lbl.text = "BLOQUEADO\nSe desbloquea a nivel 10"
+			else:
+				lock_lbl.text = "BLOQUEADO\nOleada Récord: " + str(req_wave)
 			lock_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			lock_lbl.label_settings = label_font
 			lock_lbl.add_theme_font_size_override("font_size", 10)
 			lock_lbl.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 			vbox.add_child(lock_lbl)
 			
-			var buy_btn = Button.new()
-			buy_btn.text = "DESBLOQUEAR (" + str(req_cost) + ")"
-			buy_btn.custom_minimum_size = Vector2(150, 26)
-			buy_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-			buy_btn.add_theme_font_override("font", button_font)
-			buy_btn.add_theme_font_size_override("font_size", 10)
-			
-			var can_buy = GameManager.best_wave >= req_wave and GameManager.total_gold >= req_cost
-			buy_btn.disabled = not can_buy
-			
-			var current_i = i
-			buy_btn.pressed.connect(func():
-				if GameManager.unlock_deck_slot(current_i):
-					selected_slot_index = current_i
-					update_ui()
-			)
-			vbox.add_child(buy_btn)
+			if req_cost > 0:
+				var buy_btn = Button.new()
+				buy_btn.text = "DESBLOQUEAR (" + str(req_cost) + ")"
+				buy_btn.custom_minimum_size = Vector2(150, 26)
+				buy_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+				buy_btn.add_theme_font_override("font", button_font)
+				buy_btn.add_theme_font_size_override("font_size", 10)
+				
+				var can_buy = GameManager.best_wave >= req_wave and GameManager.total_gold >= req_cost
+				buy_btn.disabled = not can_buy
+				
+				var current_i = i
+				buy_btn.pressed.connect(func():
+					if GameManager.unlock_deck_slot(current_i):
+						selected_slot_index = current_i
+						update_ui()
+				)
+				vbox.add_child(buy_btn)
 			
 		slots_container.add_child(slot_panel)
 
@@ -481,7 +495,8 @@ func _open_card_selector_modal() -> void:
 		card_panel.add_child(select_btn)
 		
 		if is_unlocked:
-			select_btn.pressed.connect(func():
+			# Usamos nuestra función protectora en lugar de .pressed
+			_connect_button_with_drag_protection(select_btn, func():
 				_equip_card(skill_id)
 				bg.queue_free()
 			)
@@ -524,21 +539,20 @@ func _setup_drag_scroll(scroll_container: ScrollContainer) -> void:
 	)
 
 func _connect_button_with_drag_protection(btn: Button, callback: Callable) -> void:
+	# Permitimos que el toque traspase al ScrollContainer
 	btn.mouse_filter = Control.MOUSE_FILTER_PASS
-	var drag_threshold = 10.0
-	var press_pos = Vector2.ZERO
-	var was_dragged = false
-	btn.gui_input.connect(func(event):
-		if event is InputEventMouseButton or event is InputEventScreenTouch:
-			if event.pressed:
-				press_pos = event.position
-				was_dragged = false
-			else:
-				if not was_dragged and event.position.distance_to(press_pos) < drag_threshold:
-					callback.call()
-		elif event is InputEventMouseMotion or event is InputEventScreenDrag:
-			if event.position.distance_to(press_pos) > drag_threshold:
-				was_dragged = true
+	
+	var state = {"press_pos": Vector2.ZERO}
+	
+	btn.button_down.connect(func():
+		state.press_pos = btn.get_global_mouse_position()
+	)
+	
+	btn.button_up.connect(func():
+		var release_pos = btn.get_global_mouse_position()
+		# Si la distancia es menor a 15 píxeles, es un Tap real
+		if release_pos.distance_to(state.press_pos) < 15.0:
+			callback.call()
 	)
 
 func _on_btn_upgrade_deck_pressed() -> void:

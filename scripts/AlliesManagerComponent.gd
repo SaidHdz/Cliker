@@ -21,6 +21,9 @@ func update_component() -> void:
 			pet_instance.global_position = global_position + Vector2(100, 0)
 		elif pet_instance.has_method("setup_level"):
 			pet_instance.setup_level(GameManager.get_skill_level("pet_chayanne"))
+	else:
+		if is_instance_valid(pet_instance):
+			pet_instance.queue_free()
 			
 	# 2. Chalan con Minigun
 	if GameManager.get_skill_level("pet_minigun") > 0:
@@ -30,9 +33,15 @@ func update_component() -> void:
 			minigun_instance.global_position = global_position + Vector2(-100, 0)
 		elif minigun_instance.has_method("setup_level"):
 			minigun_instance.setup_level(GameManager.get_skill_level("pet_minigun"))
+	else:
+		if is_instance_valid(minigun_instance):
+			minigun_instance.queue_free()
 			
 	# 3. Espada de Craft
 	if GameManager.has_sword_craft:
 		if not is_instance_valid(sword_instance):
 			sword_instance = sword_craft_scene.instantiate()
 			add_child(sword_instance)
+	else:
+		if is_instance_valid(sword_instance):
+			sword_instance.queue_free()

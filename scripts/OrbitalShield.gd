@@ -9,10 +9,7 @@ var in_match_lvl: int = 1
 var meta_lvl_val: Variant = 1
 
 func _ready() -> void:
-	# 1. Obtenemos el nivel de la carta en esta partida (1 a 5)
-	in_match_lvl = GameManager.get_skill_level("shield")
-	
-	# 2. Obtenemos las mejoras compradas en la tienda principal
+	# 1. Obtenemos las mejoras compradas en la tienda principal
 	meta_lvl_val = GameManager.card_upgrade_levels.get("shield", 0)
 	var meta_lvl = 4 if typeof(meta_lvl_val) == TYPE_STRING else meta_lvl_val
 	
@@ -30,15 +27,33 @@ func _ready() -> void:
 				for coll in child.get_children():
 					if coll is CollisionShape2D: coll.scale *= 2.0 # Guardián Verde
 
+	# 2. Inicializar el componente según el nivel en partida
+	update_component()
+
+func update_component() -> void:
+	# 1. Obtenemos el nivel de la carta en esta partida (1 a 5)
+	in_match_lvl = GameManager.get_skill_level("shield")
+	
 	# --- APLICAR MEJORAS DE CARTA (EN PARTIDA) ---
 	actual_damage = GameManager.shield_damage
 	if in_match_lvl >= 2: 
 		actual_damage *= 2 # Nivel 2: Daño doble
 		
-	# Nota para ti: En Nivel 3 dice que añade 2 hojas. Si tienes 4 en la escena, 
-	# asumo que empiezan 2 invisibles/desactivadas y aquí las enciendes.
-	if in_match_lvl >= 3:
-		pass # Aquí activarías hoja 3 y 4 (ej. $Hoja3.process_mode = Node.PROCESS_MODE_INHERIT)
+	# Nivel 3: Añadir 2 hojas extra en cruz
+	if in_match_lvl >= 3 and not has_node("Hoja3"):
+		if has_node("Hoja1") and has_node("Hoja2"):
+			var hoja3 = $Hoja1.duplicate()
+			hoja3.name = "Hoja3"
+			hoja3.position = $Hoja1.position.rotated(PI / 2)
+			hoja3.rotation = PI / 2
+			
+			var hoja4 = $Hoja2.duplicate()
+			hoja4.name = "Hoja4"
+			hoja4.position = $Hoja2.position.rotated(PI / 2)
+			hoja4.rotation = PI / 2
+			
+			add_child(hoja3)
+			add_child(hoja4)
 		
 	current_speed = base_rotation_speed
 	if in_match_lvl >= 5:

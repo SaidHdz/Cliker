@@ -201,8 +201,9 @@ func update_ui() -> void:
 		elif avatar == "Alien Curador": tex_path = "res://assets/img/alien_curandero.png"
 		elif avatar == "Alien Kamikaze": tex_path = "res://assets/img/alien_kamikaze.png"
 		elif avatar == "Devorarábanos": tex_path = "res://assets/img/rabanito_diablo.png"
-		elif avatar == "Chayanne": tex_path = "res://assets/img/alien_amigo.png"
-		elif avatar == "Papa Espantapájaros": tex_path = "res://assets/img/alien_minero.png"
+		elif avatar == "Chayanne": tex_path = "res://assets/img/download (1).png"
+		elif avatar == "Papa Espantapájaros": tex_path = "res://assets/img/nuez.png"
+		elif avatar == "OMAKASE": tex_path = "res://assets/img/omakase.jpg"
 		elif avatar == "Rábano Dorado":
 			tex_path = "res://assets/img/rabanito.png"
 			mod_color = Color(1.0, 0.8, 0.1)
@@ -235,16 +236,22 @@ func update_ui() -> void:
 			next_unlock_lbl.text = "PRÓXIMO\n¡Todo Desbloqueado!" if is_es else "NEXT\nEverything Unlocked!"
 
 	if is_instance_valid(deck_panel):
-		var deck_text = "MAZO: NIVEL " + str(GameManager.deck_level) + "   |   "
-		var cards_names = []
-		for card_id in GameManager.deck_equipped_cards:
-			if card_id != "":
-				var name = GameManager.skills_data.get(card_id, {}).get("name", card_id)
-				cards_names.append("[" + name.to_upper() + "]")
-			else:
-				cards_names.append("[VACIO]")
-		deck_text += "   ".join(cards_names)
-		deck_panel.text = deck_text
+		var is_es = GameManager.language == "es"
+		if GameManager.best_wave < 10:
+			deck_panel.disabled = true
+			deck_panel.text = "BLOQUEADO: LLEGA A OLEADA 10" if is_es else "LOCKED: REACH WAVE 10"
+		else:
+			deck_panel.disabled = false
+			var deck_text = "MAZO: NIVEL " + str(GameManager.deck_level) + "   |   "
+			var cards_names = []
+			for card_id in GameManager.deck_equipped_cards:
+				if card_id != "":
+					var name = GameManager.skills_data.get(card_id, {}).get("name", card_id)
+					cards_names.append("[" + name.to_upper() + "]")
+				else:
+					cards_names.append("[VACIO]")
+			deck_text += "   ".join(cards_names)
+			deck_panel.text = deck_text
 
 func _on_btn_start_pressed() -> void:
 	# Si califica para algún salto (oleada récord >= 20), mostramos el diálogo
@@ -1233,6 +1240,7 @@ func show_profile_dialog() -> void:
 	panel.add_child(margin)
 	
 	var close_btn_wrapper = Control.new()
+	close_btn_wrapper.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(close_btn_wrapper)
 	
 	var btn_close_top = Button.new()
@@ -1344,6 +1352,7 @@ func show_profile_dialog() -> void:
 		elif avatar == "Devorarábanos": tex_path = "res://assets/img/rabanito_diablo.png"
 		elif avatar == "Chayanne": tex_path = "res://assets/img/alien_amigo.png"
 		elif avatar == "Papa Espantapájaros": tex_path = "res://assets/img/alien_minero.png"
+		elif avatar == "OMAKASE": tex_path = "res://assets/img/omakase.jpg"
 		elif avatar == "Rábano Dorado":
 			tex_path = "res://assets/img/rabanito.png"
 			mod_color = Color(1.0, 0.8, 0.1)
@@ -1443,7 +1452,7 @@ func show_profile_dialog() -> void:
 				
 	for item in cat_buttons:
 		var current_cat = item.cat
-		item.btn.pressed.connect(func():
+		_connect_button_with_drag_protection(item.btn, func():
 			update_active_button.call(current_cat)
 			_populate_profile_category(current_cat, detail_vbox, avatar_rect, title_equip_lbl)
 		)
@@ -1584,6 +1593,7 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 		
 		for t_info in titles_data:
 			var row = PanelContainer.new()
+			row.mouse_filter = Control.MOUSE_FILTER_PASS
 			detail_vbox.add_child(row)
 			
 			var row_style = StyleBoxFlat.new()
@@ -1656,7 +1666,7 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 				btn_equip.add_theme_stylebox_override("pressed", eq_style)
 				hbox.add_child(btn_equip)
 				
-				btn_equip.pressed.connect(func():
+				_connect_button_with_drag_protection(btn_equip, func():
 					GameManager.profile_stats["equipped_title"] = t_info.name
 					GameManager.save_game()
 					header_title_equip_lbl.text = t_info.name
@@ -1679,13 +1689,15 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 			{"name": "Chayanne", "desc": "Llevar 3 cartas a Nivel Máximo" if is_es else "Get 3 cards to Max Level"},
 			{"name": "Papa Espantapájaros", "desc": "Gastar 5,000 de oro" if is_es else "Spend 5,000 gold"},
 			{"name": "Rábano Dorado", "desc": "Alcanzar Oleada 30" if is_es else "Reach Wave 30"},
-			{"name": "Rábano Cósmico", "desc": "Alcanzar Oleada 50" if is_es else "Reach Wave 50"}
+			{"name": "Rábano Cósmico", "desc": "Alcanzar Oleada 50" if is_es else "Reach Wave 50"},
+			{"name": "OMAKASE", "desc": "Usar la carta Disco Sayonara 2 veces" if is_es else "Use the Disco Sayonara card 2 times"}
 		]
 		var ua = GameManager.profile_stats.get("unlocked_avatars", ["Alien Normal"])
 		var equipped = GameManager.profile_stats.get("equipped_avatar", "Alien Normal")
 		
 		for a_info in avatars_data:
 			var row = PanelContainer.new()
+			row.mouse_filter = Control.MOUSE_FILTER_PASS
 			detail_vbox.add_child(row)
 			
 			var row_style = StyleBoxFlat.new()
@@ -1723,6 +1735,7 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 			elif a_info.name == "Devorarábanos": tex_path = "res://assets/img/rabanito_diablo.png"
 			elif a_info.name == "Chayanne": tex_path = "res://assets/img/alien_amigo.png"
 			elif a_info.name == "Papa Espantapájaros": tex_path = "res://assets/img/alien_minero.png"
+			elif a_info.name == "OMAKASE": tex_path = "res://assets/img/omakase.jpg"
 			elif a_info.name == "Rábano Dorado":
 				tex_path = "res://assets/img/rabanito.png"
 				mod_color = Color(1.0, 0.8, 0.1)
@@ -1788,7 +1801,7 @@ func _populate_profile_category(cat_name: String, detail_vbox: VBoxContainer, he
 				btn_equip.add_theme_stylebox_override("pressed", eq_style)
 				hbox.add_child(btn_equip)
 				
-				btn_equip.pressed.connect(func():
+				_connect_button_with_drag_protection(btn_equip, func():
 					GameManager.profile_stats["equipped_avatar"] = a_info.name
 					GameManager.save_game()
 					header_avatar_rect.texture = load(tex_path)
@@ -1872,19 +1885,23 @@ func _setup_drag_scroll(scroll_container: ScrollContainer) -> void:
 	)
 
 func _connect_button_with_drag_protection(btn: Button, callback: Callable) -> void:
+	# Permitimos que el toque traspase al ScrollContainer
 	btn.mouse_filter = Control.MOUSE_FILTER_PASS
-	var drag_threshold = 10.0
-	var press_pos = Vector2.ZERO
-	var was_dragged = false
-	btn.gui_input.connect(func(event):
-		if event is InputEventMouseButton or event is InputEventScreenTouch:
-			if event.pressed:
-				press_pos = event.position
-				was_dragged = false
-			else:
-				if not was_dragged and event.position.distance_to(press_pos) < drag_threshold:
-					callback.call()
-		elif event is InputEventMouseMotion or event is InputEventScreenDrag:
-			if event.position.distance_to(press_pos) > drag_threshold:
-				was_dragged = true
+	
+	# Memoria para saber dónde puso el dedo
+	var state = {"press_pos": Vector2.ZERO}
+	
+	# Cuando el jugador TOCA el botón
+	btn.button_down.connect(func():
+		state.press_pos = btn.get_global_mouse_position()
+	)
+	
+	# Cuando el jugador SUELTA el botón
+	btn.button_up.connect(func():
+		var release_pos = btn.get_global_mouse_position()
+		
+		# Si soltó el dedo casi en el mismo lugar donde lo puso (menos de 15 píxeles)
+		# significa que fue un TAP legítimo y no un arrastre (scroll).
+		if release_pos.distance_to(state.press_pos) < 15.0:
+			callback.call()
 	)

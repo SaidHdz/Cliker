@@ -40,11 +40,10 @@ func _update_text_and_tween() -> void:
 	
 	if is_critical:
 		modulate = COLORS["crit"]
-		scale = Vector2(1.5, 1.5)
 	else:
 		modulate = COLORS.get(damage_type, COLORS["normal"])
-		scale = Vector2.ONE
 		
+	scale = Vector2.ZERO
 	modulate.a = 1.0
 	
 	if active_tween and active_tween.is_valid():
@@ -52,9 +51,17 @@ func _update_text_and_tween() -> void:
 		
 	active_tween = create_tween()
 	active_tween.set_parallel(true)
-	active_tween.tween_property(self, "position:y", position.y - 45, 0.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	active_tween.tween_property(self, "modulate:a", 0.0, 0.6)
-	if is_critical:
-		active_tween.tween_property(self, "scale", Vector2(1.2, 1.2), 0.2).set_trans(Tween.TRANS_BOUNCE)
-		
-	active_tween.chain().tween_callback(queue_free)
+	
+	var target_scale = Vector2(1.4, 1.4) if is_critical else Vector2.ONE
+	var pop_scale = target_scale * 1.5
+	
+	# Elevación vertical y desvanecimiento
+	active_tween.tween_property(self, "position:y", position.y - 70, 0.9).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	active_tween.tween_property(self, "modulate:a", 0.0, 0.6).set_delay(0.3)
+	
+	# Escala elástica (Efecto Pop / Salto)
+	active_tween.tween_property(self, "scale", pop_scale, 0.15).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	active_tween.tween_property(self, "scale", target_scale, 0.1).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT).set_delay(0.15)
+	
+	# Retorno al Object Pooling al finalizar la animación
+	active_tween.chain().tween_callback(func(): GameManager.return_damage_number(self))

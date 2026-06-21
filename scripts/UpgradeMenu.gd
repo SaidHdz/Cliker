@@ -155,7 +155,7 @@ func _on_buy_pressed(id: String, cost: int) -> void:
 		elif id == "health":
 			GameManager.meta_base_health += 50
 			GameManager.cost_meta_health = int(GameManager.cost_meta_health * 1.5)
-		elif id == "crit" and GameManager.meta_crit_chance < 0.5:
+		elif id == "crit" and GameManager.meta_crit_chance < 0.2:
 			GameManager.meta_crit_chance += 0.05
 			GameManager.cost_meta_crit = int(GameManager.cost_meta_crit * 2.0)
 		

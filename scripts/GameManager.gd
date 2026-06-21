@@ -20,6 +20,10 @@ var skill_levels: Dictionary = {} # ID -> Nivel (1, 2, 3, "4_fav", "4_spec")
 var mastered_skills: Array = [] # Lista de IDs que alcanzaron Nivel 4
 var active_damage_numbers: int = 0
 
+# --- OBJECT POOLING ---
+var damage_number_pool: Array = [] 
+var max_pool_size: int = 60
+
 # --- META-PROGRESIÓN ---
 var total_gold: int = 0 
 var best_wave: int = 1
@@ -91,6 +95,7 @@ var deck_level: int = 1
 var deck_unlocked_slots: int = 0
 var deck_equipped_cards: Array = ["", "", ""]
 var veteran_badges: int = 0
+var scarecrow_cooldown_active: bool = false
 
 # Datos de Cartas/Habilidades (En Partida - 5 Niveles)
 var skills_data = {
@@ -477,11 +482,11 @@ var meta_upgrades_data = {
 		"4_spec": "Conducción Metálica: Inflige daño crítico."
 	},
 	"heal": {
-		1: "Cura 5 HP cada 100 de combo.",
-		2: "Cura 7 HP cada 100 de combo.",
-		3: "Cura 9 HP cada 100 de combo.",
+		1: "Cura 1.2% de vida máxima cada 300 de combo.",
+		2: "Cura 1.5% de vida máxima cada 300 de combo.",
+		3: "Cura 1.8% de vida máxima cada 300 de combo.",
 		"4_fav": "Favorita: +15% prob. de aparecer.",
-		"4_spec": "Savia Regenerativa: Cura 12 HP cada 100 de combo."
+		"4_spec": "Savia Regenerativa: Cura 2.5% de vida máxima cada 300 de combo."
 	},
 	"damage_boost": {
 		1: "Sangrado inflige daño base.",
@@ -491,11 +496,11 @@ var meta_upgrades_data = {
 		"4_spec": "Cortes Quirúrgicos: Sangrado dura 2s más."
 	},
 	"crit_boost": {
-		1: "+1% crítico por enemigo (Máx +40%).",
-		2: "+1.2% crítico por enemigo (Máx +45%).",
-		3: "+1.4% crítico por enemigo (Máx +50%).",
+		1: "+1% crítico por enemigo (Máx +15%).",
+		2: "+1.2% crítico por enemigo (Máx +20%).",
+		3: "+1.4% crítico por enemigo (Máx +25%).",
 		"4_fav": "Favorita: +15% prob. de aparecer.",
-		"4_spec": "Ojo de Halcón: Crítico multiplica x3."
+		"4_spec": "Ojo de Halcón: Crítico multiplica x3 (Máx +25%)."
 	},
 	"auto_speed": {
 		1: "Micro-explosiones en radio de 100px.",
@@ -509,9 +514,9 @@ var meta_upgrades_data = {
 
 # Otros boosts que no son habilidades de 5 niveles
 var flat_upgrades = {
-	"heal": {"name": "Raíces Profundas", "desc": "Tu Rábano absorbe nutrientes del combate. Por cada 100 de tu Combo, recuperas 5 HP.", "rarity": "comun"},
+	"heal": {"name": "Raíces Profundas", "desc": "Tu Rábano absorbe nutrientes del combate. Cura 1% de tu vida máxima cada 300 de Combo.", "rarity": "comun"},
 	"damage_boost": {"name": "Filo Sangrón", "desc": "Tus cortes desgarran a los enemigos. Aplica Sangrado durante 3s (el daño se duplica si se mueven).", "rarity": "comun"},
-	"crit_boost": {"name": "Frenesí de Cosecha", "desc": "Ganas +1% de prob. de Crítico por cada enemigo actualmente en pantalla (Máximo +40%).", "rarity": "comun"},
+	"crit_boost": {"name": "Frenesí de Cosecha", "desc": "Ganas +1% de prob. de Crítico por cada enemigo actualmente en pantalla (Máximo +25%).", "rarity": "comun"},
 	"auto_speed": {"name": "Corte Fantasmal", "desc": "Ataques de tu auto-clicker generan micro-explosiones que dañan en un área pequeña.", "rarity": "rara"},
 	"mirror_slice": {"name": "Corte Espejo", "desc": "Crea un tajo fantasma opuesto.", "rarity": "comun"},
 	"double_slice": {"name": "Tajo Doble", "desc": "Crea un corte paralelo extra.", "rarity": "comun"},
@@ -526,7 +531,7 @@ var flat_upgrades = {
 	"radioactive_swamp": {"name": "Pantano Radioactivo", "desc": "Sinergia [Veneno Radiactivo + Abono Tóxico]: El veneno dura más y se propaga automáticamente entre enemigos cercanos.", "rarity": "legendaria"},
 	"field_squad": {"name": "Escuadrón del Campo", "desc": "Sinergia [Chayanne Chiquito + Chalan con Minigun + Alien Domesticado]: Tus mascotas reciben +50% velocidad y daño, y crecen.", "rarity": "legendaria"},
 	"living_fortress": {"name": "Fortaleza Viviente", "desc": "Sinergia [Papa Espantapájaros + Escudo de Hojas]: Las hojas del escudo comienzan a orbitar y proteger también a la Papa Espantapájaros.", "rarity": "legendaria"},
-	"ajo_negativo": {"name": "Ajo Negativo", "desc": "Sinergia [Corte Hot + Tajo Relámpago]: Tus rayos dejan brasas de fuego eléctrico en el suelo, y los enemigos electrificados explotan al morir.", "rarity": "legendaria"},
+	"tajo_negativo": {"name": "Tajo Negativo", "desc": "Sinergia [Corte Hot + Tajo Relámpago]: Tus rayos dejan brasas de fuego eléctrico en el suelo, y los enemigos electrificados explotan al morir.", "rarity": "legendaria"},
 	"los_compadres": {"name": "Los Compadres", "desc": "Sinergia [Chayanne Chiquito + Chalan con Minigun]: Chayanne y Chalán luchan en equipo, dándose un +80% de velocidad cuando el otro ataca.", "rarity": "legendaria"},
 	"war_garden": {"name": "Jardín de Guerra", "desc": "Sinergia [Aura de Hojas + Hojas Metralleta]: Las semillas de la nova orbitan alrededor del rábano y disparan sub-proyectiles teledirigidos.", "rarity": "legendaria"},
 	"infected_potato": {"name": "Papa Infectada", "desc": "Sinergia [Papa Espantapájaros + Veneno Radiactivo]: La Papa Espantapájaros emite una nube de veneno radioactivo permanente a su alrededor.", "rarity": "legendaria"},
@@ -534,9 +539,9 @@ var flat_upgrades = {
 	"deforesador": {"name": "Deforesador Supremo", "desc": "Sinergia [Leñador Furioso + Búmeran]: Las hachas se convierten en búmeranes gigantes devastadores que trituran todo a su paso.", "rarity": "legendaria"},
 	
 	# Cartas de Cofre (Temporales/Especiales)
-	"sayonara": {"name": "Disco Sayonara", "desc": "Limpia la pantalla deteniendo el tiempo al instante.", "rarity": "epica"},
-	"steroids": {"name": "Abono Mágico", "desc": "Tu rábano se vuelve gigante, inflige triple daño y gana doble XP.", "rarity": "epica"},
-	"conqueror_aura": {"name": "Aura Conquistador", "desc": "Un pulso defensivo constante alrededor de tu base cada 8 segundos.", "rarity": "epica"},
+	"sayonara": {"name": "Disco Sayonara", "desc": "Hace llorar tanto a los aliens que explotal de tristeza.", "rarity": "epica"},
+	"steroids": {"name": "Abono de Esteroides", "desc": "Tu rábano se vuelve gigante, inflige triple daño y gana doble XP.", "rarity": "epica"},
+	"conqueror_aura": {"name": "Aura de Conquistador", "desc": "Un pulso defensivo constante alrededor de tu base cada 8 segundos.", "rarity": "epica"},
 	"campesino_extremo": {"name": "Campesino Extremo", "desc": "El Carro Minero aparece gratis, recogiendo todo y duplicando XP.", "rarity": "epica"},
 	"reactor_nuclear": {"name": "Reactor Nuclear", "desc": "Desata explosiones nucleares masivas cada 8 segundos.", "rarity": "epica"},
 	"sobrecarga_cuantica": {"name": "Sobrecarga Cuántica", "desc": "Los cooldowns de auras, torretas y mascotas son 3 veces más rápidos.", "rarity": "epica"},
@@ -579,7 +584,7 @@ var card_upgrade_levels = {
 	
 	# Sinergias
 	"infernal_hole": 0, "orbital_satellite": 0, "radioactive_swamp": 0, "field_squad": 0,
-	"living_fortress": 0, "ajo_negativo": 0, "los_compadres": 0, "war_garden": 0, "infected_potato": 0,
+	"living_fortress": 0, "tajo_negativo": 0, "los_compadres": 0, "war_garden": 0, "infected_potato": 0,
 	"excalibur_vegetal": 0, "deforesador": 0,
 	
 	# Cartas de Cofre
@@ -647,7 +652,7 @@ var has_orbital_satellite: bool = false
 var has_radioactive_swamp: bool = false
 var has_field_squad: bool = false
 var has_living_fortress: bool = false
-var has_ajo_negativo: bool = false
+var has_tajo_negativo: bool = false
 var has_los_compadres: bool = false
 var has_war_garden: bool = false
 var has_infected_potato: bool = false
@@ -717,20 +722,30 @@ func add_combo() -> void:
 	if current_combo > best_combo:
 		best_combo = current_combo
 		save_game()
-	if get_skill_level("heal") > 0 and current_combo > 0 and current_combo % 100 == 0:
+	if get_skill_level("heal") > 0 and current_combo > 0 and current_combo % 300 == 0:
 		var base = null
 		for node in get_tree().get_nodes_in_group("BaseRabanito"):
 			if node.name == "BaseRabanito":
 				base = node
 				break
 		if base:
-			var heal_lvl = get_skill_level("heal")
 			var meta_lvl = get_card_upgrade_int_level("heal")
 			var heal_meta = card_upgrade_levels.get("heal", 0)
 			var is_spec = (typeof(heal_meta) == TYPE_STRING and heal_meta == "4_spec")
 			
-			var base_heal = 12 if is_spec else (5 + meta_lvl * 2)
-			var total_heal = base_heal * heal_lvl
+			var heal_percent = 0.01
+			if is_spec:
+				heal_percent = 0.025
+			else:
+				if meta_lvl == 1:
+					heal_percent = 0.012
+				elif meta_lvl == 2:
+					heal_percent = 0.015
+				elif meta_lvl >= 3:
+					heal_percent = 0.018
+			
+			var total_heal = int(base.max_health * heal_percent)
+			total_heal = max(1, total_heal)
 			
 			base.current_health = min(base.current_health + total_heal, base.max_health)
 			if "health_bar" in base: base.health_bar.value = base.current_health
@@ -856,7 +871,7 @@ func load_game() -> void:
 		check_title_unlocks()
 		meta_base_damage = config.get_value("Tienda", "meta_base_damage", 1)
 		meta_base_health = config.get_value("Tienda", "meta_base_health", 100)
-		meta_crit_chance = config.get_value("Tienda", "meta_crit_chance", 0.0)
+		meta_crit_chance = min(config.get_value("Tienda", "meta_crit_chance", 0.0), 0.20)
 		cost_meta_damage = config.get_value("Tienda", "cost_meta_damage", 50)
 		cost_meta_health = config.get_value("Tienda", "cost_meta_health", 50)
 		cost_meta_crit = config.get_value("Tienda", "cost_meta_crit", 100)
@@ -998,14 +1013,14 @@ func reset_run() -> void:
 	senal_pirata_rounds = 0
 	sindicato_alien_rounds = 0
 	has_earthquake = false; has_frost_avalanche = false; has_infernal_hole = false; has_orbital_satellite = false; has_radioactive_swamp = false; has_field_squad = false; has_living_fortress = false
-	has_ajo_negativo = false; has_los_compadres = false; has_war_garden = false; has_infected_potato = false; has_excalibur_vegetal = false; has_deforesador = false; has_fire_slice = false; has_mirror_slice = false; has_explosive_slice = false
+	has_tajo_negativo = false; has_los_compadres = false; has_war_garden = false; has_infected_potato = false; has_excalibur_vegetal = false; has_deforesador = false; has_fire_slice = false; has_mirror_slice = false; has_explosive_slice = false
 	has_toxic_compost = false; has_double_slice = false; has_lightning_slice = false; has_wind_gust = false
 	wind_gust_count = 0; shield_damage = 2; active_damage_numbers = 0
 	has_black_hole = false; has_fire_wall = false; has_knockback_aura = false; has_mining_cart = false
 	has_sword_craft = false; has_energy_shield = false; shield_energy_hits = 0
 	pet_chayanne_level = 0; seed_nova_count = 0; turret_level = 0; shield_level = 0
 	is_steroid_mode = false; steroid_multiplier = 1.0
-	click_damage = meta_base_damage; crit_chance = meta_crit_chance; prestige_multiplier = 1.0; auto_damage = 0
+	click_damage = meta_base_damage; crit_chance = meta_crit_chance; prestige_multiplier = 1.0; auto_damage = 0; scarecrow_cooldown_active = false
 	apply_equipped_deck()
 	xp_updated.emit(0, xp_to_next_level); level_up.emit(1); wave_updated.emit(1); combo_updated.emit(0)
 
@@ -1142,13 +1157,14 @@ func _apply_skill_instantly(id: String, level: int = 1) -> void:
 			has_energy_shield = true
 			shield_energy_hits = 3
 		"sword_craft": has_sword_craft = true
+		"frost_avalanche": has_frost_avalanche = true
 		"earthquake": has_earthquake = true
 		"infernal_hole": has_infernal_hole = true
 		"orbital_satellite": has_orbital_satellite = true
 		"radioactive_swamp": has_radioactive_swamp = true
 		"field_squad": has_field_squad = true
 		"living_fortress": has_living_fortress = true
-		"ajo_negativo": has_ajo_negativo = true
+		"tajo_negativo": has_tajo_negativo = true
 		"los_compadres": has_los_compadres = true
 		"war_garden": has_war_garden = true
 		"infected_potato": has_infected_potato = true
@@ -1316,3 +1332,35 @@ func check_title_unlocks() -> void:
 	if best_wave >= 50 and not ua.has("Rábano Cosmic"): ua.append("Rábano Cósmico")
 	
 	profile_stats["unlocked_avatars"] = ua
+
+func get_damage_number(scene_preload: PackedScene) -> Node:
+	if not damage_numbers_enabled: 
+		return null
+
+	# 1. Si hay números reciclados disponibles, sacamos uno
+	if damage_number_pool.size() > 0:
+		var num = damage_number_pool.pop_back()
+		if is_instance_valid(num):
+			num.visible = true
+			# Reiniciamos su escala y opacidad por si el Tween lo dejó modificado
+			num.modulate.a = 1.0
+			num.scale = Vector2.ONE
+			return num
+
+	# 2. Si la piscina está vacía, instanciamos uno nuevo
+	return scene_preload.instantiate()
+
+func return_damage_number(num: Label) -> void:
+	if damage_number_pool.size() < max_pool_size:
+		# Lo escondemos y lo guardamos para el siguiente golpe
+		num.visible = false
+		num.position = Vector2(-9999, -9999) 
+		damage_number_pool.append(num)
+	else:
+		# Si ya hay 60 números guardados, borramos este para no consumir RAM infinita
+		num.queue_free()
+
+func start_scarecrow_cooldown() -> void:
+	scarecrow_cooldown_active = true
+	var timer = get_tree().create_timer(8.0)
+	timer.timeout.connect(func(): scarecrow_cooldown_active = false)

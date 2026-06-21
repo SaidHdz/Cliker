@@ -197,7 +197,7 @@ func create_card_entry(skill_id: String) -> void:
 		vbox.add_child(label_desc)
 		
 		# Solo permitir BUY si es una habilidad con niveles meta y no está al máximo
-		if GameManager.card_upgrade_levels.has(skill_id) and not is_maxed:
+		if GameManager.meta_upgrades_data.has(skill_id) and not is_maxed:
 			if typeof(level) == TYPE_INT and level < 3:
 				var btn_upgrade = Button.new()
 				btn_upgrade.text = "BUY LV (" + str(cost) + ")"

@@ -23,16 +23,6 @@ func _ready() -> void:
 	current_level_val = GameManager.get_skill_level("pet_minigun")
 	add_to_group("allies")
 	
-	if GameManager.shaders_enabled:
-		var shader = preload("res://shaders/outline.gdshader")
-		var mat = ShaderMaterial.new()
-		mat.shader = shader
-		mat.set_shader_parameter("outline_color", Color(1.0, 1.0, 1.0, 1.0))
-		mat.set_shader_parameter("outline_width", 1.5)
-		for child in get_children():
-			if child is Sprite2D or child is AnimatedSprite2D:
-				child.material = mat
-	
 	shoot_timer = Timer.new()
 	shoot_timer.timeout.connect(_shoot)
 	add_child(shoot_timer)

@@ -4,6 +4,6 @@
 
 [node name="AlienSniper" instance=ExtResource("1_base")]
 modulate = Color(0.729412, 0.333333, 0.827451, 1)
-move_speed = 45.0
+z_index = 4
 current_variant = 6
-base_hp_mult = 1.0
+move_speed = 45.0

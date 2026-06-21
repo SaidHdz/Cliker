@@ -19,14 +19,15 @@ var upgrades_ids = [
 	"fire_slice", "lightning_slice", "explosive_slice", "fire_wall",
 	"black_hole", "aura", "turret", "seed_nova",
 	"mining_cart", "pet_chayanne", "shield",
-	"mirror_slice", "double_slice", "wind_gust", "toxic_compost",
+	"mirror_slice", "double_slice", # "wind_gust",
+	"toxic_compost",
 	"energy_shield", "sword_craft", "frost_avalanche", "earthquake",
 	"pet_minigun", "thorns", "toxic_aura", "cosmic_magnet",
 	"tornado", "axe_thrower", "satellite", "scarecrow",
 	"boomerang", "tamed_alien",
 	# Sinergias (filtradas por eligible_synergies)
 	"infernal_hole", "orbital_satellite", "radioactive_swamp", "field_squad",
-	"living_fortress", "ajo_negativo", "los_compadres", "war_garden", "infected_potato",
+	"living_fortress", "tajo_negativo", "los_compadres", "war_garden", "infected_potato",
 	"excalibur_vegetal", "deforesador"
 ]
 
@@ -93,8 +94,8 @@ func generate_options() -> void:
 		eligible_synergies.append("field_squad")
 	if GameManager.get_skill_level("scarecrow") >= 1 and GameManager.get_skill_level("shield") >= 1 and not GameManager.has_living_fortress:
 		eligible_synergies.append("living_fortress")
-	if GameManager.get_skill_level("fire_slice") >= 1 and GameManager.get_skill_level("lightning_slice") >= 1 and not GameManager.has_ajo_negativo:
-		eligible_synergies.append("ajo_negativo")
+	if GameManager.get_skill_level("fire_slice") >= 1 and GameManager.get_skill_level("lightning_slice") >= 1 and not GameManager.has_tajo_negativo:
+		eligible_synergies.append("tajo_negativo")
 	if GameManager.get_skill_level("pet_chayanne") >= 1 and GameManager.get_skill_level("pet_minigun") >= 1 and not GameManager.has_los_compadres:
 		eligible_synergies.append("los_compadres")
 	if GameManager.get_skill_level("seed_nova") >= 1 and GameManager.get_skill_level("turret") >= 1 and not GameManager.has_war_garden:
@@ -114,8 +115,11 @@ func generate_options() -> void:
 				pool.append(id)
 		elif GameManager.flat_upgrades.has(id):
 			var can_add = true
+			if id == "heal" and GameManager.get_skill_level("heal") >= 1: can_add = false
+			if id == "damage_boost" and GameManager.get_skill_level("damage_boost") >= 1: can_add = false
+			if id == "crit_boost" and GameManager.get_skill_level("crit_boost") >= 1: can_add = false
 			if id == "double_slice" and GameManager.has_double_slice: can_add = false
-			if id == "wind_gust" and GameManager.wind_gust_count >= 3: can_add = false
+			if id == "wind_gust": can_add = false # Desactivada temporalmente
 			if id == "mining_cart" and GameManager.has_mining_cart: can_add = false
 			if id == "energy_shield" and GameManager.shield_energy_hits > 0: can_add = false
 			if id == "sword_craft" and GameManager.has_sword_craft: can_add = false
@@ -125,7 +129,7 @@ func generate_options() -> void:
 			if id == "toxic_compost" and GameManager.has_toxic_compost: can_add = false
 			
 			# Filtrar sinergias para que solo aparezcan si son elegibles
-			var synergy_ids = ["infernal_hole", "orbital_satellite", "radioactive_swamp", "field_squad", "living_fortress", "ajo_negativo", "los_compadres", "war_garden", "infected_potato", "excalibur_vegetal", "deforesador"]
+			var synergy_ids = ["infernal_hole", "orbital_satellite", "radioactive_swamp", "field_squad", "living_fortress", "tajo_negativo", "los_compadres", "war_garden", "infected_potato", "excalibur_vegetal", "deforesador"]
 			if synergy_ids.has(id) and not eligible_synergies.has(id):
 				can_add = false
 				
@@ -232,7 +236,7 @@ func apply_upgrade(id: String) -> void:
 	choices[id] = choices.get(id, 0) + 1
 	GameManager.profile_stats["card_choices"] = choices
 	
-	var syns = ["infernal_hole", "orbital_satellite", "radioactive_swamp", "field_squad", "living_fortress", "ajo_negativo", "los_compadres", "war_garden", "infected_potato", "excalibur_vegetal", "deforesador"]
+	var syns = ["infernal_hole", "orbital_satellite", "radioactive_swamp", "field_squad", "living_fortress", "tajo_negativo", "los_compadres", "war_garden", "infected_potato", "excalibur_vegetal", "deforesador"]
 	if id in syns:
 		if not GameManager.profile_stats.has("sinergias_discovered"):
 			GameManager.profile_stats["sinergias_discovered"] = []
@@ -286,7 +290,7 @@ func apply_upgrade(id: String) -> void:
 			for sc in get_tree().get_nodes_in_group("BaseRabanito"):
 				if sc.name.begins_with("Scarecrow") and sc.has_method("setup_level"):
 					sc.setup_level(sc.current_level_val)
-		"ajo_negativo": GameManager.has_ajo_negativo = true
+		"tajo_negativo": GameManager.has_tajo_negativo = true
 		"los_compadres": GameManager.has_los_compadres = true
 		"war_garden": GameManager.has_war_garden = true
 		"infected_potato":
