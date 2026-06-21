@@ -24,11 +24,11 @@ var upgrades_ids = [
 	"energy_shield", "sword_craft", "frost_avalanche", "earthquake",
 	"pet_minigun", "thorns", "toxic_aura", "cosmic_magnet",
 	"tornado", "axe_thrower", "satellite", "scarecrow",
-	"boomerang", "tamed_alien",
+	"boomerang", "tamed_alien", "mitad_agria", "mitad_dulce",
 	# Sinergias (filtradas por eligible_synergies)
 	"infernal_hole", "orbital_satellite", "radioactive_swamp", "field_squad",
 	"living_fortress", "tajo_negativo", "los_compadres", "war_garden", "infected_potato",
-	"excalibur_vegetal", "deforesador"
+	"excalibur_vegetal", "deforesador", "media_toronja"
 ]
 
 var current_options = []
@@ -106,6 +106,8 @@ func generate_options() -> void:
 		eligible_synergies.append("excalibur_vegetal")
 	if GameManager.get_skill_level("axe_thrower") >= 1 and GameManager.get_skill_level("boomerang") >= 1 and not GameManager.has_deforesador:
 		eligible_synergies.append("deforesador")
+	if GameManager.has_mitad_agria and GameManager.has_mitad_dulce and not GameManager.has_media_toronja:
+		eligible_synergies.append("media_toronja")
 		
 	for id in upgrades_ids:
 		var current_lvl = GameManager.get_skill_level(id)
@@ -127,9 +129,11 @@ func generate_options() -> void:
 			if id == "frost_avalanche" and GameManager.has_frost_avalanche: can_add = false
 			if id == "mirror_slice" and GameManager.has_mirror_slice: can_add = false
 			if id == "toxic_compost" and GameManager.has_toxic_compost: can_add = false
+			if id == "mitad_agria" and GameManager.has_mitad_agria: can_add = false
+			if id == "mitad_dulce" and GameManager.has_mitad_dulce: can_add = false
 			
 			# Filtrar sinergias para que solo aparezcan si son elegibles
-			var synergy_ids = ["infernal_hole", "orbital_satellite", "radioactive_swamp", "field_squad", "living_fortress", "tajo_negativo", "los_compadres", "war_garden", "infected_potato", "excalibur_vegetal", "deforesador"]
+			var synergy_ids = ["infernal_hole", "orbital_satellite", "radioactive_swamp", "field_squad", "living_fortress", "tajo_negativo", "los_compadres", "war_garden", "infected_potato", "excalibur_vegetal", "deforesador", "media_toronja"]
 			if synergy_ids.has(id) and not eligible_synergies.has(id):
 				can_add = false
 				
@@ -236,7 +240,7 @@ func apply_upgrade(id: String) -> void:
 	choices[id] = choices.get(id, 0) + 1
 	GameManager.profile_stats["card_choices"] = choices
 	
-	var syns = ["infernal_hole", "orbital_satellite", "radioactive_swamp", "field_squad", "living_fortress", "tajo_negativo", "los_compadres", "war_garden", "infected_potato", "excalibur_vegetal", "deforesador"]
+	var syns = ["infernal_hole", "orbital_satellite", "radioactive_swamp", "field_squad", "living_fortress", "tajo_negativo", "los_compadres", "war_garden", "infected_potato", "excalibur_vegetal", "deforesador", "media_toronja"]
 	if id in syns:
 		if not GameManager.profile_stats.has("sinergias_discovered"):
 			GameManager.profile_stats["sinergias_discovered"] = []
@@ -301,3 +305,13 @@ func apply_upgrade(id: String) -> void:
 					sc.setup_level(sc.current_level_val)
 		"excalibur_vegetal": GameManager.has_excalibur_vegetal = true
 		"deforesador": GameManager.has_deforesador = true
+		"mitad_agria": GameManager.has_mitad_agria = true
+		"mitad_dulce": GameManager.has_mitad_dulce = true
+		"media_toronja":
+			GameManager.has_media_toronja = true
+			var main_scene = get_tree().current_scene
+			if main_scene and not main_scene.has_node("MediaToronjaSynergy"):
+				var synergy_node = Node.new()
+				synergy_node.name = "MediaToronjaSynergy"
+				synergy_node.set_script(preload("res://scripts/MediaToronjaSynergy.gd"))
+				main_scene.add_child(synergy_node)

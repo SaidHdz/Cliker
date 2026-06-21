@@ -7,6 +7,7 @@ var target_pos: Vector2 = Vector2.ZERO
 var magnet_speed: float = 800.0
 
 func _ready() -> void:
+	scale = Vector2(1.0, 1.0)
 	add_to_group("orbs")
 	add_to_group("coins")
 	# Impulso aleatorio inicial hacia arriba (caída)
@@ -16,6 +17,13 @@ func _ready() -> void:
 	# Damping para que no reboten/rueden infinitamente
 	linear_damp = 1.0
 	angular_damp = 1.0
+	
+	# Crecer a tamaño 1.5 tras 0.6 segundos (cuando ya está cerca del suelo)
+	get_tree().create_timer(0.6).timeout.connect(func():
+		if not collected and not is_magnetized:
+			var tween = create_tween()
+			tween.tween_property(self, "scale", Vector2(1.5, 1.5), 0.3)
+	)
 
 func _physics_process(delta: float) -> void:
 	if is_magnetized:
@@ -34,10 +42,11 @@ func magnetize_to(pos: Vector2) -> void:
 	# Congelamos las físicas de caída
 	freeze = true
 	
-	# Pequeña animación de que fue tocado
+	# Pequeña animación de que fue tocado (escala relativa al tamaño actual)
 	var tween = create_tween()
-	tween.tween_property(self, "scale", Vector2(1.5, 1.5), 0.1)
-	tween.tween_property(self, "scale", Vector2(1.0, 1.0), 0.1)
+	var base_scale = scale
+	tween.tween_property(self, "scale", base_scale * 1.5, 0.1)
+	tween.tween_property(self, "scale", base_scale, 0.1)
 
 func collect() -> void:
 	if collected: return

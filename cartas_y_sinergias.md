@@ -21,6 +21,7 @@ Las sinergias combinan dos o más cartas al máximo nivel para desbloquear un po
 | **🌱 Jardín de Guerra** | Aura de Hojas + Hojas Metralleta | Las semillas de la nova orbitan alrededor del rábano y disparan sub-proyectiles teledirigidos. |
 | **🥔 Papa Infectada** | Papa Espantapájaros + Veneno Radiactivo | La Papa Espantapájaros emite una nube de veneno radioactivo permanente a su alrededor. |
 | **🪓 Deforesador Supremo** | Leñador Furioso + Búmeran | Las hachas se convierten en búmeranes gigantes devastadores que trituran todo a su paso. |
+| **🍊 Media Toronja** | Mitad Agria + Mitad Dulce | Cada 6s una toronja gigante rosa neón cruza el mapa. Cura tu base por enemigo derrotado y tras 2011 golpes entras en un frenesí de +200% daño. |
 
 ---
 
@@ -178,6 +179,8 @@ Estas cartas suben de nivel durante la partida hasta el Nivel 5:
 | **🗡️ Espada de Craft** | Rara | Espada pixelada que ataca sola de forma automática. |
 | **❄️ Avalancha de Nieve** | Rara | Congela a todos los enemigos en pantalla temporalmente. |
 | **🨎 Terremoto** | Épica | Genera una onda masiva devastadora tras conseguir combos. |
+| **🍋 Mitad Agria** | Común | Un fruto cítrico un poco agrio que se siente incompleto. Sola no aporta ninguna ventaja ni daño. |
+| **🍊 Mitad Dulce** | Común | Conserva su frescura intacta, esperando pacientemente a la otra mitad para equilibrar el sabor. |
 
 ---
 

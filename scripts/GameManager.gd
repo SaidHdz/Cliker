@@ -537,6 +537,9 @@ var flat_upgrades = {
 	"infected_potato": {"name": "Papa Infectada", "desc": "Sinergia [Papa Espantapájaros + Veneno Radiactivo]: La Papa Espantapájaros emite una nube de veneno radioactivo permanente a su alrededor.", "rarity": "legendaria"},
 	"excalibur_vegetal": {"name": "Excalibur Vegetal", "desc": "Sinergia [Espada de Craft + Satélite Agrícola]: La espada se convierte en Excalibur, cae como un meteoro sobre el enemigo más fuerte.", "rarity": "legendaria"},
 	"deforesador": {"name": "Deforesador Supremo", "desc": "Sinergia [Leñador Furioso + Búmeran]: Las hachas se convierten en búmeranes gigantes devastadores que trituran todo a su paso.", "rarity": "legendaria"},
+	"mitad_agria": {"name": "Mitad Agria", "desc": "Un fruto cítrico un poco agrio que se siente incompleto. Sola no puede hacer mucho por el huerto.", "rarity": "comun"},
+	"mitad_dulce": {"name": "Mitad Dulce", "desc": "Conserva su frescura intacta, esperando pacientemente a que la otra mitad aparezca para equilibrar el sabor.", "rarity": "comun"},
+	"media_toronja": {"name": "Media Toronja", "desc": "Sinergia [Mitad Agria + Mitad Dulce]: Cada 6s una toronja gigante rosa neón cruza el mapa. Cura tu base por enemigo derrotado y tras 2011 golpes entras en un frenesí de +200% daño.", "rarity": "legendaria"},
 	
 	# Cartas de Cofre (Temporales/Especiales)
 	"sayonara": {"name": "Disco Sayonara", "desc": "Hace llorar tanto a los aliens que explotal de tristeza.", "rarity": "epica"},
@@ -585,7 +588,7 @@ var card_upgrade_levels = {
 	# Sinergias
 	"infernal_hole": 0, "orbital_satellite": 0, "radioactive_swamp": 0, "field_squad": 0,
 	"living_fortress": 0, "tajo_negativo": 0, "los_compadres": 0, "war_garden": 0, "infected_potato": 0,
-	"excalibur_vegetal": 0, "deforesador": 0,
+	"excalibur_vegetal": 0, "deforesador": 0, "mitad_agria": 0, "mitad_dulce": 0, "media_toronja": 0,
 	
 	# Cartas de Cofre
 	"sayonara": 0, "steroids": 0, "conqueror_aura": 0, "campesino_extremo": 0,
@@ -658,6 +661,9 @@ var has_war_garden: bool = false
 var has_infected_potato: bool = false
 var has_excalibur_vegetal: bool = false
 var has_deforesador: bool = false
+var has_mitad_agria: bool = false
+var has_mitad_dulce: bool = false
+var has_media_toronja: bool = false
 var has_fire_slice: bool = false
 var has_mirror_slice: bool = false
 var has_explosive_slice: bool = false
@@ -1014,6 +1020,7 @@ func reset_run() -> void:
 	sindicato_alien_rounds = 0
 	has_earthquake = false; has_frost_avalanche = false; has_infernal_hole = false; has_orbital_satellite = false; has_radioactive_swamp = false; has_field_squad = false; has_living_fortress = false
 	has_tajo_negativo = false; has_los_compadres = false; has_war_garden = false; has_infected_potato = false; has_excalibur_vegetal = false; has_deforesador = false; has_fire_slice = false; has_mirror_slice = false; has_explosive_slice = false
+	has_mitad_agria = false; has_mitad_dulce = false; has_media_toronja = false
 	has_toxic_compost = false; has_double_slice = false; has_lightning_slice = false; has_wind_gust = false
 	wind_gust_count = 0; shield_damage = 2; active_damage_numbers = 0
 	has_black_hole = false; has_fire_wall = false; has_knockback_aura = false; has_mining_cart = false
@@ -1170,6 +1177,9 @@ func _apply_skill_instantly(id: String, level: int = 1) -> void:
 		"infected_potato": has_infected_potato = true
 		"excalibur_vegetal": has_excalibur_vegetal = true
 		"deforesador": has_deforesador = true
+		"mitad_agria": has_mitad_agria = true
+		"mitad_dulce": has_mitad_dulce = true
+		"media_toronja": has_media_toronja = true
 		"sayonara":
 			sayonara_uses = level
 		"steroids":

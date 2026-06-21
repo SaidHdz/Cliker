@@ -161,6 +161,9 @@ func _ready() -> void:
 		GameManager.has_infected_potato = false
 		GameManager.has_excalibur_vegetal = false
 		GameManager.has_deforesador = false
+		GameManager.has_media_toronja = false
+		GameManager.has_mitad_agria = false
+		GameManager.has_mitad_dulce = false
 		GameManager.has_fire_slice = false
 		GameManager.has_mirror_slice = false
 		GameManager.has_explosive_slice = false
@@ -215,6 +218,12 @@ func _ready() -> void:
 		
 	if GameManager.get_skill_level("sayonara") >= 1:
 		activate_sayonara()
+		
+	if GameManager.has_media_toronja and not has_node("MediaToronjaSynergy"):
+		var synergy_node = Node.new()
+		synergy_node.name = "MediaToronjaSynergy"
+		synergy_node.set_script(preload("res://scripts/MediaToronjaSynergy.gd"))
+		add_child(synergy_node)
 		
 	if not GameManager.tutorial_completed:
 		start_tutorial()
@@ -544,6 +553,9 @@ func _on_enemy_sliced(enemy: Node2D) -> void:
 		
 	# 2. APLICAMOS EL DAÑO
 	enemy.take_damage(damage, is_crit, damage_type)
+	var toronja_synergy = get_tree().current_scene.get_node_or_null("MediaToronjaSynergy")
+	if toronja_synergy:
+		toronja_synergy.registrar_golpe()
 	if GameManager.get_skill_level("damage_boost") > 0 and enemy.has_method("apply_bleed"):
 		enemy.apply_bleed()
 	GameManager.add_combo()

@@ -40,9 +40,16 @@ func _cambiar_color_estela() -> void:
 		swipe_trail.gradient = nuevo_gradiente
 
 func _desbloquear_recompensas() -> void:
-	if not GameManager.unlocked_titles.has("Media Toronja"):
-		GameManager.unlocked_titles.append("Media Toronja")
-		GameManager.unlocked_pfps.append("pf_toronja_neon")
+	var titles = GameManager.profile_stats.get("unlocked_titles", [])
+	if not titles.has("Media Toronja"):
+		titles.append("Media Toronja")
+		GameManager.profile_stats["unlocked_titles"] = titles
+		
+		var avatars = GameManager.profile_stats.get("unlocked_avatars", [])
+		if not avatars.has("pf_toronja_neon"):
+			avatars.append("pf_toronja_neon")
+			GameManager.profile_stats["unlocked_avatars"] = avatars
+			
 		GameManager.save_game()
 		print("¡Título y PFP ocultos desbloqueados!")
 
