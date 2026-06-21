@@ -683,6 +683,7 @@ var shield_energy_hits: int = 0
 var pet_chayanne_level: int = 0
 var is_steroid_mode: bool = false
 var steroid_multiplier: float = 1.0
+var toronja_multiplier: float = 1.0
 var seed_nova_count: int = 0
 var turret_level: int = 0
 var shield_level: int = 0
@@ -1026,7 +1027,7 @@ func reset_run() -> void:
 	has_black_hole = false; has_fire_wall = false; has_knockback_aura = false; has_mining_cart = false
 	has_sword_craft = false; has_energy_shield = false; shield_energy_hits = 0
 	pet_chayanne_level = 0; seed_nova_count = 0; turret_level = 0; shield_level = 0
-	is_steroid_mode = false; steroid_multiplier = 1.0
+	is_steroid_mode = false; steroid_multiplier = 1.0; toronja_multiplier = 1.0
 	click_damage = meta_base_damage; crit_chance = meta_crit_chance; prestige_multiplier = 1.0; auto_damage = 0; scarecrow_cooldown_active = false
 	apply_equipped_deck()
 	xp_updated.emit(0, xp_to_next_level); level_up.emit(1); wave_updated.emit(1); combo_updated.emit(0)

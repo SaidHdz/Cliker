@@ -67,8 +67,8 @@ func _activar_buff() -> void:
 	hit_counter = 0 # Reiniciamos para volver a ciclarlo
 	
 	# +200% de Daño (x3 total)
-	original_damage_multiplier = GameManager.damage_multiplier
-	GameManager.damage_multiplier = original_damage_multiplier + 2.0
+	original_damage_multiplier = GameManager.toronja_multiplier
+	GameManager.toronja_multiplier = original_damage_multiplier + 2.0
 	
 	# Efecto visual en la Base Rabanito para saber que está en "Modo Dios"
 	var base = get_tree().get_first_node_in_group("base_rabanito")
@@ -79,7 +79,7 @@ func _activar_buff() -> void:
 
 func _on_buff_ended() -> void:
 	buff_active = false
-	GameManager.damage_multiplier = original_damage_multiplier
+	GameManager.toronja_multiplier = original_damage_multiplier
 	
 	var base = get_tree().get_first_node_in_group("base_rabanito")
 	if base: 

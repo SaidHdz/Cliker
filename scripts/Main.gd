@@ -531,7 +531,7 @@ func _on_enemy_sliced(enemy: Node2D) -> void:
 	final_crit_chance = min(final_crit_chance, 0.50)
 
 	var is_crit = randf() < final_crit_chance
-	var damage = int(GameManager.click_damage * GameManager.prestige_multiplier * GameManager.steroid_multiplier)
+	var damage = int(GameManager.click_damage * GameManager.prestige_multiplier * GameManager.steroid_multiplier * GameManager.toronja_multiplier)
 	var damage_type = "normal"
 	
 	if GameManager.has_fire_slice: damage_type = "fire"
